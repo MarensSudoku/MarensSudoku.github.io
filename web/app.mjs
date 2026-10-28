@@ -21,16 +21,19 @@ const text = {
     sfxTitle:'Riffklänge', sfxEnabled:'Soundeffekte', sfxHelp:'Sanfte Klänge für Eingaben und kleine Erfolge.', testSound:'Klang testen',
     reduceMotionHelp:'Ruhige Markierungen statt bewegter Effekte.', showConflicts:'Konflikte markieren', showConflictsHelp:'Zeigt doppelte Zahlen in Reihe, Spalte oder Block.',
     collection:'DEINE SAMMLUNG', achievementsCopy:'Jedes Rätsel ist ein kleiner Tauchgang. Sammle deine schönsten Entdeckungen.',
-    trackAchievements:'Erfolge auf diesem Gerät speichern', trackingHelp:'Freiwillig und nur lokal: abgeschlossene Runden und Abzeichen werden hier gespeichert. Beim Ausschalten werden diese Erfolge nach Bestätigung gelöscht.',
-    deleteProgress:'Erfolgsfortschritt löschen', winEyebrow:'EINE KLEINE MEISTERLEISTUNG', winTitle:'Strahlend gelöst!',
+    trackAchievements:'Erfolge und Punkte auf diesem Gerät speichern', trackingHelp:'Freiwillig und nur lokal: gelöste Rätsel, Gesamtpunkte, Bestwert und Abzeichen. Beim Ausschalten wird diese Sammlung nach Bestätigung gelöscht.',
+    points:'Punkte', totalPoints:'Gesamtpunkte', roundPoints:'Rundenpunkte', bestRound:'Bestes Rätsel', solvedPuzzles:'Gelöste Rätsel', activeTime:'Aktive Spielzeit', scoreHow:'Wie entstehen die Punkte?',
+    scoreBase:'Grundpunkte', scoreTime:'Zeitbonus', scoreClean:'Ohne falsche Zahl', scoreDirect:'Ohne Rückgängig', scoreMilestone:'Jedes fünfte Rätsel',
+    scoreRules:'Leicht: 1.000, Mittel: 2.000, Schwer: 3.000 Grundpunkte. Dazu bis zu 50 % Zeitbonus, der über 10 / 20 / 40 aktive Minuten auf null sinkt. Ohne falsche Zahl +20 %, ohne Rückgängig +10 %. Jedes fünfte gespeicherte Rätsel bringt weitere 500 Punkte. Notizen zählen nicht als Fehler. Punkte gibt es einmalig beim Lösen; Grundpunkte bleiben auch bei langen Runden erhalten. Zeit pausiert in Menüs und im Hintergrund. Gesamtpunkte und Bestwert werden nur mit aktivierter Erfolgsspeicherung gesammelt. Für bereits begonnene Rätsel startet die Zeitmessung mit diesem Update.',
+    deleteProgress:'Sammlung und Punkte löschen', winEyebrow:'EINE KLEINE MEISTERLEISTUNG', winTitle:'Strahlend gelöst!',
     winCopy:'Alle Zahlen haben ihren Platz gefunden. Deine nächste Riffpause wartet schon.', winNext:'Weiter durchs Riff',
     resetStorage:'Speicher zurücksetzen', storageInvalid:'Dein gespeicherter Stand konnte nicht sicher geladen werden. Er bleibt erhalten. Dieses Spiel wird vorerst nicht gespeichert.',
     storageFailed:'Dein Browser kann gerade nicht speichern. Du kannst weiterspielen; sichere deinen Fortschritt durch Offenlassen dieses Fensters.',
     unsaved:'Nicht gespeichert', readOnly:'Schon in einem anderen Fenster geöffnet. Dieses Fenster zeigt den Stand schreibgeschützt. Für die Bearbeitung danach neu laden.',
     offlineReady:'Offline bereit', offlinePreparing:'Offline-Dateien werden vorbereitet', generationFailed:'Dieses Rätsel konnte nicht erstellt werden. Bitte noch einmal versuchen.',
     replaceTitle:'Ein neuer Tauchgang?', replaceCopy:'Dein aktuelles Sudoku wird durch ein neues ersetzt. Dein bisheriger Erfolgsfortschritt bleibt erhalten.',
-    deleteTitle:'Perlenschatz zurücksetzen?', deleteCopy:'Die gespeicherten Erfolgszähler und Abzeichen werden auf diesem Gerät gelöscht. Dein Sudoku bleibt erhalten.',
-    stopTrackingTitle:'Erfolgsspeicherung ausschalten?', stopTrackingCopy:'Damit werden deine gespeicherten Erfolgszähler und Abzeichen auf diesem Gerät gelöscht. Dein Sudoku bleibt erhalten.',
+    deleteTitle:'Perlenschatz zurücksetzen?', deleteCopy:'Gesamtpunkte, Bestwert, Erfolgszähler und Abzeichen werden auf diesem Gerät gelöscht. Dein Sudoku bleibt erhalten.',
+    stopTrackingTitle:'Erfolgsspeicherung ausschalten?', stopTrackingCopy:'Damit werden Gesamtpunkte, Bestwert, Erfolgszähler und Abzeichen auf diesem Gerät gelöscht. Dein Sudoku bleibt erhalten.',
     resetTitle:'Gespeicherten Stand ersetzen?', resetCopy:'Der bisher nicht lesbare lokale Spielstand wird durch das hier angezeigte Spiel ersetzt.',
     unlocked:'Freigeschaltet', trackingOff:'Speicherung aus', filled:'Felder gefüllt', remaining:'Felder warten noch auf dich', completed:'Alle 81 Felder gelöst. Gut gemacht!',
     firstCondition:'Eine Runde lösen', flowCondition:'10 Runden lösen', magicCondition:'50 Runden lösen', starsCondition:'100 Runden lösen', varietyCondition:'Jede Schwierigkeit einmal lösen', crownCondition:'5 schwere Runden lösen', directCondition:'Eine Runde ohne Rückgängig lösen',
@@ -49,15 +52,18 @@ const text = {
     musicTitle:'Reef music', musicTrack:'Track', musicVolume:'Volume', musicStart:'Start music', musicPause:'Pause music', musicPlaying:'Now playing',
     musicHelp:'Random reef music without consecutive repeats. Pause lasts until reload; your volume is saved.', musicAwaiting:'Music is enabled. Tap the game to let your browser start playback.', musicError:'Music could not start. Please try again or choose another track.',
     sfxTitle:'Reef sounds', sfxEnabled:'Sound effects', sfxHelp:'Gentle sounds for moves and little achievements.', testSound:'Test sound',
-    collection:'YOUR COLLECTION', achievementsCopy:'Every puzzle is a little dive. Collect your favourite discoveries.', trackAchievements:'Save achievements on this device',
-    trackingHelp:'Optional and local only: completed rounds and badges are saved here. Turning this off deletes these achievements after confirmation.', deleteProgress:'Delete achievement progress',
+    collection:'YOUR COLLECTION', achievementsCopy:'Every puzzle is a little dive. Collect your favourite discoveries.', trackAchievements:'Save achievements and points on this device',
+    trackingHelp:'Optional and local only: solved puzzles, total points, personal best and badges. Turning this off deletes this collection after confirmation.', deleteProgress:'Delete collection and points',
+    points:'points', totalPoints:'Total points', roundPoints:'Round points', bestRound:'Personal best', solvedPuzzles:'Solved puzzles', activeTime:'Active play time', scoreHow:'How do points work?',
+    scoreBase:'Base points', scoreTime:'Time bonus', scoreClean:'No wrong entries', scoreDirect:'No undo', scoreMilestone:'Every fifth puzzle',
+    scoreRules:'Easy: 1,000, Medium: 2,000, Hard: 3,000 base points. Earn up to 50% time bonus, decreasing to zero over 10 / 20 / 40 active minutes. No wrong entries adds 20%, no undo adds 10%. Every fifth saved puzzle earns another 500 points. Notes do not count as mistakes. Points are awarded once on completion; base points remain even for long rounds. Time pauses in menus and in the background. Total points and personal best are collected only with achievement saving enabled. Existing puzzles start timing from this update.',
     winEyebrow:'A LITTLE MOMENT OF BRILLIANCE', winTitle:'Beautifully solved!', winCopy:'Every number has found its place. Your next reef break is waiting.', winNext:'Explore another puzzle',
     resetStorage:'Reset storage', storageInvalid:'Your saved game could not be safely loaded. It remains untouched. This game will not be saved for now.',
     storageFailed:'Your browser cannot save right now. You can keep playing; keep this window open to retain your current progress.', unsaved:'Not saved',
     readOnly:'Already open in another window. This window is read-only. Reload after closing the other window to edit.', offlineReady:'Ready offline', offlinePreparing:'Preparing offline files',
     generationFailed:'This puzzle could not be created. Please try again.', replaceTitle:'Ready for another dive?', replaceCopy:'A new Sudoku will replace your current puzzle. Your achievement progress will stay.',
-    deleteTitle:'Reset your pearl collection?', deleteCopy:'Saved achievement counts and badges will be deleted on this device. Your Sudoku will stay.',
-    stopTrackingTitle:'Turn off achievement saving?', stopTrackingCopy:'Your saved achievement counts and badges will be deleted on this device. Your Sudoku will stay.',
+    deleteTitle:'Reset your pearl collection?', deleteCopy:'Total points, personal best, achievement counts and badges will be deleted on this device. Your Sudoku will stay.',
+    stopTrackingTitle:'Turn off achievement saving?', stopTrackingCopy:'Your total points, personal best, achievement counts and badges will be deleted on this device. Your Sudoku will stay.',
     resetTitle:'Replace the saved game?', resetCopy:'The unreadable local save will be replaced by the game currently shown here.', unlocked:'Unlocked', trackingOff:'Saving off',
     filled:'squares filled', remaining:'squares left to discover', completed:'All 81 squares solved. Beautiful work!',
     firstCondition:'Solve one round', flowCondition:'Solve 10 rounds', magicCondition:'Solve 50 rounds', starsCondition:'Solve 100 rounds', varietyCondition:'Solve every difficulty once', crownCondition:'Solve 5 hard rounds', directCondition:'Solve a round without undo',
@@ -70,6 +76,7 @@ let game = state.game, progress = state.progress, settings = state.settings;
 let storageBlocked = state.problem, readOnly = false, busy = false, noteMode = false;
 let selection = game ? Math.max(0, game.values.findIndex(v => !v)) : 0;
 let workerJob = null, generation = 0, offline = false, waitingRegistration = null;
+let clockAt = performance.now(), clockGame = null, clockActive = false, clockTicks = 0;
 const media = matchMedia('(prefers-reduced-motion: reduce)');
 const t = key => text[settings.language][key] || text.de[key] || key;
 const reduced = () => settings.reducedMotion || media.matches;
@@ -102,7 +109,22 @@ for (let n = 1; n <= 9; n++) {
 
 function announce(message) { $('announcement').textContent = message; }
 function showNotice(key) { $('notice').hidden = false; $('notice-text').textContent = t(key); }
+function renderRoundStats() {
+  const seconds = Math.floor((game?.elapsedMs || 0) / 1000), minutes = Math.floor(seconds / 60);
+  $('round-time').textContent = `${String(minutes).padStart(2,'0')}:${String(seconds % 60).padStart(2,'0')}`;
+  $('round-time').setAttribute('datetime', `PT${seconds}S`); $('round-time').title = t('activeTime');
+  $('round-points').textContent = (settings.tracking ? progress.points : game?.score?.total || 0).toLocaleString(settings.language);
+  $('round-points').title = t(settings.tracking ? 'totalPoints' : 'roundPoints');
+}
+function syncClock() {
+  const now = performance.now();
+  if (clockActive && clockGame === game && !game.completionRecorded) game.elapsedMs = Math.min(Number.MAX_SAFE_INTEGER, game.elapsedMs + Math.round(now - clockAt));
+  clockAt = now; clockGame = game;
+  clockActive = Boolean(game && !busy && !readOnly && !document.hidden && !game.completionRecorded && !document.querySelector('dialog[open]'));
+  renderRoundStats();
+}
 function persist() {
+  syncClock();
   if (storageBlocked || readOnly) { $('storage-status').textContent = t('unsaved'); return; }
   const ok = save(game, settings, progress);
   $('storage-status').textContent = t(ok ? 'autosave' : 'unsaved');
@@ -128,6 +150,7 @@ function renderText() {
   renderBoard(); renderAchievements(); music.render();
 }
 function renderBoard() {
+  syncClock();
   $('undo').disabled = !game || !game.history.length || busy || readOnly;
   $('notes').disabled = !game || busy || readOnly; $('erase').disabled = !game || busy || readOnly;
   $('notes').setAttribute('aria-pressed', String(noteMode));
@@ -149,6 +172,7 @@ function renderBoard() {
   scene.updateState(game, selection, { reduced: reduced(), dark: settings.theme === 'dark', showConflicts: settings.showConflicts, sfxEnabled:settings.sfxEnabled, sfxVolume:settings.sfxVolume });
 }
 function renderAchievements() {
+  for (const [id,value] of [['collection-points',progress.points],['collection-best',progress.best],['collection-solved',progress.total]]) $(id).textContent = value.toLocaleString(settings.language);
   $('achievement-count').textContent = progress.unlocked.length;
   if (settings.tracking) $('treasure-caption').textContent = `${progress.unlocked.length} / ${ACHIEVEMENTS.length} ${t('achievements')}`;
   else $('treasure-caption').textContent = t('treasureCopy');
@@ -168,12 +192,20 @@ function renderAchievements() {
 }
 function input(number) {
   if (!game || busy || readOnly) return;
+  syncClock();
   const before = fullUnits(game);
   if (!enter(game, selection, number, noteMode && number !== 0)) return;
   const solved = isSolved(game.values), firstWin = solved && !game.completionRecorded;
   const fresh = firstWin ? complete(game, progress, settings.tracking) : [];
   persist(); renderBoard(); renderAchievements(); scene.pop(selection);
   if (firstWin) {
+    $('win-points').textContent = game.score.total.toLocaleString(settings.language);
+    $('score-breakdown').replaceChildren();
+    for (const [key,label] of [['base','scoreBase'],['time','scoreTime'],['clean','scoreClean'],['direct','scoreDirect'],['milestone','scoreMilestone']]) {
+      const name = document.createElement('dt'), value = document.createElement('dd');
+      name.textContent = t(label); value.textContent = `+${game.score[key].toLocaleString(settings.language)}`;
+      $('score-breakdown').append(name,value);
+    }
     $('new-achievements').replaceChildren();
     for (const a of fresh) { const item = document.createElement('div'); item.className = 'new-badge'; item.textContent = `${t('newAchievement')}: ${settings.language === 'de' ? a.name : a.en}`; $('new-achievements').append(item); }
     scene.playSfx('win'); scene.celebrate(); $('win-dialog').classList.toggle('motion-celebrate', !reduced()); $('win-dialog').showModal(); announce(t('completed'));
@@ -258,10 +290,10 @@ $('tracking').addEventListener('change', async () => {
   if (!$('tracking').checked && progress.total > 0 && !await confirmation('stopTrackingTitle', 'stopTrackingCopy')) { $('tracking').checked = true; return; }
   settings.tracking = $('tracking').checked;
   if (!settings.tracking) progress = emptyProgress();
-  persist(); renderAchievements();
+  persist(); renderBoard(); renderAchievements();
 });
 $('progress-delete').addEventListener('click', async () => {
-  if (!readOnly && await confirmation('deleteTitle', 'deleteCopy')) { progress = emptyProgress(); persist(); renderAchievements(); }
+  if (!readOnly && await confirmation('deleteTitle', 'deleteCopy')) { progress = emptyProgress(); persist(); renderBoard(); renderAchievements(); }
 });
 $('storage-reset').addEventListener('click', async () => {
   if (!readOnly && await confirmation('resetTitle', 'resetCopy')) { storageBlocked = false; $('notice').hidden = true; $('storage-reset').hidden = true; persist(); renderAchievements(); }
@@ -271,9 +303,12 @@ window.addEventListener('storage', event => {
   if (event.key !== STORAGE_KEY) return;
   if (readOnly) { const fresh = load(); if (fresh.game) { game = fresh.game; progress = fresh.progress; renderBoard(); renderAchievements(); } }
 });
-window.addEventListener('pagehide', () => { workerJob?.worker.terminate(); });
+window.addEventListener('pagehide', () => { syncClock(); persist(); workerJob?.worker.terminate(); });
 window.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
-document.addEventListener('visibilitychange', () => { if (document.hidden) scene.stopEffects(); });
+document.addEventListener('visibilitychange', () => { syncClock(); if (document.hidden) { persist(); scene.stopEffects(); } });
+const dialogClock = new MutationObserver(syncClock);
+document.querySelectorAll('dialog').forEach(dialog => dialogClock.observe(dialog, { attributes:true, attributeFilter:['open'] }));
+setInterval(() => { syncClock(); if (clockActive && ++clockTicks % 5 === 0) persist(); }, 1000);
 async function acquireWriter() {
   if (!navigator.locks) return;
   readOnly = !await new Promise(resolve => {

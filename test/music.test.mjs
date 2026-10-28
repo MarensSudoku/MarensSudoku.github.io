@@ -44,7 +44,7 @@ test('older game saves acquire music defaults without losing game or progress', 
   stored = JSON.stringify({ schema:1, game, settings, progress });
   const restored = load();
   assert.equal(restored.problem, false);
-  assert.deepEqual(restored.game, game); assert.deepEqual(restored.progress, progress);
+  assert.deepEqual(restored.game, game); assert.deepEqual(restored.progress, { ...progress, points:0, best:0 });
   assert.equal(restored.settings.musicVolume, 0.25);
   assert.equal(restored.settings.musicTrack, DEFAULT_MUSIC_TRACK);
   assert.equal(restored.settings.musicEnabled, true);

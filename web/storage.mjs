@@ -6,7 +6,8 @@ function validProgress(p) {
   return p && ['total','easy','medium','hard','direct'].every(k => Number.isSafeInteger(p[k]) && p[k] >= 0) &&
     p.total === p.easy + p.medium + p.hard && p.direct <= p.total && Array.isArray(p.unlocked) &&
     p.unlocked.length <= ACHIEVEMENTS.length && new Set(p.unlocked).size === p.unlocked.length &&
-    p.unlocked.every(id => ACHIEVEMENTS.some(a => a.id === id));
+    p.unlocked.every(id => ACHIEVEMENTS.some(a => a.id === id)) &&
+    ['points','best'].every(key => p[key] === undefined || Number.isSafeInteger(p[key]) && p[key] >= 0) && (p.best ?? 0) <= (p.points ?? 0);
 }
 export function load() {
   const fallback = { game: null, settings: defaults(), progress: emptyProgress(), problem: false };
@@ -24,7 +25,9 @@ export function load() {
     settings.musicEnabled = true;
     settings.sfxEnabled = typeof settings.sfxEnabled === 'boolean' ? settings.sfxEnabled : true;
     settings.sfxVolume = Number.isFinite(settings.sfxVolume) && settings.sfxVolume >= 0 && settings.sfxVolume <= 1 ? settings.sfxVolume : 0.3;
-    return { game: data.game, settings, progress: settings.tracking ? data.progress : emptyProgress(), problem: false };
+    if (data.game) { data.game.elapsedMs ??= 0; data.game.mistakes ??= 0; data.game.score ??= null; }
+    const progress = settings.tracking ? { ...data.progress, points:data.progress.points ?? 0, best:data.progress.best ?? 0 } : emptyProgress();
+    return { game: data.game, settings, progress, problem: false };
   } catch { return { ...fallback, problem: true }; }
 }
 export function save(game, settings, progress) {

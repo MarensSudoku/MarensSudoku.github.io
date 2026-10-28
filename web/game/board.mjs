@@ -35,15 +35,16 @@ export class BoardScene extends Phaser.Scene {
   draw() {
     if (!this.gameState) return;
     const state = this.gameState, selected = this.selection, errors = this.showConflicts ? conflicts(state.values) : new Set();
-    const color = this.dark ? { base: 0x143d4c, peer: 0x1b4b59, same: 0x275d69, selected: 0x387986, line: 0x527c88, text: '#eafcfc', own: '#85e0e5', error: 0x744250 } :
-      { base: 0xffffff, peer: 0xeff9fa, same: 0xdff3f3, selected: 0xb8e8e8, line: 0x82b0b9, text: '#164557', own: '#087c91', error: 0xffdfe0 };
+    const color = this.dark ? { base: 0x143d4c, peer: 0x1b4b59, same: 0x275d69, selected: 0x387986, line: 0x527c88, text: '#eafcfc', own: '#d8fcfd', error: 0x744250 } :
+      { base: 0xffffff, peer: 0xeff9fa, same: 0xdff3f3, selected: 0xb8e8e8, line: 0x82b0b9, text: '#164557', own: '#096977', error: 0xffdfe0 };
     this.paint.clear();
     for (let i = 0; i < 81; i++) {
       const related = PEERS[selected]?.includes(i), matching = state.values[selected] && state.values[i] === state.values[selected];
-      this.paint.fillStyle(errors.has(i) ? color.error : i === selected ? color.selected : matching ? color.same : related ? color.peer : color.base);
+      const marked = errors.has(i) || i === selected || matching || related;
+      this.paint.fillStyle(errors.has(i) ? color.error : i === selected ? color.selected : matching ? color.same : related ? color.peer : color.base, marked ? 0.86 : this.dark ? 0.78 : 0.45);
       this.paint.fillRect((i % 9) * 60, Math.floor(i / 9) * 60, 60, 60);
       this.labels[i].setText(state.values[i] || '').setColor(state.puzzle[i] ? color.text : color.own).setFontStyle(state.puzzle[i] ? 'bold' : 'normal');
-      for (let n = 0; n < 9; n++) this.noteLabels[i][n].setText(!state.values[i] && state.notes[i] & (1 << (n + 1)) ? String(n + 1) : '').setColor(this.dark ? '#a3c6cd' : '#527782');
+      for (let n = 0; n < 9; n++) this.noteLabels[i][n].setText(!state.values[i] && state.notes[i] & (1 << (n + 1)) ? String(n + 1) : '').setColor(this.dark ? '#e5f4f5' : '#42636c');
     }
     for (let i = 0; i <= 9; i++) {
       this.paint.lineStyle(i % 3 === 0 ? 2.5 : 0.6, color.line, i % 3 === 0 ? 1 : 0.48);
