@@ -51,7 +51,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
     }, tracks[i].value);
   }
   await page.locator('#music-volume').evaluate(input => { input.value = '37'; input.dispatchEvent(new Event('input', { bubbles:true })); });
-  assert.equal(await page.locator('#reef-music').evaluate(audio => audio.volume), 0.37);
+  assert.ok(Math.abs(await page.locator('#reef-music').evaluate(audio => audio.volume) - 0.37) < 1e-6);
   assert.equal((await read()).settings.musicVolume, 0.37);
   assert.equal(await page.locator('#reef-music').evaluate(audio => audio.loop), false);
   const endingTrack = await page.locator('#music-track').inputValue();
