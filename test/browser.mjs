@@ -155,6 +155,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
       const controls = ['#board-shell','#difficulty','#notes','#erase','#number-pad button','#new-game','#settings-open','#achievements-nav','footer button','footer a'];
       return {
         fits:document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight,
+        viewport:[innerWidth,innerHeight], page:[document.documentElement.scrollWidth,document.documentElement.scrollHeight],
         square:Math.abs(board.width-board.height)<1, size:Math.min(board.width,board.height),
         visible:controls.every(selector => [...document.querySelectorAll(selector)].filter(el => !el.hidden).every(el => { const r=el.getBoundingClientRect(); return r.width>0 && r.height>0 && r.top>=0 && r.left>=0 && r.bottom<=innerHeight+1 && r.right<=innerWidth+1; })),
       };
