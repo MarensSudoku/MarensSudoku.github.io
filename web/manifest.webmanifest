@@ -1,0 +1,11 @@
+{
+  "name": "MarensSudoku",
+  "short_name": "MarensSudoku",
+  "description": "Deine kleine Sudoku-Auszeit im Korallenriff.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e5f7f7",
+  "theme_color": "#e5f7f7",
+  "icons": [{ "src": "./assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

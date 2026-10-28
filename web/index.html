@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#e5f8f8">
+  <meta name="description" content="Deine kleine Sudoku-Auszeit im Korallenriff. Immer neue Rätsel, kleine Erfolge und eine bunte Unterwasserwelt.">
+  <title>MarensSudoku – Deine kleine Riffpause</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body class="game-page">
+  <video id="reef-background-video" class="reef-background-video" autoplay muted loop playsinline preload="metadata" poster="./assets/reef-background.png" aria-hidden="true" disablepictureinpicture disableremoteplayback><source src="./assets/reef-background.mp4" type="video/mp4"></video>
+  <svg class="symbol-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-waves" viewBox="0 0 24 24"><path d="M2 7q3-4 6 0t6 0 8 0M2 12q3-4 6 0t6 0 8 0M2 17q3-4 6 0t6 0 8 0"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="m8 4-5 5 5 5M3 9h10a7 7 0 0 1 0 14"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="m4 16 11-11 4 4L8 20H4Zm9-9 4 4M16 4l2-2 4 4-2 2"/></symbol>
+    <symbol id="i-erase" viewBox="0 0 24 24"><path d="m3 14 9-10a2 2 0 0 1 3 0l6 5a2 2 0 0 1 0 3l-9 9H8Zm5-6 9 8M12 21h10"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 2v5m0 5v10M12 2v11m0 5v4M20 2v3m0 5v12M1 7h6v5H1Zm8 6h6v5H9Zm8-8h6v5h-6Z"/></symbol>
+    <symbol id="i-shell" viewBox="0 0 24 24"><path d="M8 21h8l2-5c8-10-3-18-6-10C9-2-2 6 6 16ZM12 6v11M7 7l2 10M17 7l-2 10M6 16h12"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1Z"/></symbol>
+    <symbol id="i-fish" viewBox="0 0 24 24"><path d="M4 12C8 3 17 4 21 12c-4 8-13 9-17 0L1 7v10ZM16 10h.1"/></symbol>
+    <symbol id="i-coral" viewBox="0 0 24 24"><path d="M12 23V6m0 8L5 9V3m7 15 7-6V3M5 7 1 5m4 4 4-4m10 3 4-3M12 9l4-5M12 7 9 2"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="m2 6 4 13h12l4-13-7 5-3-8-3 8ZM6 22h12"/></symbol>
+    <symbol id="i-pearl" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M7 12a5 5 0 0 1 5-5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+  </defs></svg>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="MarensSudoku"><span class="brand-mark"><svg><use href="#i-waves"/></svg></span><span>Maren<span class="brand-s">s</span>Sudoku<small data-t="brandSub">DEINE KLEINE RIFFPAUSE</small></span></a>
+    <nav aria-label="Hauptnavigation"><button class="nav-active" id="play-nav" data-t="play">Spielen</button><button id="achievements-nav"><svg><use href="#i-shell"/></svg><span data-t="achievements">Erfolge</span><span class="nav-count" id="achievement-count">0</span></button><button class="icon-button" id="settings-open" aria-label="Einstellungen"><svg><use href="#i-settings"/></svg></button></nav>
+  </header>
+  <main class="reef-layout">
+    <section class="intro" aria-labelledby="intro-title">
+      <p class="eyebrow"><span></span><span data-t="eyebrow">EIN KLEINER MOMENT FÜR DICH</span></p>
+      <h1 id="intro-title"><span data-t="heroFirst">Tauch kurz ab.</span><br><em data-t="heroSecond">Blüh wieder auf.</em></h1>
+      <p class="intro-copy" data-t="heroCopy">Kristallklares Wasser. Bunte Gedanken. Und immer ein neues Sudoku, das auf dich wartet.</p>
+      <div class="fish-garden" aria-hidden="true"><span class="garden-bubble bubble-one"></span><span class="garden-bubble bubble-two"></span><span class="garden-bubble bubble-three"></span><img src="./assets/fish.png" alt="" width="260" height="240"><span class="fish-caption" data-t="fishCaption">Eine Perle nach der anderen.</span></div>
+      <button class="treasure-teaser" id="treasure-open"><span class="teaser-icon"><svg><use href="#i-shell"/></svg></span><span><strong data-t="treasureTitle">Dein kleiner Perlenschatz</strong><small id="treasure-caption" data-t="treasureCopy">Entdecke deine Erfolge im Riff.</small></span><span aria-hidden="true">↗</span></button>
+    </section>
+    <section class="game-card" aria-labelledby="game-title">
+      <div class="game-topline"><span class="game-overline" data-t="gameOverline">DEIN MOMENT. DEIN TEMPO.</span><span class="save-state"><span></span><span id="storage-status" data-t="autosave">Automatisch gespeichert</span></span></div>
+      <div class="game-heading"><div><h2 id="game-title" data-t="gameTitle">Eine kleine Riffpause</h2><p id="puzzle-description" data-t="puzzleDescription">81 Felder. Meer Möglichkeiten.</p></div><label class="difficulty-label"><span class="sr-only" data-t="difficulty">Schwierigkeit</span><select id="difficulty"><option value="easy" data-t="easy">Leicht</option><option value="medium" data-t="medium">Mittel</option><option value="hard" data-t="hard">Schwer</option></select></label></div>
+      <div class="notice" id="notice" hidden role="status"><span id="notice-text"></span><button id="storage-reset" hidden data-t="resetStorage">Speicher zurücksetzen</button></div>
+      <div class="board-space"><div class="board-shell" id="board-shell">
+        <div id="phaser-board"></div>
+        <div class="accessible-board" id="board" role="grid" aria-label="Sudoku" aria-rowcount="9" aria-colcount="9"></div>
+        <div class="loading" id="loading" role="status"><span class="loading-pearl" aria-hidden="true"></span><strong data-t="loading">Dein nächstes Rätsel taucht auf …</strong><button id="generation-cancel" class="quiet-button" disabled data-t="cancel">Abbrechen</button></div>
+      </div></div>
+      <div class="game-tools"><button id="undo" disabled><svg><use href="#i-undo"/></svg><span data-t="undo">Zurück</span></button><button id="notes" aria-pressed="false"><svg><use href="#i-pencil"/></svg><span data-t="notes">Notizen</span></button><button id="erase"><svg><use href="#i-erase"/></svg><span data-t="erase">Löschen</span></button></div>
+      <div class="number-pad" id="number-pad" aria-label="Zahlen"></div>
+      <div class="game-bottomline"><span id="remaining"></span><button class="new-game" id="new-game"><svg><use href="#i-plus"/></svg><span data-t="newGame">Neues Sudoku</span></button></div>
+      <p class="keyboard-hint" data-t="keyboardHint">Mit Pfeiltasten navigieren · Zahlen 1–9 · N für Notizen</p>
+    </section>
+  </main>
+  <footer><span>MarensSudoku <span class="footer-dot">·</span> <span data-t="footer">Ein kleines Meer voller Möglichkeiten.</span></span><div><button id="music-toggle-footer" aria-pressed="false">Musik starten</button><button id="help-open" data-t="help">Hilfe & Infos</button><a href="./impressum.html">Impressum</a><a href="./datenschutz.html">Datenschutz</a><button id="update" hidden data-t="update">Update verfügbar</button><span class="offline-state" id="offline-status" role="status"></span></div></footer>
+  <audio id="reef-music" preload="none" aria-hidden="true"></audio>
+  <div class="sr-only" id="announcement" aria-live="polite" aria-atomic="true"></div>
+  <dialog id="settings-dialog"><div class="dialog-top"><h2 data-t="settings">Deine Einstellungen</h2><button class="icon-button dialog-close" aria-label="Schließen"><svg><use href="#i-close"/></svg></button></div><div class="settings-list">
+    <label><span><strong data-t="language">Sprache</strong></span><select id="language"><option value="de">Deutsch</option><option value="en">English</option></select></label>
+    <label><span><strong data-t="darkTheme">Abend im Riff</strong><small data-t="darkThemeHelp">Dunkle Farben für eine ruhige Abendrunde.</small></span><input id="dark-theme" type="checkbox" role="switch"></label>
+    <label><span><strong data-t="reduceMotion">Bewegung reduzieren</strong><small data-t="reduceMotionHelp">Ruhige Markierungen statt bewegter Effekte.</small></span><input id="reduced-motion" type="checkbox" role="switch"></label>
+    <label><span><strong data-t="showConflicts">Konflikte markieren</strong><small data-t="showConflictsHelp">Zeigt doppelte Zahlen in Reihe, Spalte oder Block.</small></span><input id="show-conflicts" type="checkbox" role="switch"></label>
+    <section class="music-settings" aria-labelledby="music-title"><h3 id="music-title" data-t="musicTitle">Riffmusik</h3>
+      <label><span><strong data-t="musicTrack">Titel</strong></span><select id="music-track"></select></label>
+      <label for="music-volume"><span><strong data-t="musicVolume">Lautstärke</strong><output id="music-volume-value" for="music-volume">25 %</output></span><input id="music-volume" type="range" min="0" max="100" value="25"></label>
+      <button class="primary-button" id="music-toggle" aria-pressed="false">Musik starten</button><p id="music-status" role="status"></p>
+    </section>
+    <section class="music-settings" aria-labelledby="sfx-title"><h3 id="sfx-title" data-t="sfxTitle">Riffklänge</h3>
+      <label><span><strong data-t="sfxEnabled">Soundeffekte</strong><small data-t="sfxHelp">Sanfte Klänge für Eingaben und kleine Erfolge.</small></span><input id="sfx-enabled" type="checkbox" role="switch" checked></label>
+      <label for="sfx-volume"><span><strong data-t="musicVolume">Lautstärke</strong><output id="sfx-volume-value" for="sfx-volume">30 %</output></span><input id="sfx-volume" type="range" min="0" max="100" value="30"></label>
+      <button class="quiet-button" id="test-sound" data-t="testSound">Klang testen</button>
+    </section>
+  </div></dialog>
+  <dialog id="achievements-dialog"><div class="dialog-top"><div><p class="dialog-eyebrow" data-t="collection">DEINE SAMMLUNG</p><h2 data-t="treasureTitle">Dein kleiner Perlenschatz</h2></div><button class="icon-button dialog-close" aria-label="Schließen"><svg><use href="#i-close"/></svg></button></div><p class="dialog-copy" data-t="achievementsCopy">Jedes Rätsel ist ein kleiner Tauchgang. Sammle deine schönsten Entdeckungen.</p>
+    <label class="tracking-option"><input id="tracking" type="checkbox" role="switch"><span><strong data-t="trackAchievements">Erfolge auf diesem Gerät speichern</strong><small data-t="trackingHelp">Freiwillig und nur lokal: abgeschlossene Runden und Abzeichen werden hier gespeichert. Jederzeit ausschaltbar und löschbar.</small></span></label>
+    <div class="achievement-grid" id="achievement-grid"></div><button id="progress-delete" class="quiet-button" data-t="deleteProgress">Erfolgsfortschritt löschen</button>
+  </dialog>
+  <dialog id="win-dialog" class="win-dialog"><button class="icon-button dialog-close win-close" aria-label="Schließen"><svg><use href="#i-close"/></svg></button><img src="./assets/fish.png" alt="" class="win-fish" width="170" height="150"><p class="dialog-eyebrow" data-t="winEyebrow">EINE KLEINE MEISTERLEISTUNG</p><h2 data-t="winTitle">Strahlend gelöst!</h2><p data-t="winCopy">Alle Zahlen haben ihren Platz gefunden.<br>Deine nächste Riffpause wartet schon.</p><div id="new-achievements"></div><button class="primary-button" id="win-next" data-t="winNext">Weiter durchs Riff</button></dialog>
+  <dialog id="confirm-dialog"><h2 id="confirm-title"></h2><p id="confirm-copy"></p><div class="dialog-actions"><button class="quiet-button" id="confirm-no" data-t="cancel">Abbrechen</button><button class="primary-button" id="confirm-yes" data-t="confirm">Bestätigen</button></div></dialog>
+  <dialog id="help-dialog"><div class="dialog-top"><h2 data-t="help">Hilfe & Infos</h2><button class="icon-button dialog-close" aria-label="Schließen"><svg><use href="#i-close"/></svg></button></div><div id="help-content"></div></dialog>
+  <noscript>Bitte JavaScript aktivieren, um Sudoku zu spielen.</noscript>
+</body></html>
