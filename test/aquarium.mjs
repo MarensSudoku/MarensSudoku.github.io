@@ -5,7 +5,7 @@ import { checkReefEditor } from './reef-editor.mjs';
 import { REEF_STORAGE_KEY } from '../web/reef-layout.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output',{recursive:true});
-for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
+for (const [name,type] of [['chromium',chromium],['webkit',webkit]].filter(([name])=>!process.env.BROWSER||process.env.BROWSER===name)) {
   console.log(`${name}: starting animated 3D aquarium checks.`);
   const browser=await type.launch({headless:true,args:name==='chromium' ? ['--enable-unsafe-swiftshader'] : []});
   try {

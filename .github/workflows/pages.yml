@@ -18,6 +18,11 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      matrix:
+        browser: [chromium, webkit]
+        suite: [browser, aquarium]
+    name: check (${{ matrix.browser }}, ${{ matrix.suite }})
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -28,19 +33,21 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: npm run build
-      - name: Check the built game in browsers
+      - name: Check the built game in ${{ matrix.browser }}
         shell: bash
+        env:
+          BROWSER: ${{ matrix.browser }}
         run: |
           node scripts/serve.mjs &
           preview_pid=$!
           trap 'kill "$preview_pid"' EXIT
           node --input-type=module -e 'for(let i=0;i<40;i++){try{if((await fetch("http://127.0.0.1:4175/")).ok)process.exit(0)}catch{}await new Promise(r=>setTimeout(r,250))}process.exit(1)'
-          npm run test:browser
-          npm run test:aquarium
+          npm run test:${{ matrix.suite }}
+      # Every leg builds the same dist; one upload is enough for the deploy.
       - uses: actions/upload-pages-artifact@v5.0.0
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && matrix.browser == 'chromium' && matrix.suite == 'browser'
         with:
           path: dist
 

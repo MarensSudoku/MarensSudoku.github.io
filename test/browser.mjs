@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
-for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) {
+for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].filter(([name]) => !process.env.BROWSER || process.env.BROWSER === name)) {
   console.log(`${name}: starting game and audio checks with reduced motion.`);
   const browser = await browserType.launch({ headless: true, args:name === 'chromium' ? ['--enable-unsafe-swiftshader'] : [] });
   try {
