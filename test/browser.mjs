@@ -42,6 +42,26 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.goto(base);
   await page.locator('#loading').waitFor({ state: 'hidden' });
   await page.locator('.board-shell.ready').waitFor();
+  assert.equal(await page.locator('#welcome-dialog').evaluate(el => el.open), true);
+  assert.equal(await page.locator('#reef-music').evaluate(audio => audio.paused), true, 'music must wait for the welcome dialog');
+  const welcomeClock = await page.locator('#round-time').textContent();
+  await page.locator('#welcome-tour').click();
+  const tourSteps = Number((await page.locator('#tour-step').textContent()).match(/\d+$/)[0]);
+  assert.ok(tourSteps >= 14, 'the tutorial must explain the rules and the main controls');
+  for (let step = 1; step <= tourSteps; step++) {
+    assert.match(await page.locator('#tour-step').textContent(), new RegExp(`^Schritt ${step} von ${tourSteps}$`));
+    assert.ok(await page.locator('.tour-target').count() > 0);
+    assert.ok((await page.locator('#tour-title').textContent()).length > 0);
+    const hint = await page.locator('#tour-bubble').evaluate(el => { const box = el.getBoundingClientRect(); return box.left >= 0 && box.top >= 0 && box.right <= innerWidth && box.bottom <= innerHeight; });
+    assert.equal(hint, true, `tutorial step ${step} must stay inside the viewport`);
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'tour-next');
+    await page.waitForTimeout(step === 1 ? 1100 : 0);
+    await page.locator('#tour-next').click();
+  }
+  assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), false);
+  assert.equal(await page.locator('.tour-target').count(), 0);
+  assert.equal(await page.locator('#round-time').textContent(), welcomeClock, 'the welcome and tutorial must pause the round clock');
+  await page.waitForFunction(() => !document.getElementById('reef-music').paused);
   assert.equal(await page.locator('[role=gridcell]').count(), 81);
   assert.equal(await page.locator('footer').count(), 0);
   assert.equal(await page.locator('#game-title, #storage-status').count(), 0);
@@ -119,6 +139,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   assert.notEqual((await read()).settings.musicTrack, beforeReload);
   assert.equal((await read()).settings.musicVolume, 0.37);
   assert.equal((await read()).settings.musicEnabled, true);
+  await page.keyboard.press('Escape'); assert.equal(await page.locator('#welcome-dialog').evaluate(el => el.open), false);
   await page.locator('#settings-open').click();
   await page.waitForFunction(() => { const audio = document.getElementById('reef-music'); return !audio.paused && audio.currentTime > 0.1; });
   await page.screenshot({ path:`output/${name}-music-reload.png`, fullPage:true });
@@ -185,7 +206,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator('#notes').click();
   const elapsedBeforeReload = (await read()).game.elapsedMs;
   await page.reload();
-  await page.locator('.board-shell.ready').waitFor();
+  await page.locator('.board-shell.ready').waitFor(); await page.locator('#welcome-start').click();
   assert.equal((await read()).game.notes[index], 1 << solution);
   assert.ok((await read()).game.elapsedMs >= elapsedBeforeReload);
   const beforeRestart = await read();
@@ -242,7 +263,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   assert.deepEqual((await read()).scores, scored.scores, 'restarting a credited puzzle must not bank another score');
   assert.equal((await read()).progress.total, 1);
   await page.locator('#win-dialog .dialog-close').click();
-  await page.reload(); await page.locator('.board-shell.ready').waitFor();
+  await page.reload(); await page.locator('.board-shell.ready').waitFor(); await page.locator('#welcome-start').click();
   assert.deepEqual((await read()).scores, scored.scores, 'banked points must survive a reload');
   await page.locator('#achievements-nav').click();
   await page.locator('#tracking').uncheck();
@@ -330,7 +351,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   const saved = await read();
   await context.setOffline(true); await page.reload();
-  await page.locator('.board-shell.ready').waitFor();
+  await page.locator('.board-shell.ready').waitFor(); await page.locator('#welcome-start').click();
   assert.deepEqual((await read()).game.values, saved.game.values);
   await page.locator('#help-open').click(); await page.locator('#legal-commons summary').click();
   assert.ok((await page.locator('#legal-commons pre').textContent()).includes('Section 8 -- Interpretation.'));
@@ -354,7 +375,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   assert.deepEqual(errors, [], `${name}: browser errors`);
   console.log(`${name}: input, notes, undo, save, win, achievements, second tab, languages, themes, 320px, offline generation and offline audio seeking passed.`);
   const touchContext=await browser.newContext({viewport:{width:375,height:559},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
-  const touch=await touchContext.newPage(); await touch.goto(base); await touch.locator('.board-shell.ready').waitFor();
+  const touch=await touchContext.newPage(); await touch.goto(base); await touch.locator('.board-shell.ready').waitFor(); await touch.locator('#welcome-start').tap();
   const blank=await touch.locator('.cell').evaluateAll(cells=>cells.findIndex(cell=>cell.getAttribute('aria-label').endsWith('Leer')||cell.getAttribute('aria-label').endsWith('Empty')));
   await touch.locator(`[data-index="${blank}"]`).tap(); await touch.locator('#number-pad [data-number="1"]').tap(); await touch.locator('#number-pad [data-number="1"]').tap();
   assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'1');

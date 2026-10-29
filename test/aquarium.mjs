@@ -36,7 +36,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
     const page=await context.newPage(), errors=[], external=[];
     page.on('pageerror',error=>errors.push(error.message));
     page.on('request',request=>{if(/^https?:/.test(request.url())&&!request.url().startsWith(new URL(base).origin))external.push(request.url());});
-    await page.goto(base);
+    await page.goto(base); await page.locator('#welcome-start').click();
     const watchResize=()=>page.evaluate(()=>addEventListener('resize',()=> {
       window.__resizeDraws.push(window.__aquariumDraws-window.__resizeStart);
       window.__resizeImages.push(window.__readAquarium());
@@ -44,7 +44,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
     const freshWebKitPhoto=async()=> {
       // Windows WebKit screenshots lose resized WebGL surfaces: playwright#42885.
       if(name==='webkit'&&process.platform==='win32') {
-        await page.reload(); await page.waitForFunction(()=>document.querySelector('#reef-aquarium')?.dataset.status==='ready');
+        await page.reload(); await page.waitForFunction(()=>document.querySelector('#reef-aquarium')?.dataset.status==='ready'); await page.locator('#welcome-start').click();
         await watchResize();
       }
     };
@@ -82,7 +82,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       await page.evaluate(async()=>{await navigator.serviceWorker.ready;});
       await context.setOffline(true); await page.reload();
       await page.waitForFunction(()=>document.querySelector('#reef-aquarium')?.dataset.status==='ready');
-      await page.locator('.board-shell.ready').waitFor();
+      await page.locator('.board-shell.ready').waitFor(); await page.locator('#welcome-start').click();
       assert.equal(await page.locator('[role=gridcell]').count(),81);
       assert.deepEqual(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),REEF_STORAGE_KEY),personalReef);
       await context.setOffline(false);

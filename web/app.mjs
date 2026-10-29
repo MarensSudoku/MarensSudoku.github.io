@@ -9,6 +9,22 @@ import { setupMusic } from './music.mjs';
 const $ = id => document.getElementById(id);
 const text = {
   de: {
+    welcomeEyebrow:'WILLKOMMEN IM RIFF', welcomeTitle:'Schön, dass du da bist.', welcomeCopy:'Mach es dir gemütlich. Das Tutorial zeigt dir in wenigen Schritten, wie Sudoku funktioniert.', welcomeStart:'Los geht’s', welcomeTour:'Tutorial',
+    tourStep:'Schritt {n} von {total}', tourNext:'Weiter', tourDone:'Fertig', tourSkip:'Überspringen',
+    tourIntroTitle:'Was ist Sudoku?', tourIntro:'Das Spielfeld hat 81 Felder: 9 Zeilen, 9 Spalten und 9 Blöcke aus je 3×3 Feldern. Dein Ziel: Fülle alle leeren Felder mit den Zahlen 1 bis 9.',
+    tourRowTitle:'Regel 1: die Zeile', tourRow:'In jeder waagerechten Zeile kommt jede Zahl von 1 bis 9 genau einmal vor.',
+    tourColumnTitle:'Regel 2: die Spalte', tourColumn:'Auch in jeder senkrechten Spalte steht jede Zahl genau einmal.',
+    tourBoxTitle:'Regel 3: der Block', tourBox:'Und in jedem 3×3-Block ebenfalls jede Zahl genau einmal. Mehr Regeln gibt es nicht!',
+    tourGivenTitle:'Vorgegebene Zahlen', tourGiven:'Diese Zahlen sind fest vorgegeben. Du füllst nur die leeren Felder aus. Jedes Rätsel hat genau eine Lösung, raten musst du nie.',
+    tourSolveTitle:'So findest du eine Zahl', tourSolve:'Nimm dir ein leeres Feld vor und streiche gedanklich alle Zahlen, die schon in seiner Zeile, Spalte oder seinem Block stehen.', tourSolveOne:'In diesem Feld bleibt nur die {n} übrig. Trag sie nach dem Tutorial gleich ein!', tourSolveMany:'In diesem Feld bleiben {list} übrig. Dann lohnt sich ein anderes Feld oder eine Notiz.',
+    tourPadTitle:'Zahlen eintragen', tourPad:'Tippe eine Zahl, um sie ins ausgewählte Feld zu setzen. Auf der Tastatur: 1–9 eintragen, Entf löscht, Pfeiltasten bewegen.',
+    tourNotesTitle:'Notizen', tourNotes:'Passen in ein Feld noch mehrere Zahlen, notiere sie im Notizmodus klein im Feld. Notizen zählen nie als Fehler.',
+    tourToolsTitle:'Deine Werkzeuge', tourTools:'Zurück nimmt deinen letzten Zug zurück, Löschen leert das ausgewählte Feld. Neustart beginnt dasselbe Rätsel von vorn, Neues Sudoku bringt ein frisches.',
+    tourStatsTitle:'Zeit und Punkte', tourStats:'Die Zeit läuft nur, während du spielst, und pausiert in Menüs. Für gelöste Rätsel bekommst du Punkte.',
+    tourReefTitle:'Dein Aquarium', tourReef:'Der Fisch blendet das Sudoku aus, damit du dein Riff genießen kannst. Ein weiterer Tipp bringt dich zurück.',
+    tourAchievementsTitle:'Dein Perlenschatz', tourAchievements:'Hier sammelst du Erfolge, Punkte und deine Bestleistung.',
+    tourSettingsTitle:'Einstellungen', tourSettings:'Musik, Sounds, Darstellung, Schwierigkeit und dein eigenes Riff.',
+    tourHelpTitle:'Hilfe & Infos', tourHelp:'Regeln und Tipps zum Nachlesen, wann immer du willst. Viel Spaß beim Abtauchen!',
     reefView:'Riff ansehen', reefReturn:'Sudoku einblenden', reefSaveShort:'Speichern', reefObjectSettings:'Objekt & Verhalten', reefMoveMode:'Verschieben', reefHeightMode:'Hoch / runter bewegen', reefRotateMode:'Rotieren', reefScaleMode:'Skalieren', reefMoveHint:'Verschieben: Ziehe das Objekt über den Boden nach links, rechts, vorne oder hinten.', reefHeightHint:'Höhe: Ziehe das Objekt nach oben oder unten.', reefRotateHint:'Rotieren: Ziehe das Objekt nach links oder rechts.', reefScaleHint:'Skalieren: Ziehe nach oben zum Vergrößern, nach unten zum Verkleinern.',
     brandSub:'DEINE KLEINE RIFFPAUSE', play:'Spielen', achievements:'Erfolge', settings:'Deine Einstellungen',
     eyebrow:'EIN KLEINER MOMENT FÜR DICH', heroFirst:'Tauch kurz ab.', heroSecond:'Blüh wieder auf.',
@@ -48,6 +64,22 @@ const text = {
     helpContent:'<h3>So tauchst du ein</h3><p>Fülle jede Reihe, jede Spalte und jeden 3×3-Block mit den Zahlen 1–9. Jede Zahl kommt darin genau einmal vor. Die vorgegebenen Zahlen bleiben unverändert.</p><p>Tippe auf ein Feld und dann auf eine Zahl. Im Notizmodus sammelst du mögliche Zahlen. Zurück nimmt deinen letzten Zug einschließlich seiner Notizen zurück. Neustart leert nach Bestätigung deine Eingaben und Notizen im selben Rätsel; bereits gesammelte Punkte bleiben erhalten. Doppelte Zahlen werden auf Wunsch markiert.</p><h3>Dein eigenes Aquarium</h3><p>Mit dem Fischknopf oben blendest du das Sudoku aus und genießt dein Riff. Ein erneuter Tipp auf den Fischknopf bringt dich zurück. Die Rätselzeit pausiert; Fische und Musik laufen weiter, sofern Bewegung und Musik eingeschaltet sind.</p><p>Unter Einstellungen → Mein Riff einrichten kannst du Fische, Pflanzen und Korallen platzieren, verschieben, drehen und vergrößern. Für Fische wählst du Schwimmverhalten, Tempo und Radius. Die Auswahl und Regler funktionieren auch ohne Ziehen. Speichern merkt sich dein Riff lokal; Verwerfen kehrt zur bisherigen Einrichtung zurück. Dein Sudoku pausiert währenddessen.</p><h3>Ungestört spielen</h3><p>Auf der Spielfläche werden versehentliche Textmarkierungen, Ziehen von Bildern und Browsermenüs unterdrückt. Infotexte kannst du weiterhin kopieren. Beim aktiven Rätseln bleibt der Bildschirm wach, soweit Browser und Energiespareinstellungen das erlauben. In Menüs und im Hintergrund wird das Wachhalten pausiert.</p><h3>Dein Spiel bleibt bei dir</h3><p>Spielstand, Gesamtpunkte und Einstellungen werden lokal in diesem Browser gespeichert. Erfolge werden erst nach Aktivierung gespeichert. Beim Löschen der Websitedaten, auf einem anderen Gerät oder unter einer anderen Adresse steht dieser Fortschritt nicht zur Verfügung.</p><p>Die App lädt ihre Offline-Dateien im Hintergrund. Nach vollständigem Download kannst du dieselbe Adresse ohne Internet öffnen und neue Rätsel erzeugen. Updates werden erst nach deiner Bestätigung aktiviert.</p><h3>Offenes Projekt</h3><p>MarensSudoku 0.1.0 · Babylon.js 9.32.1. Eigener Code und Dokumentation unter MIT. Generierte Grafikassets haben dokumentierte Herkunft; eine exklusive Schutzfähigkeit wird nicht zugesichert.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Quellcode auf GitHub</a></p>',
   },
   en: {
+    welcomeEyebrow:'WELCOME TO THE REEF', welcomeTitle:'Lovely to see you.', welcomeCopy:'Make yourself comfortable. The tutorial shows you how Sudoku works in a few short steps.', welcomeStart:'Let’s dive in', welcomeTour:'Tutorial',
+    tourStep:'Step {n} of {total}', tourNext:'Next', tourDone:'Done', tourSkip:'Skip',
+    tourIntroTitle:'What is Sudoku?', tourIntro:'The board has 81 squares: 9 rows, 9 columns and 9 boxes of 3×3 squares. Your goal: fill every empty square with the numbers 1 to 9.',
+    tourRowTitle:'Rule 1: the row', tourRow:'Each number from 1 to 9 appears exactly once in every horizontal row.',
+    tourColumnTitle:'Rule 2: the column', tourColumn:'Each number also appears exactly once in every vertical column.',
+    tourBoxTitle:'Rule 3: the box', tourBox:'And exactly once in every 3×3 box. That is all there is to it!',
+    tourGivenTitle:'Given numbers', tourGiven:'These numbers are fixed. You only fill the empty squares. Every puzzle has exactly one solution, so you never need to guess.',
+    tourSolveTitle:'How to find a number', tourSolve:'Pick an empty square and rule out every number already in its row, column or box.', tourSolveOne:'Only {n} is left for this square. Enter it right after the tutorial!', tourSolveMany:'{list} are still possible here. Try another square or make a note.',
+    tourPadTitle:'Enter numbers', tourPad:'Tap a number to place it in the selected square. On a keyboard, type 1–9, Delete clears and the arrow keys move.',
+    tourNotesTitle:'Notes', tourNotes:'If several numbers still fit a square, note them in small print using note mode. Notes never count as mistakes.',
+    tourToolsTitle:'Your tools', tourTools:'Undo takes back your last move, Erase clears the selected square. Restart begins the same puzzle again, New Sudoku brings a fresh one.',
+    tourStatsTitle:'Time and points', tourStats:'Time only runs while you play and pauses in menus. Solved puzzles earn points.',
+    tourReefTitle:'Your aquarium', tourReef:'The fish hides the Sudoku so you can enjoy your reef. Tap it again to return.',
+    tourAchievementsTitle:'Your pearl treasure', tourAchievements:'Here you collect achievements, points and your personal best.',
+    tourSettingsTitle:'Settings', tourSettings:'Music, sounds, appearance, difficulty and your own reef arrangement.',
+    tourHelpTitle:'Help & info', tourHelp:'Rules and tips to read again whenever you like. Enjoy your dive!',
     reefView:'Watch my reef', reefReturn:'Show Sudoku', reefSaveShort:'Save', reefObjectSettings:'Object & behaviour', reefMoveMode:'Move', reefHeightMode:'Move up / down', reefRotateMode:'Rotate', reefScaleMode:'Scale', reefMoveHint:'Move: Drag the object left, right, near or far along the ground.', reefHeightHint:'Height: Drag the object up or down.', reefRotateHint:'Rotate: Drag the object left or right.', reefScaleHint:'Scale: Drag up to enlarge, down to shrink.',
     brandSub:'YOUR LITTLE REEF BREAK', play:'Play', achievements:'Achievements', settings:'Your preferences',
     eyebrow:'A LITTLE MOMENT FOR YOU', heroFirst:'Dive into calm.', heroSecond:'Come up smiling.', heroCopy:'Crystal-clear water. Colourful thoughts. And a new Sudoku whenever you fancy one.',
@@ -331,6 +363,62 @@ function setReefView(active) {
 }
 $('reef-view-toggle').addEventListener('click',()=>setReefView(!reefViewing));
 $('help-open').addEventListener('click', () => $('help-dialog').showModal());
+// The welcome click is the user gesture that lets the reef music start.
+// The rule steps point at the row, column and box of one empty square that the tour also solves.
+const boxOf = i => Math.floor(i / 27) * 3 + Math.floor(i % 9 / 3);
+const fits = i => [1,2,3,4,5,6,7,8,9].filter(n => !PEERS[i].some(peer => game.values[peer] === n));
+const TOUR = [
+  ['tourIntro', () => [$('board-shell')]],
+  ['tourRow', () => cells.filter((_, i) => Math.floor(i / 9) === Math.floor(selection / 9))],
+  ['tourColumn', () => cells.filter((_, i) => i % 9 === selection % 9)],
+  ['tourBox', () => cells.filter((_, i) => boxOf(i) === boxOf(selection))],
+  ['tourGiven', () => game ? cells.filter((_, i) => game.puzzle[i]) : []],
+  ['tourSolve', () => game && !game.values[selection] ? [cells[selection]] : []],
+  ['tourPad', () => [$('number-pad')]], ['tourNotes', () => [$('notes')]], ['tourTools', () => [document.querySelector('.game-tools')]],
+  ['tourStats', () => [document.querySelector('.round-stats')]], ['tourReef', () => [$('reef-view-toggle')]],
+  ['tourAchievements', () => [$('achievements-nav')]], ['tourSettings', () => [$('settings-open')]], ['tourHelp', () => [$('help-open')]],
+];
+let tour = [], tourStep = 0, tourTargets = [];
+function startTour() {
+  if (game) {
+    const open = game.values.flatMap((value, i) => value ? [] : [i]);
+    if (open.length) selection = open.reduce((best, i) => fits(i).length < fits(best).length ? i : best);
+    renderBoard();
+  }
+  tour = TOUR.filter(([, targets]) => targets().some(node => node.getClientRects().length)); tourStep = 0; showTourStep();
+}
+function placeTour() {
+  if (!$('tour-dialog').open || !tourTargets.length) return;
+  const bubble = $('tour-bubble'), rects = tourTargets.map(node => node.getBoundingClientRect()), box = bubble.getBoundingClientRect(), pad = 6, gap = 16, edge = 12;
+  const target = { top:Math.min(...rects.map(r => r.top)), bottom:Math.max(...rects.map(r => r.bottom)), left:Math.min(...rects.map(r => r.left)), right:Math.max(...rects.map(r => r.right)) };
+  Object.assign($('tour-spotlight').style, { top:`${target.top - pad}px`, left:`${target.left - pad}px`, width:`${target.right - target.left + pad * 2}px`, height:`${target.bottom - target.top + pad * 2}px` });
+  const wanted = innerHeight - target.bottom >= target.top ? target.bottom + pad + gap : target.top - pad - gap - box.height;
+  const top = Math.min(innerHeight - box.height - edge, Math.max(edge, wanted));
+  const left = Math.min(innerWidth - box.width - edge, Math.max(edge, (target.left + target.right) / 2 - box.width / 2));
+  bubble.style.top = `${top}px`; bubble.style.left = `${left}px`;
+  // The arrow only shows when the bubble really sits beside the spotlight instead of covering it.
+  bubble.dataset.arrow = top >= target.bottom + pad ? 'up' : top + box.height <= target.top - pad ? 'down' : '';
+  bubble.style.setProperty('--arrow-x', `${Math.min(box.width - 26, Math.max(26, (target.left + target.right) / 2 - left))}px`);
+}
+function showTourStep() {
+  for (const node of tourTargets) node.classList.remove('tour-target');
+  const dialog = $('tour-dialog'), step = tour[tourStep];
+  if (!step) { tourTargets = []; dialog.close(); cells[selection].focus(); return; }
+  tourTargets = step[1](); for (const node of tourTargets) node.classList.add('tour-target');
+  let copy = t(step[0]);
+  if (step[0] === 'tourSolve') { const left = fits(selection); copy += ' ' + (left.length === 1 ? t('tourSolveOne').replace('{n}', left[0]) : t('tourSolveMany').replace('{list}', left.join(', '))); }
+  $('tour-step').textContent = t('tourStep').replace('{n}', tourStep + 1).replace('{total}', tour.length);
+  $('tour-title').textContent = t(step[0] + 'Title'); $('tour-copy').textContent = copy;
+  $('tour-next').textContent = t(tourStep === tour.length - 1 ? 'tourDone' : 'tourNext');
+  if (!dialog.open) dialog.showModal();
+  placeTour(); $('tour-next').focus();
+}
+$('welcome-start').addEventListener('click', () => { $('welcome-dialog').close(); cells[selection].focus(); });
+$('welcome-tour').addEventListener('click', () => { $('welcome-dialog').close(); startTour(); });
+$('tour-next').addEventListener('click', () => { tourStep++; showTourStep(); });
+$('tour-skip').addEventListener('click', () => { tourStep = tour.length; showTourStep(); });
+$('tour-dialog').addEventListener('cancel', event => { event.preventDefault(); $('tour-skip').click(); });
+window.addEventListener('resize', placeTour);
 $('help-dialog').addEventListener('click', event => {
   const link = event.target.closest('a[href]');
   if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
@@ -407,6 +495,7 @@ $('update').addEventListener('click', () => {
   waitingRegistration?.waiting?.postMessage('ACTIVATE');
 });
 renderText();
+$('welcome-dialog').showModal();
 updatePortrait();
 await acquireWriter();
 renderBoard();

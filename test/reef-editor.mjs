@@ -48,7 +48,7 @@ export async function checkReefEditor(page,name) {
   const seed=async patch=>{
     const layout=await saveDraft();Object.assign(layout.objects.find(object=>object.id===id),patch);assert.equal(validReefLayout(layout),true);
     await page.evaluate(({key,layout})=>localStorage.setItem(key,JSON.stringify(layout)),{key:REEF_STORAGE_KEY,layout});
-    await page.reload();await page.waitForFunction(()=>document.querySelector('#reef-aquarium').dataset.status==='ready');
+    await page.reload();await page.waitForFunction(()=>document.querySelector('#reef-aquarium').dataset.status==='ready');await page.locator('#welcome-start').click();
     await enter();await chooseObject(id);return layout.objects.find(object=>object.id===id);
   };
   let record=await seed({motion:'still',x:0,y:3,z:-6,scale:1,yaw:0});
