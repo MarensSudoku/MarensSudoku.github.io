@@ -132,6 +132,12 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   const beforeReload = (await read()).settings.musicTrack;
   await page.locator('#music-toggle').click();
   assert.equal(await page.locator('#reef-music').evaluate(audio => audio.paused), true);
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable:true, value:true }); document.dispatchEvent(new Event('visibilitychange'));
+    delete document.hidden; document.dispatchEvent(new Event('visibilitychange'));
+  });
+  assert.equal(await page.locator('#reef-music').evaluate(audio => audio.paused), true, 'returning must preserve a manual music pause');
+  assert.equal((await read()).settings.musicEnabled, false);
   await page.screenshot({ path:`output/${name}-music.png`, fullPage:true });
   await page.reload(); await page.locator('.board-shell.ready').waitFor();
   await page.waitForFunction(() => document.getElementById('music-track').options.length > 0);
@@ -192,13 +198,23 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.deepEqual(await page.locator('.cell.is-matching').evaluateAll(cells => cells.map(cell => Number(cell.dataset.index))), placed.flatMap((value, i) => value === solution ? [i] : []), 'tapping a number must highlight every equal number');
   assert.deepEqual(await page.locator('#number-pad button').evaluateAll(buttons => buttons.map(button => button.classList.contains('is-complete'))), [1,2,3,4,5,6,7,8,9].map(n => placed.filter(value => value === n).length >= 9), 'numbers placed nine times must be greyed out');
   assert.ok(await page.locator(`[data-index="${index}"] .cell-value`).evaluate(el => getComputedStyle(el).color !== 'rgba(0, 0, 0, 0)' && getComputedStyle(el).fontFamily === getComputedStyle(document.body).fontFamily));
-  await page.evaluate(() => { Object.defineProperty(document,'hidden',{ configurable:true, value:true }); document.dispatchEvent(new Event('visibilitychange')); });
+  await page.waitForFunction(() => !document.getElementById('reef-music').paused);
+  const backgroundMusic = await page.evaluate(() => {
+    Object.defineProperty(document,'hidden',{ configurable:true, value:true }); document.dispatchEvent(new Event('visibilitychange'));
+    const audio = document.getElementById('reef-music');
+    return { src:audio.currentSrc, time:audio.currentTime, paused:audio.paused };
+  });
+  assert.equal(backgroundMusic.paused, true, 'backgrounding or locking the phone must pause music');
   const hiddenClock = await page.locator('#round-time').textContent();
   await page.waitForTimeout(1100);
   assert.equal(await page.locator('#round-time').textContent(), hiddenClock);
+  assert.equal(await page.locator('#reef-music').evaluate(audio => audio.currentTime), backgroundMusic.time, 'music must not advance in the background');
+  assert.equal((await read()).settings.musicEnabled, true, 'background pause must preserve the music preference');
   assert.equal(await page.evaluate(()=>window.__wakeHeld),0);
   await page.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event('visibilitychange')); });
   assert.equal(await page.locator('#round-time').textContent(), hiddenClock, 'returning to the page must not add background time');
+  await page.waitForFunction(() => !document.getElementById('reef-music').paused);
+  assert.equal(await page.locator('#reef-music').evaluate(audio => audio.currentSrc), backgroundMusic.src, 'returning must resume the same track');
   await page.waitForFunction(()=>window.__wakeHeld===1);
   await page.locator('#undo').click();
   assert.equal((await read()).game.values[index], 0);

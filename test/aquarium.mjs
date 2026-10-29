@@ -2,6 +2,7 @@ import { chromium, webkit } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { checkReefEditor } from './reef-editor.mjs';
+import { checkShadows } from './shadows.mjs';
 import { REEF_STORAGE_KEY } from '../web/reef-layout.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output',{recursive:true});
@@ -96,6 +97,20 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]].filter(([nam
     }
     assert.deepEqual(errors,[]); assert.deepEqual(external,[]);
     await context.close();
+    if(status==='ready')await checkShadows(browser,name,base);
+    const mobile=await browser.newContext({viewport:{width:375,height:559},deviceScaleFactor:2,hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
+    try {
+      const tab=await mobile.newPage(); await tab.goto(base);
+      await tab.waitForFunction(()=>['ready','unavailable'].includes(document.querySelector('#reef-aquarium')?.dataset.status));
+      const resolution=await tab.locator('#reef-aquarium').evaluate(canvas=>({status:canvas.dataset.status,width:canvas.width,height:canvas.height,expectedWidth:Math.floor(canvas.clientWidth*devicePixelRatio),expectedHeight:Math.floor(canvas.clientHeight*devicePixelRatio)}));
+      if(resolution.status==='ready') {
+        assert.equal(resolution.width,resolution.expectedWidth,'mobile must render at native screen width, including software rendering');
+        assert.equal(resolution.height,resolution.expectedHeight,'mobile must render at native screen height');
+        await tab.locator('#welcome-start').click();
+        await tab.screenshot({path:`output/${name}-aquarium-mobile-native.png`});
+        console.log(`${name}: mobile renders at native resolution (${resolution.width}×${resolution.height}).`);
+      } else assert.equal(name,'webkit','Chromium must render the mobile aquarium');
+    } finally { await mobile.close(); }
     if(name==='chromium') {
       const fallback=await browser.newContext({serviceWorkers:'block'});
       await fallback.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return /webgl/i.test(type)?null:get.call(this,type,...args);};});

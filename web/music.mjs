@@ -48,6 +48,7 @@ export function setupMusic(settings, t, persist) {
     if (settings.musicEnabled) play(); else render();
   }
   async function play() {
+    if (document.hidden || !settings.musicEnabled) return;
     const current = ++revision; failed = false;
     if (!tracks.some(track => track.file === settings.musicTrack)) return;
     const url = new URL('./assets/music/' + encodeURIComponent(settings.musicTrack), import.meta.url).href;
@@ -85,6 +86,10 @@ export function setupMusic(settings, t, persist) {
   document.addEventListener('pointerdown', userGesture, { capture:true, passive:true });
   document.addEventListener('click', userGesture, true);
   document.addEventListener('keydown', userGesture, true);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pause();
+    else if (settings.musicEnabled && !failed) play();
+  });
   window.addEventListener('pagehide', pause);
   fetch(new URL('./assets/music/tracks.json', import.meta.url)).then(async response => {
     if (!response.ok) throw new Error('Music catalogue unavailable');

@@ -8,8 +8,9 @@ import { CreateTorus } from '@babylonjs/core/Meshes/Builders/torusBuilder.js';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color.js';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight.js';
 import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
-import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator.js';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial.js';
+import { MaterialPluginBase } from '@babylonjs/core/Materials/materialPluginBase.js';
+import { Constants } from '@babylonjs/core/Engines/constants.js';
 import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder.js';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode.js';
 import { VertexBuffer } from '@babylonjs/core/Buffers/buffer.js';
@@ -24,6 +25,14 @@ import { aquariumPose, tailWeight, swayWeight } from './swimming.mjs';
 import { createWater } from './water.mjs';
 import { FISH_TYPES, MAX_REEF_OBJECTS, reefObject, validReefObject, validReefLayout, readReefLayout } from '../reef-layout.mjs';
 
+class GroundShadow extends MaterialPluginBase {
+  constructor(material) {super(material,'GroundShadow',100);this._enable(true);}
+  getClassName() {return 'GroundShadow';}
+  getCustomCode(stage) {
+    return stage==='vertex'?{CUSTOM_VERTEX_UPDATE_WORLDPOS:'float shadowHeight = worldPos.y - .055; worldPos.xyz = vec3(worldPos.x + .35 * shadowHeight, .055, worldPos.z + .45 * shadowHeight);'}:null;
+  }
+}
+
 export async function createAquarium(canvas) {
   const response = await fetch(new URL('../assets/models/aquarium.json', import.meta.url));
   if (!response.ok) throw new Error('Aquarium manifest unavailable');
@@ -32,10 +41,10 @@ export async function createAquarium(canvas) {
   const mobile = matchMedia('(max-width:700px), (pointer:coarse)').matches;
   let engine;
   try {
-    engine = new Engine(canvas, true, { alpha:false, stencil:false, preserveDrawingBuffer:false, powerPreference:'low-power' });
-    // Without a real GPU every frame is drawn and copied back on the CPU; half resolution, a lighter reef and 30 fps keep the game responsive there.
+    engine = new Engine(canvas, true, { alpha:false, stencil:true, preserveDrawingBuffer:false, powerPreference:'low-power' });
+    // CPU rendering uses a lighter reef at 30 fps; desktop also halves resolution while mobile keeps native screen pixels.
     const software = /swiftshader|llvmpipe|softpipe|basic render|warp|software/i.test(engine.getGlInfo().renderer);
-    engine.setHardwareScalingLevel(software ? 2 : mobile ? 1 : 1 / Math.min(devicePixelRatio, 1.5));
+    engine.setHardwareScalingLevel(mobile ? 1 / devicePixelRatio : software ? 2 : 1 / Math.min(devicePixelRatio, 1.5));
     const frameBudget = 1000 / (software ? 30 : 60) - 2;
     const scene = new Scene(engine);
     scene.clearColor = new Color4(.2,.7,.86,1);
@@ -48,8 +57,11 @@ export async function createAquarium(canvas) {
     const sky = new HemisphericLight('water-light', new Vector3(0, 1, -0.4), scene);
     sky.intensity = .95; sky.groundColor = new Color3(.32,.55,.6);
     const sun = new DirectionalLight('sunlight', new Vector3(.35,-1,.45), scene); sun.intensity = .85; sun.position.set(-7,12,-8);
-    const shadows = new ShadowGenerator(mobile ? 512 : 1024, sun);
-    shadows.useBlurExponentialShadowMap = true; shadows.blurKernel = 20; shadows.setDarkness(0.35);
+    const shadowMaterial = new StandardMaterial('ground-shadow',scene);
+    shadowMaterial.disableLighting=true;shadowMaterial.diffuseColor=Color3.Black();shadowMaterial.emissiveColor=new Color3(.12,.18,.2);shadowMaterial.alpha=.22;shadowMaterial.backFaceCulling=false;
+    // Stencil shades each sand pixel once, regardless of overlapping projected faces.
+    shadowMaterial.stencil.enabled=true;shadowMaterial.stencil.func=shadowMaterial.stencil.backFunc=Constants.NOTEQUAL;
+    new GroundShadow(shadowMaterial);
     const sand = CreateGround('white-sand', { width:160, height:160, subdivisions:80, updatable:true }, scene);
     const sandPositions = sand.getVerticesData(VertexBuffer.PositionKind), sandNormals = [];
     for (let i=0;i<sandPositions.length;i+=3) sandPositions[i+1] = Math.sin(sandPositions[i]*.7+sandPositions[i+2]*.4)*.045;
@@ -57,7 +69,7 @@ export async function createAquarium(canvas) {
     sand.updateVerticesData(VertexBuffer.PositionKind,sandPositions); sand.updateVerticesData(VertexBuffer.NormalKind,sandNormals);
     const sandMaterial = new StandardMaterial('sand', scene);
     sandMaterial.diffuseColor = new Color3(.5,.62,.64); sandMaterial.specularColor = Color3.Black(); sand.material = sandMaterial;
-    sand.isPickable = false; sand.receiveShadows = true;
+    sand.isPickable = false;
     const water = createWater(scene,sandMaterial,mobile||software), scenery = [], swaying = [];
     const templates = new Map(), objects = new Map(), fish = [];
     let framing = 1, editing = false, transformMode = 'move', selected = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {};
@@ -109,6 +121,13 @@ export async function createAquarium(canvas) {
 
     // Swaying influences cross zero constantly; keeping every target active avoids a shader switch on each crossing (clone() resets this).
     const steady = manager => { manager.optimizeInfluencers = false; return manager; };
+    function addShadows(node) {
+      for(const mesh of node.getChildMeshes()) {
+        const shadow=mesh.clone('shadow-'+mesh.name,mesh.parent,true);
+        shadow.material=shadowMaterial;shadow.morphTargetManager=mesh.morphTargetManager;
+        shadow.isPickable=false;shadow.alwaysSelectAsActiveMesh=true;
+      }
+    }
     function bend(root, strength, kind) {
       const bounds = root.getHierarchyBoundingVectors(true);
       for (const mesh of root.getChildMeshes()) {
@@ -141,7 +160,7 @@ export async function createAquarium(canvas) {
       const sceneryItem={node,x}, entry={node,managers,scenery:sceneryItem,record:reefObject(template.metadata.type,name,{x,y,z,scale:size,yaw:Math.atan2(Math.sin(yaw),Math.cos(yaw))})};
       scenery.push(sceneryItem); objects.set(name,entry);
       if (moving) { entry.sway={managers,phase:scenery.length*.9}; swaying.push(entry.sway); }
-      else if(template.metadata.type!=='reef-crab'&&!FISH_TYPES.includes(template.metadata.type))node.getChildMeshes().forEach(mesh=>shadows.addShadowCaster(mesh,false));
+      addShadows(node);
       return node;
     }
     const reef = await model(models.reef,4.8,true); reef.setEnabled(false);
@@ -173,7 +192,7 @@ export async function createAquarium(canvas) {
       }
     });
     // Distant pillars stay out of the editable reef and fade into the haze behind it; CPU-only rendering skips their geometry.
-    const decor=(template,name,x,y,z,size,yaw)=>{const node=template.clone(name);node.setEnabled(true);node.position.set(x,y,z);node.scaling.setAll(size);node.rotation.y=yaw;scenery.push({node,x});return node;};
+    const decor=(template,name,x,y,z,size,yaw)=>{const node=template.clone(name);node.setEnabled(true);node.position.set(x,y,z);node.scaling.setAll(size);node.rotation.y=yaw;addShadows(node);scenery.push({node,x});return node;};
     (software ? [] : [[-15,22,1.3,.5],[-19,34,1.6,1.2],[-13,47,1.5,2],[-25,50,2,.3],[15,24,1.4,2.4],[20,36,1.7,.9],[14,49,1.5,1.7],[26,54,2.1,2.8],[-5,62,1.3,.6],[6,68,1.4,2.2]]).forEach(([x,z,size,yaw],i)=> {
       const height=rock.metadata.height, upper=size*.75, top=height*size*.6+height*upper*.72;
       decor(rock,`pillar-${i}`,x,0,z,size,yaw); decor(rock,`pillar-top-${i}`,x*.98,height*size*.6,z+.3,upper,yaw+1.1);
@@ -190,7 +209,6 @@ export async function createAquarium(canvas) {
     [[-3.3,.02,-5],[3.5,.02,-4.5]].forEach(([x,y,z],i)=>place(anemone,'foreground-anemone-'+i,x,y,z,1.1,i*1.7,true));
     const crabTemplate = await model(models.crab,models.crab.size,true); bend(crabTemplate,.035,'crab'); crabTemplate.setEnabled(false);
     place(crabTemplate,'reef-crab',-2,.025,-.5);
-    shadows.getShadowMap().refreshRate = 0;
     for (let species = 0; species < models.fish.length; species++) {
       const spec=models.fish[species], school=Boolean(spec.school);
       const template = await model(spec,school ? (mobile ? .36 : .46) : .85 + species*.06,false);
@@ -198,6 +216,7 @@ export async function createAquarium(canvas) {
       for (let i = 0; i < (school ? (mobile ? 8 : 12) : (mobile ? 2 : 3)); i++) {
         const body=template.clone(`fish-${species}-${i}`); body.setEnabled(true);
         const managers=body.getChildMeshes().map(mesh=> { mesh.morphTargetManager=steady(mesh.morphTargetManager.clone());return mesh.morphTargetManager; });
+        addShadows(body);
         const record=reefObject(template.metadata.type,body.name,{motion:school?'school':'circle',member:i,phase:school?species*1.3:species*2+i*1.8,baseSpeed:school?.065+species*.004:.08+species*.014,radius:school?4.5:3.6+i*.6,z:school?9+(species-4)*4:1+species*1.2,y:school?4+(species-4)*1.3:1.6+species*.55+i*.35});
         const animal={body,managers,record}; fish.push(animal); objects.set(record.id,{node:body,managers,record,animal});
       }
@@ -217,8 +236,7 @@ export async function createAquarium(canvas) {
       const object=entry.record,pose=editing?placementPose(object):object;
       entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.scaling.setAll(object.scale);entry.node.rotation.y=pose.yaw;
       if(entry.scenery)entry.scenery.x=object.x;
-      entry.node.getChildMeshes().forEach(mesh=>mesh.isPickable=editing);
-      shadows.getShadowMap().resetRefreshCounter();
+      entry.node.getChildMeshes().forEach(mesh=>mesh.isPickable=editing&&mesh.material!==shadowMaterial);
     }
     function addRecord(object) {
       const template=templates.get(object.type), isFish=FISH_TYPES.includes(object.type);
@@ -231,9 +249,8 @@ export async function createAquarium(canvas) {
     function removeObject(id) {
       const entry=objects.get(id);if(!entry)return false;
       for(const list of [scenery,swaying,fish]) {const item=list===scenery?entry.scenery:list===swaying?entry.sway:entry.animal;const index=list.indexOf(item);if(index>=0)list.splice(index,1);}
-      entry.node.getChildMeshes().forEach(mesh=>shadows.removeShadowCaster(mesh,false));
       entry.node.dispose(false,false);entry.managers.forEach(manager=>manager.dispose());objects.delete(id);
-      if(selected===id)select(null);shadows.getShadowMap().resetRefreshCounter();redraw();return true;
+      if(selected===id)select(null);redraw();return true;
     }
     function setLayout(layout) {
       if(!validReefLayout(layout)||!layout.objects.every(object=>templates.has(object.type)))return false;
@@ -340,7 +357,6 @@ export async function createAquarium(canvas) {
     function resize() {
       engine.resize(); framing=Math.min(1,Math.max(.58,engine.getAspectRatio(camera)/1.6));
       for(const item of scenery) item.node.position.x=item.x*framing;
-      shadows.getShadowMap().resetRefreshCounter();
       if (!document.hidden) drawOnce();
     }
     window.addEventListener('resize', resize);
