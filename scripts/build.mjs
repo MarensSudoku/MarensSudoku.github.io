@@ -54,24 +54,13 @@ for (const path of (await files(output)).sort()) {
 }
 const version = createHash('sha256').update(JSON.stringify(assets)).digest('hex').slice(0, 12);
 const rangeSource = (await readFile(join(root, 'web/range.mjs'), 'utf8')).replace(/^export /gm, '');
+const installSource = (await readFile(join(root, 'web/offline-install.mjs'), 'utf8')).replace(/^export /gm, '');
 const source = `${rangeSource}
+${installSource}
 const PREFIX = 'marenssudoku:' + new URL(self.registration.scope).pathname + ':';
 const CACHE = PREFIX + '${version}';
 const ASSETS = ${JSON.stringify(assets)};
-self.addEventListener('install', event => event.waitUntil((async () => {
-  const cache = await caches.open(CACHE);
-  try {
-    await Promise.all(ASSETS.map(async asset => {
-      const url = new URL(asset.path, self.registration.scope).href;
-      const response = await fetch(url, { cache: 'reload' });
-      if (!response.ok) throw new Error('Offline file unavailable');
-      const digest = await crypto.subtle.digest('SHA-256', await response.clone().arrayBuffer());
-      const hash = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
-      if (hash !== asset.hash) throw new Error('Offline file integrity mismatch');
-      await cache.put(url, response);
-    }));
-  } catch (error) { await caches.delete(CACHE); throw error; }
-})()));
+self.addEventListener('install', event => event.waitUntil(installAssets(caches, PREFIX, CACHE, ASSETS, self.registration.scope, url => fetch(url, { cache: 'reload' }))));
 self.addEventListener('activate', event => event.waitUntil((async () => {
   await self.clients.claim();
   const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(client => client.url.startsWith(self.registration.scope));
