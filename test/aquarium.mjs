@@ -1,6 +1,8 @@
 import { chromium, webkit } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
+import { checkReefEditor } from './reef-editor.mjs';
+import { REEF_STORAGE_KEY } from '../web/reef-layout.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output',{recursive:true});
 for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
@@ -73,6 +75,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       await page.waitForTimeout(80);
       const still=await page.evaluate(()=>window.__resizeImages.at(-1)); assert.equal(still.opaque,81); assert.ok(still.colours>8);
       await freshWebKitPhoto(); await page.screenshot({path:`output/${name}-aquarium-desktop.png`});
+      const personalReef=await checkReefEditor(page,name);
       const beforeResume=await page.evaluate(()=>window.__aquariumDraws);
       await page.locator('#settings-open').click(); await page.locator('#reduced-motion').uncheck();
       await page.locator('#settings-dialog .dialog-close').click();
@@ -82,6 +85,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       await page.waitForFunction(()=>document.querySelector('#reef-aquarium')?.dataset.status==='ready');
       await page.locator('.board-shell.ready').waitFor();
       assert.equal(await page.locator('[role=gridcell]').count(),81);
+      assert.deepEqual(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),REEF_STORAGE_KEY),personalReef);
       await context.setOffline(false);
       console.log(`${name}: real 3D, local models, resize without a blank frame, six viewports and reduced motion passed.`);
       console.log(`${name}: all aquarium models and water lighting reload offline.`);

@@ -23,6 +23,27 @@ for (const [name, path] of [['Babylon.js 9.32.1','node_modules/@babylonjs/core/l
   notices += `\n\n${name}\n\n${await readFile(join(root, path), 'utf8')}`;
 }
 await writeFile(join(output, 'THIRD_PARTY_NOTICES.txt'), notices);
+let index = await readFile(join(output, 'index.html'), 'utf8');
+const legalSources = {
+  imprint:'impressum.html', privacy:'datenschutz.html', code:'LICENSE.txt', notices:'THIRD_PARTY_NOTICES.txt',
+  music:'assets/music/LICENSE.txt', sounds:'assets/sounds/LICENSE.txt', commons:'assets/licenses/CC-BY-4.0.txt',
+};
+for (const [id, path] of Object.entries(legalSources)) {
+  const source = await readFile(join(output, path), 'utf8');
+  let content;
+  if (path.endsWith('.html')) {
+    const main = source.match(/<main\b[^>]*>([\s\S]*?)<\/main>/);
+    if (!main) throw new Error(`Legal document has no main content: ${path}`);
+    content = main[1].replace(/^<a href="\.\/">[^<]*<\/a>/, '').replace(/<h1>[^<]*<\/h1>/, '');
+  } else {
+    const escaped = source.replace(/[&<>]/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;'}[char]));
+    content = `<pre>${escaped}</pre>`;
+  }
+  const marker = `<!-- legal:${id} -->`;
+  if (!index.includes(marker)) throw new Error(`Legal document slot missing: ${id}`);
+  index = index.replace(marker, () => content);
+}
+await writeFile(join(output, 'index.html'), index);
 async function files(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   return (await Promise.all(entries.map(entry => entry.isDirectory() ? files(join(directory, entry.name)) : [join(directory, entry.name)]))).flat();

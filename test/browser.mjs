@@ -10,6 +10,13 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   // Keep UI checks responsive on software renderers; aquarium.mjs covers continuous 3D motion.
   const context = await browser.newContext({ viewport: { width: 1440, height: 1024 }, locale: 'de-DE', reducedMotion:'reduce' });
   await context.addInitScript(() => {
+    window.__wakeHeld=0; window.__wakeRequests=0;
+    Object.defineProperty(navigator,'wakeLock',{configurable:true,value:{async request(type) {
+      if(type!=='screen')throw new Error('Unexpected wake lock type');
+      const lock=new EventTarget(); lock.released=false; window.__wakeHeld++; window.__wakeRequests++;
+      lock.release=async()=>{if(!lock.released){lock.released=true;window.__wakeHeld--;lock.dispatchEvent(new Event('release'));}};
+      return lock;
+    }}});
     window.__audioGesture = false; window.__sfxPlayed = 0; window.__sfxDecoded = 0;
     addEventListener('click', () => { window.__audioGesture = true; }, true);
     addEventListener('keydown', () => { window.__audioGesture = true; }, true);
@@ -44,9 +51,40 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   assert.equal(await page.locator('.game-tools #new-game').count(), 1);
   assert.equal(await page.locator('nav img').count(), 3);
   await page.waitForFunction(() => [...document.querySelectorAll('nav img')].every(img => img.complete && img.naturalWidth > 0));
+  await page.waitForFunction(()=>window.__wakeHeld===1);
+  const inactiveFishColour=await page.locator('#reef-view-toggle svg').evaluate(el=>getComputedStyle(el).color);
+  const navTop=(await page.locator('#settings-open').boundingBox()).y;
+  await page.locator('#reef-view-toggle').click();
+  assert.equal(await page.locator('#reef-view-toggle').getAttribute('aria-pressed'),'true');
+  assert.notEqual(await page.locator('#reef-view-toggle svg').evaluate(el=>getComputedStyle(el).color),inactiveFishColour);
+  assert.equal(await page.locator('#reef-view-return').count(),0);
+  assert.equal((await page.locator('#settings-open').boundingBox()).y,navTop,'header controls must not jump when hiding Sudoku');
+  const reefClock=await page.locator('#round-time').textContent();
+  assert.equal(await page.locator('.reef-layout').isVisible(),false);
+  await page.waitForTimeout(1100);assert.equal(await page.locator('#round-time').textContent(),reefClock);
+  assert.equal(await page.evaluate(()=>window.__wakeHeld),1,'watching the aquarium must keep the screen awake');
+  await page.locator('#reef-view-toggle').click();assert.equal(await page.locator('.reef-layout').isVisible(),true);
+  assert.equal(await page.locator('#reef-view-toggle').getAttribute('aria-pressed'),'false');
+  assert.equal(await page.locator('#reef-view-toggle svg').evaluate(el=>getComputedStyle(el).color),inactiveFishColour);
+  assert.equal((await page.locator('#settings-open').boundingBox()).y,navTop,'header controls must not jump when showing Sudoku');
+  await page.waitForFunction(old=>document.querySelector('#round-time').textContent!==old,reefClock);
+  assert.equal(await page.locator('.cell').first().evaluate(el=>getComputedStyle(el).touchAction),'manipulation');
+  const browserActions=await page.evaluate(()=>{
+    const dispatch=(selector,type)=>!document.querySelector(selector).dispatchEvent(new Event(type,{bubbles:true,cancelable:true}));
+    return ['contextmenu','selectstart','dragstart'].map(type=>({type,
+      board:dispatch('.cell',type), image:dispatch('nav img',type),
+      form:dispatch('#music-volume',type), info:dispatch('#legal-code pre',type),
+    }));
+  });
+  assert.ok(browserActions.every(action=>action.board&&action.image&&!action.form&&!action.info),JSON.stringify(browserActions));
+  await page.locator('#round-time').dblclick();
+  assert.equal(await page.evaluate(()=>getSelection().toString()),'','game text must not be accidentally selected');
+  assert.equal(await page.locator('meta[name=viewport]').evaluate(el=>/user-scalable\s*=\s*no|maximum-scale\s*=\s*1(?:\s|,|$)/i.test(el.content)),false);
+  if(await page.evaluate(()=>CSS.supports('-webkit-touch-callout','none')))assert.equal(await page.locator('body').evaluate(el=>getComputedStyle(el).getPropertyValue('-webkit-touch-callout')),'none');
   const read = () => page.evaluate(() => JSON.parse(localStorage.getItem('marenssudoku:state:v1')));
   assert.equal((await read()).settings.musicEnabled, true);
   await page.locator('#settings-open').click();
+  await page.waitForFunction(()=>window.__wakeHeld===0);
   await page.waitForFunction(() => document.getElementById('music-track').options.length > 0);
   await page.waitForFunction(() => !document.getElementById('reef-music').paused);
   const tracks = await page.locator('#music-track option').evaluateAll(options => options.map(option => ({ value:option.value, title:option.textContent })));
@@ -98,9 +136,25 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   assert.equal(await page.locator('#round-time').textContent(), pausedClock, 'menus must pause the round clock');
   await page.locator('#settings-dialog .dialog-close').click();
   await page.locator('#help-open').click();
+  await page.locator('#help-content p').first().dblclick();
+  assert.ok(await page.evaluate(()=>getSelection().toString().length>0),'info text must remain selectable for copying');
   assert.equal(await page.locator('#music-toggle-help, #offline-status').count(), 0);
-  assert.equal(await page.locator('#help-content a[href="./impressum.html"]').isVisible(), true);
-  assert.equal(await page.locator('#help-content a[href="./datenschutz.html"]').isVisible(), true);
+  assert.equal(await page.locator('#help-dialog .legal-section').count(), 7);
+  assert.equal(await page.locator('#help-dialog .legal-section[open]').count(), 0);
+  const infoURL = page.url();
+  for (const id of ['code','notices','music','sounds','commons']) {
+    const section=page.locator('#legal-'+id), path=await section.getAttribute('data-document');
+    const original=await context.request.get(new URL(path,base).href);
+    assert.equal(original.status(),200);
+    assert.equal(await section.locator('pre').textContent(),(await original.text()).replaceAll('\r\n','\n'));
+  }
+  await page.locator('#legal-imprint summary').focus(); await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#legal-imprint').evaluate(el=>el.open),true);
+  await page.locator('#legal-imprint a[href="./datenschutz.html"]').click();
+  assert.equal(await page.locator('#legal-privacy').evaluate(el=>el.open),true);
+  await page.locator('#legal-imprint a[href="./assets/music/LICENSE.txt"]').click();
+  assert.equal(await page.locator('#legal-music').evaluate(el=>el.open),true);
+  assert.equal(page.url(),infoURL,'legal cross-links must stay in the info dialog');
   await page.locator('#update').evaluate(button => { button.hidden = false; });
   assert.equal(await page.locator('#help-dialog #update').isVisible(), true);
   await page.locator('#update').evaluate(button => { button.hidden = true; });
@@ -117,8 +171,10 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   const hiddenClock = await page.locator('#round-time').textContent();
   await page.waitForTimeout(1100);
   assert.equal(await page.locator('#round-time').textContent(), hiddenClock);
+  assert.equal(await page.evaluate(()=>window.__wakeHeld),0);
   await page.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event('visibilitychange')); });
   assert.equal(await page.locator('#round-time').textContent(), hiddenClock, 'returning to the page must not add background time');
+  await page.waitForFunction(()=>window.__wakeHeld===1);
   await page.locator('#undo').click();
   assert.equal((await read()).game.values[index], 0);
   await page.locator('#notes').click();
@@ -156,6 +212,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
     await page.keyboard.press(String(snapshot.game.solution[i]));
   }
   await page.locator('#win-dialog').waitFor({ state: 'visible' });
+  await page.waitForFunction(()=>window.__wakeHeld===0);
   assert.equal((await read()).progress.total, 1);
   assert.equal((await read()).progress.unlocked.includes('first'), true);
   const scored = await read();
@@ -206,6 +263,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   const second = await context.newPage();
   await second.goto(base); await second.locator('#loading').waitFor({ state: 'hidden' });
   assert.equal(await second.locator('#new-game').isDisabled(), true);
+  await second.waitForFunction(()=>window.__wakeHeld===0);
   await second.close();
   await page.locator('#settings-open').click();
   const beforeDifficulty = await read();
@@ -224,6 +282,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator('#language').selectOption('en');
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');
   assert.equal(await page.locator('#notes span').textContent(), 'Notes');
+  assert.equal(await page.locator('#legal-code summary').textContent(),'Project licence · MIT');
   await page.locator('#dark-theme').check();
   await page.locator('#settings-dialog .dialog-close').click();
   await page.screenshot({ path: `output/${name}-dark.png`, fullPage: true });
@@ -238,7 +297,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
       const board = document.getElementById('board-shell').getBoundingClientRect();
       const space = document.querySelector('.board-space').getBoundingClientRect();
       const grid = document.getElementById('board').getBoundingClientRect();
-      const controls = ['#board-shell','#notes','#erase','#restart-game','#number-pad button','#new-game','#settings-open','#achievements-nav','#help-open','#round-time','#round-points'];
+      const controls = ['#board-shell','#notes','#erase','#restart-game','#number-pad button','#new-game','#settings-open','#achievements-nav','#help-open','#reef-view-toggle','#round-time','#round-points'];
       const cell = index => getComputedStyle(document.querySelector(`[data-index="${index}"]`));
       return {
         fits:document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight,
@@ -261,7 +320,11 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
     await page.locator(`#${dialog} .dialog-body`).evaluate(el => {el.scrollTop=el.scrollHeight;});
     const after = await close.boundingBox();
     assert.ok(before && after && Math.abs(before.y-after.y)<1 && after.y>=0 && after.y+after.height<=559, `${name}: ${dialog} close must stay visible while scrolling`);
+    assert.equal(await page.locator(`#${dialog} .dialog-body`).evaluate(el=>el.scrollWidth<=el.clientWidth),true,`${name}: ${dialog} must wrap long text`);
+    const sideways=await page.locator(`#${dialog} .dialog-body`).evaluate(el=>{el.scrollLeft=999;return {left:el.scrollLeft,overflow:getComputedStyle(el).overflowX};});
+    assert.deepEqual(sideways,{left:0,overflow:'hidden'},`${name}: ${dialog} must not scroll sideways`);
     if (dialog==='settings-dialog') await page.screenshot({path:`output/${name}-dialog-scrolled.png`,fullPage:true});
+    if (dialog==='help-dialog') await page.screenshot({path:`output/${name}-info-legal-mobile.png`,fullPage:true});
     await close.click();
   }
   await page.evaluate(async () => { await navigator.serviceWorker.ready; });
@@ -269,6 +332,9 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await context.setOffline(true); await page.reload();
   await page.locator('.board-shell.ready').waitFor();
   assert.deepEqual((await read()).game.values, saved.game.values);
+  await page.locator('#help-open').click(); await page.locator('#legal-commons summary').click();
+  assert.ok((await page.locator('#legal-commons pre').textContent()).includes('Section 8 -- Interpretation.'));
+  await page.locator('#help-dialog .dialog-close').click();
   await page.locator('#settings-open').click();
   await page.locator('#music-track').selectOption(tracks[0].value);
   await page.waitForFunction(() => { const audio = document.getElementById('reef-music'); return !audio.paused && audio.currentTime > 0.1; });
@@ -287,5 +353,18 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   assert.notEqual((await read()).game.seed, saved.game.seed);
   assert.deepEqual(errors, [], `${name}: browser errors`);
   console.log(`${name}: input, notes, undo, save, win, achievements, second tab, languages, themes, 320px, offline generation and offline audio seeking passed.`);
+  const touchContext=await browser.newContext({viewport:{width:375,height:559},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
+  const touch=await touchContext.newPage(); await touch.goto(base); await touch.locator('.board-shell.ready').waitFor();
+  const blank=await touch.locator('.cell').evaluateAll(cells=>cells.findIndex(cell=>cell.getAttribute('aria-label').endsWith('Leer')||cell.getAttribute('aria-label').endsWith('Empty')));
+  await touch.locator(`[data-index="${blank}"]`).tap(); await touch.locator('#number-pad [data-number="1"]').tap(); await touch.locator('#number-pad [data-number="1"]').tap();
+  assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'1');
+  assert.equal(await touch.evaluate(()=>visualViewport.scale),1);
+  await touch.setViewportSize({width:667,height:375}); await touch.locator('#portrait-dialog').waitFor({state:'visible'});
+  await touch.keyboard.press('Escape'); assert.equal(await touch.locator('#portrait-dialog').evaluate(el=>el.open),true);
+  await touch.screenshot({path:`output/${name}-portrait-required.png`});
+  await touch.setViewportSize({width:375,height:559}); await touch.locator('#portrait-dialog').waitFor({state:'hidden'});
+  assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'1');
+  await touchContext.close();
+  console.log(`${name}: guarded browser actions, native touch input and active-play screen-lock lifecycle passed.`);
   } finally { await browser.close(); }
 }

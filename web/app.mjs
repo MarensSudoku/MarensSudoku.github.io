@@ -1,4 +1,6 @@
 import { createEffects } from './game/effects.mjs';
+import { createScreenWakeLock } from './screen.mjs';
+import { setupReefEditor } from './reef-editor.mjs';
 import { conflicts, isSolved, PEERS } from './sudoku/engine.mjs';
 import { createGame, restartGame, enter, undo, fullUnits, complete, emptyProgress, emptyScores, progressValue, ACHIEVEMENTS, validGame } from './sudoku/model.mjs';
 import { load, save, STORAGE_KEY } from './storage.mjs';
@@ -7,6 +9,7 @@ import { setupMusic } from './music.mjs';
 const $ = id => document.getElementById(id);
 const text = {
   de: {
+    reefView:'Riff ansehen', reefReturn:'Sudoku einblenden', reefSaveShort:'Speichern', reefObjectSettings:'Objekt & Verhalten', reefMoveMode:'Verschieben', reefHeightMode:'Hoch / runter bewegen', reefRotateMode:'Rotieren', reefScaleMode:'Skalieren', reefMoveHint:'Verschieben: Ziehe das Objekt über den Boden nach links, rechts, vorne oder hinten.', reefHeightHint:'Höhe: Ziehe das Objekt nach oben oder unten.', reefRotateHint:'Rotieren: Ziehe das Objekt nach links oder rechts.', reefScaleHint:'Skalieren: Ziehe nach oben zum Vergrößern, nach unten zum Verkleinern.',
     brandSub:'DEINE KLEINE RIFFPAUSE', play:'Spielen', achievements:'Erfolge', settings:'Deine Einstellungen',
     eyebrow:'EIN KLEINER MOMENT FÜR DICH', heroFirst:'Tauch kurz ab.', heroSecond:'Blüh wieder auf.',
     heroCopy:'Kristallklares Wasser. Bunte Gedanken. Und immer ein neues Sudoku, das auf dich wartet.',
@@ -15,6 +18,9 @@ const text = {
     difficulty:'Schwierigkeit', difficultyHelp:'Beim Wechsel beginnt ein neues Rätsel.', easy:'Leicht', medium:'Mittel', hard:'Schwer', loading:'Dein nächstes Rätsel taucht auf …', cancel:'Abbrechen', confirm:'Bestätigen',
     undo:'Zurück', notes:'Notizen', erase:'Löschen', newGame:'Neues Sudoku', keyboardHint:'Mit Pfeiltasten navigieren · Zahlen 1–9 · N für Notizen',
     footer:'Ein kleines Meer voller Möglichkeiten.', help:'Hilfe & Infos', update:'Update verfügbar', language:'Sprache',
+    legalTitle:'Rechtliches & Lizenzen', legalImprint:'Impressum', legalPrivacy:'Datenschutz', legalCode:'Projektlizenz · MIT', legalNotices:'Fremdlizenzen · Babylon.js', legalMusic:'Musiklizenz', legalSounds:'Soundeffektlizenz', legalCommons:'CC BY 4.0 · vollständiger Originaltext', legalSource:'Originalquelle · Englisch',
+    portraitTitle:'Bitte hochkant halten', portraitCopy:'Dein Riff bleibt im Hochformat. Drehe dein Gerät, um weiterzuspielen.',
+    reefEdit:'Mein Riff einrichten', reefEditHelp:'Platziere Fische, Pflanzen und Korallen in deinem eigenen Aquarium.', reefLoading:'Das Riff wird vorbereitet.', reefUnavailable:'Das Einrichten benötigt die 3D-Ansicht.', reefAddType:'Objekt hinzufügen', reefAdd:'Hinzufügen', reefSelection:'Deine Objekte', reefSelect:'Objekt auswählen', reefPositionX:'Links / rechts', reefPositionZ:'Vorne / hinten', reefHeight:'Höhe', reefSize:'Größe', reefRotation:'Drehung', reefMotion:'Schwimmverhalten', reefCircle:'Runden schwimmen', reefPatrol:'Hin und her', reefEight:'Eine Acht schwimmen', reefStill:'Am Platz bleiben', reefSchool:'Im Schwarm', reefSchoolHint:'Fische derselben Art bilden einen Schwarm. Position, Drehung, Tempo und Radius gelten für die ganze Gruppe.', reefSpeed:'Schwimmtempo', reefRadius:'Schwimmradius', reefDuplicate:'Duplizieren', reefRemove:'Entfernen', reefReset:'Standardriff', reefSave:'Speichern', reefCancel:'Verwerfen', reefHint:'Tippe ein Objekt an und ziehe es an seinen Platz. Fische pausieren beim Einrichten.', reefFull:'Dein Riff ist voll. Entferne zuerst ein Objekt.', reefSaveFailed:'Dein Riff konnte nicht gespeichert werden. Deine Änderungen bleiben hier geöffnet.', reefInvalid:'Dein gespeichertes Riff konnte nicht geladen werden. Speichern ersetzt es durch die hier gezeigte Einrichtung.', reefResetTitle:'Standardriff wiederherstellen?', reefResetCopy:'Die Einrichtung wird durch das Standardriff ersetzt. Erst „Speichern“ übernimmt sie dauerhaft. Dein Sudoku und deine Punkte bleiben erhalten.',
     darkTheme:'Abend im Riff', darkThemeHelp:'Dunkle Farben für eine ruhige Abendrunde.', reduceMotion:'Bewegung reduzieren',
     musicTitle:'Riffmusik', musicTrack:'Titel', musicVolume:'Lautstärke', musicStart:'Musik starten', musicPause:'Musik pausieren', musicPlaying:'Es spielt',
     musicHelp:'Zufällige Riffmusik ohne direkte Wiederholung. Pause gilt bis zum Neuladen; die Lautstärke bleibt gespeichert.', musicAwaiting:'Musik ist aktiv. Tippe ins Spiel, damit dein Browser die Wiedergabe startet.', musicError:'Die Musik konnte nicht gestartet werden. Bitte erneut versuchen oder einen anderen Titel wählen.',
@@ -39,9 +45,10 @@ const text = {
     unlocked:'Freigeschaltet', trackingOff:'Speicherung aus', filled:'Felder gefüllt', remaining:'Felder warten noch auf dich', completed:'Alle 81 Felder gelöst. Gut gemacht!',
     firstCondition:'Eine Runde lösen', flowCondition:'10 Runden lösen', magicCondition:'50 Runden lösen', starsCondition:'100 Runden lösen', varietyCondition:'Jede Schwierigkeit einmal lösen', crownCondition:'5 schwere Runden lösen', directCondition:'Eine Runde ohne Rückgängig lösen',
     close:'Schließen', cell:'Reihe', column:'Spalte', given:'Vorgegeben', empty:'Leer', conflict:'Regelkonflikt', newAchievement:'Neuer Erfolg',
-    helpContent:'<h3>So tauchst du ein</h3><p>Fülle jede Reihe, jede Spalte und jeden 3×3-Block mit den Zahlen 1–9. Jede Zahl kommt darin genau einmal vor. Die vorgegebenen Zahlen bleiben unverändert.</p><p>Tippe auf ein Feld und dann auf eine Zahl. Im Notizmodus sammelst du mögliche Zahlen. Zurück nimmt deinen letzten Zug einschließlich seiner Notizen zurück. Neustart leert nach Bestätigung deine Eingaben und Notizen im selben Rätsel; bereits gesammelte Punkte bleiben erhalten. Doppelte Zahlen werden auf Wunsch markiert.</p><h3>Dein Spiel bleibt bei dir</h3><p>Spielstand, Gesamtpunkte und Einstellungen werden lokal in diesem Browser gespeichert. Erfolge werden erst nach Aktivierung gespeichert. Beim Löschen der Websitedaten, auf einem anderen Gerät oder unter einer anderen Adresse steht dieser Fortschritt nicht zur Verfügung.</p><p>Die App lädt ihre Offline-Dateien im Hintergrund. Nach vollständigem Download kannst du dieselbe Adresse ohne Internet öffnen und neue Rätsel erzeugen. Updates werden erst nach deiner Bestätigung aktiviert.</p><h3>Offenes Projekt</h3><p>MarensSudoku 0.1.0 · Babylon.js 9.32.1. Eigener Code und Dokumentation unter MIT. Generierte Grafikassets haben dokumentierte Herkunft; eine exklusive Schutzfähigkeit wird nicht zugesichert.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Quellcode auf GitHub</a> · <a href="./LICENSE.txt" target="_blank">MIT-Lizenz</a> · <a href="./THIRD_PARTY_NOTICES.txt" target="_blank">Fremdlizenzen</a></p><h3>Rechtliches</h3><p><a href="./impressum.html">Impressum</a> · <a href="./datenschutz.html">Datenschutz</a> · <a href="./assets/music/LICENSE.txt">Musiklizenz</a> · <a href="./assets/sounds/LICENSE.txt">Soundlizenz</a></p>',
+    helpContent:'<h3>So tauchst du ein</h3><p>Fülle jede Reihe, jede Spalte und jeden 3×3-Block mit den Zahlen 1–9. Jede Zahl kommt darin genau einmal vor. Die vorgegebenen Zahlen bleiben unverändert.</p><p>Tippe auf ein Feld und dann auf eine Zahl. Im Notizmodus sammelst du mögliche Zahlen. Zurück nimmt deinen letzten Zug einschließlich seiner Notizen zurück. Neustart leert nach Bestätigung deine Eingaben und Notizen im selben Rätsel; bereits gesammelte Punkte bleiben erhalten. Doppelte Zahlen werden auf Wunsch markiert.</p><h3>Dein eigenes Aquarium</h3><p>Mit dem Fischknopf oben blendest du das Sudoku aus und genießt dein Riff. Ein erneuter Tipp auf den Fischknopf bringt dich zurück. Die Rätselzeit pausiert; Fische und Musik laufen weiter, sofern Bewegung und Musik eingeschaltet sind.</p><p>Unter Einstellungen → Mein Riff einrichten kannst du Fische, Pflanzen und Korallen platzieren, verschieben, drehen und vergrößern. Für Fische wählst du Schwimmverhalten, Tempo und Radius. Die Auswahl und Regler funktionieren auch ohne Ziehen. Speichern merkt sich dein Riff lokal; Verwerfen kehrt zur bisherigen Einrichtung zurück. Dein Sudoku pausiert währenddessen.</p><h3>Ungestört spielen</h3><p>Auf der Spielfläche werden versehentliche Textmarkierungen, Ziehen von Bildern und Browsermenüs unterdrückt. Infotexte kannst du weiterhin kopieren. Beim aktiven Rätseln bleibt der Bildschirm wach, soweit Browser und Energiespareinstellungen das erlauben. In Menüs und im Hintergrund wird das Wachhalten pausiert.</p><h3>Dein Spiel bleibt bei dir</h3><p>Spielstand, Gesamtpunkte und Einstellungen werden lokal in diesem Browser gespeichert. Erfolge werden erst nach Aktivierung gespeichert. Beim Löschen der Websitedaten, auf einem anderen Gerät oder unter einer anderen Adresse steht dieser Fortschritt nicht zur Verfügung.</p><p>Die App lädt ihre Offline-Dateien im Hintergrund. Nach vollständigem Download kannst du dieselbe Adresse ohne Internet öffnen und neue Rätsel erzeugen. Updates werden erst nach deiner Bestätigung aktiviert.</p><h3>Offenes Projekt</h3><p>MarensSudoku 0.1.0 · Babylon.js 9.32.1. Eigener Code und Dokumentation unter MIT. Generierte Grafikassets haben dokumentierte Herkunft; eine exklusive Schutzfähigkeit wird nicht zugesichert.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Quellcode auf GitHub</a></p>',
   },
   en: {
+    reefView:'Watch my reef', reefReturn:'Show Sudoku', reefSaveShort:'Save', reefObjectSettings:'Object & behaviour', reefMoveMode:'Move', reefHeightMode:'Move up / down', reefRotateMode:'Rotate', reefScaleMode:'Scale', reefMoveHint:'Move: Drag the object left, right, near or far along the ground.', reefHeightHint:'Height: Drag the object up or down.', reefRotateHint:'Rotate: Drag the object left or right.', reefScaleHint:'Scale: Drag up to enlarge, down to shrink.',
     brandSub:'YOUR LITTLE REEF BREAK', play:'Play', achievements:'Achievements', settings:'Your preferences',
     eyebrow:'A LITTLE MOMENT FOR YOU', heroFirst:'Dive into calm.', heroSecond:'Come up smiling.', heroCopy:'Crystal-clear water. Colourful thoughts. And a new Sudoku whenever you fancy one.',
     fishCaption:'One little pearl at a time.', treasureTitle:'Your little pearl collection', treasureCopy:'Discover your achievements in the reef.',
@@ -49,6 +56,9 @@ const text = {
     difficulty:'Difficulty', difficultyHelp:'Changing this starts a new puzzle.', easy:'Easy', medium:'Medium', hard:'Hard', loading:'Your next puzzle is surfacing …', cancel:'Cancel', confirm:'Confirm',
     undo:'Undo', notes:'Notes', erase:'Erase', newGame:'New Sudoku', keyboardHint:'Arrow keys to move · Numbers 1–9 · N for notes', footer:'A little ocean of possibilities.',
     help:'Help & info', update:'Update available', language:'Language', darkTheme:'Evening at the reef', darkThemeHelp:'Dark colours for a quiet evening puzzle.',
+    legalTitle:'Legal & licences', legalImprint:'Legal notice', legalPrivacy:'Privacy', legalCode:'Project licence · MIT', legalNotices:'Third-party licences · Babylon.js', legalMusic:'Music licence', legalSounds:'Sound-effect licence', legalCommons:'CC BY 4.0 · full original text', legalSource:'Original source · English',
+    portraitTitle:'Please hold upright', portraitCopy:'Your reef stays in portrait. Turn your device to continue playing.',
+    reefEdit:'Arrange my reef', reefEditHelp:'Place fish, plants and corals in your own aquarium.', reefLoading:'The reef is getting ready.', reefUnavailable:'Arranging your reef requires the 3D view.', reefAddType:'Add an object', reefAdd:'Add', reefSelection:'Your objects', reefSelect:'Select an object', reefPositionX:'Left / right', reefPositionZ:'Near / far', reefHeight:'Height', reefSize:'Size', reefRotation:'Rotation', reefMotion:'Swimming behaviour', reefCircle:'Swim in circles', reefPatrol:'Back and forth', reefEight:'Figure of eight', reefStill:'Stay in place', reefSchool:'Swim in a school', reefSchoolHint:'Fish of the same species form a school. Position, rotation, speed and radius apply to the whole group.', reefSpeed:'Swimming speed', reefRadius:'Swimming radius', reefDuplicate:'Duplicate', reefRemove:'Remove', reefReset:'Default reef', reefSave:'Save', reefCancel:'Discard', reefHint:'Select an object and drag it into place. Fish pause while you arrange the reef.', reefFull:'Your reef is full. Remove an object first.', reefSaveFailed:'Your reef could not be saved. Your changes remain open here.', reefInvalid:'Your saved reef could not be loaded. Saving replaces it with the arrangement shown here.', reefResetTitle:'Restore the default reef?', reefResetCopy:'This replaces the arrangement with the default reef. It is only kept permanently after “Save”. Your Sudoku and points stay intact.',
     reduceMotion:'Reduce motion', reduceMotionHelp:'Quiet highlights instead of moving effects.', showConflicts:'Highlight conflicts', showConflictsHelp:'Marks duplicate numbers in rows, columns or boxes.',
     musicTitle:'Reef music', musicTrack:'Track', musicVolume:'Volume', musicStart:'Start music', musicPause:'Pause music', musicPlaying:'Now playing',
     musicHelp:'Random reef music without consecutive repeats. Pause lasts until reload; your volume is saved.', musicAwaiting:'Music is enabled. Tap the game to let your browser start playback.', musicError:'Music could not start. Please try again or choose another track.',
@@ -70,7 +80,7 @@ const text = {
     filled:'squares filled', remaining:'squares left to discover', completed:'All 81 squares solved. Beautiful work!',
     firstCondition:'Solve one round', flowCondition:'Solve 10 rounds', magicCondition:'Solve 50 rounds', starsCondition:'Solve 100 rounds', varietyCondition:'Solve every difficulty once', crownCondition:'Solve 5 hard rounds', directCondition:'Solve a round without undo',
     close:'Close', cell:'Row', column:'column', given:'Given', empty:'Empty', conflict:'Rule conflict', newAchievement:'New achievement',
-    helpContent:'<h3>Take a little dive</h3><p>Fill each row, column and 3×3 box with the numbers 1–9, using each number exactly once. Given numbers cannot be changed.</p><p>Select a square and then a number. Use notes to collect candidates. Undo restores your previous move and its notes. Restart clears entries and notes after confirmation, keeping the same puzzle and points already collected. Duplicate numbers can be highlighted.</p><h3>Your game stays with you</h3><p>Your game, banked points and preferences are saved locally in this browser. Achievement saving is optional. Clearing site data, changing devices or changing the address can remove access to your progress.</p><p>The app downloads its offline files in the background. After the complete download, reopen the same address without internet and generate new puzzles. Updates are activated only after your confirmation.</p><h3>Open project</h3><p>MarensSudoku 0.1.0 · Babylon.js 9.32.1. Original code and documentation are MIT licensed. Generated graphics have documented provenance; exclusive copyright protection is not guaranteed.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Source on GitHub</a> · <a href="./LICENSE.txt" target="_blank">MIT licence</a> · <a href="./THIRD_PARTY_NOTICES.txt" target="_blank">Third-party notices</a></p><h3>Legal</h3><p><a href="./impressum.html">Legal notice</a> · <a href="./datenschutz.html">Privacy</a> · <a href="./assets/music/LICENSE.txt">Music licence</a> · <a href="./assets/sounds/LICENSE.txt">Sound licence</a></p>',
+    helpContent:'<h3>Take a little dive</h3><p>Fill each row, column and 3×3 box with the numbers 1–9, using each number exactly once. Given numbers cannot be changed.</p><p>Select a square and then a number. Use notes to collect candidates. Undo restores your previous move and its notes. Restart clears entries and notes after confirmation, keeping the same puzzle and points already collected. Duplicate numbers can be highlighted.</p><h3>Your own aquarium</h3><p>The fish button in the header hides Sudoku so you can enjoy your reef. Tap the fish button again to return. Puzzle time pauses; fish and music continue when motion and music are enabled.</p><p>Open Settings → Arrange my reef to place, move, rotate and resize fish, plants and corals. Choose swimming behaviour, speed and radius for fish. Selection and sliders also work without dragging. Save keeps your reef locally; Discard restores your previous arrangement. Your Sudoku pauses while you edit.</p><h3>Play without distractions</h3><p>Accidental text selection, image dragging and browser menus are suppressed on the game surface. Info text remains copyable. During active play, the screen stays awake where the browser and power settings allow it. This pauses in menus and in the background.</p><h3>Your game stays with you</h3><p>Your game, banked points and preferences are saved locally in this browser. Achievement saving is optional. Clearing site data, changing devices or changing the address can remove access to your progress.</p><p>The app downloads its offline files in the background. After the complete download, reopen the same address without internet and generate new puzzles. Updates are activated only after your confirmation.</p><h3>Open project</h3><p>MarensSudoku 0.1.0 · Babylon.js 9.32.1. Original code and documentation are MIT licensed. Generated graphics have documented provenance; exclusive copyright protection is not guaranteed.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Source on GitHub</a></p>',
   },
 };
 const state = load();
@@ -79,10 +89,11 @@ let storageBlocked = state.problem, readOnly = false, busy = false, noteMode = f
 let selection = game ? Math.max(0, game.values.findIndex(v => !v)) : 0;
 let workerJob = null, generation = 0, waitingRegistration = null;
 let clockAt = performance.now(), clockGame = null, clockActive = false, clockTicks = 0;
+const screenWake = createScreenWakeLock();
 const media = matchMedia('(prefers-reduced-motion: reduce)');
 const t = key => text[settings.language][key] || text.de[key] || key;
 const reduced = () => settings.reducedMotion || media.matches;
-let aquarium;
+let aquarium, reefEditor, reefEditing = false, reefViewing = false, screenActive = false;
 const background = $('reef-background-video');
 background.muted = true; background.defaultMuted = true; background.volume = 0;
 background.addEventListener('volumechange', () => { if (!background.muted || background.volume !== 0) { background.muted = true; background.volume = 0; } });
@@ -125,7 +136,10 @@ function syncClock() {
   const now = performance.now();
   if (clockActive && clockGame === game && !game.completionRecorded) game.elapsedMs = Math.min(Number.MAX_SAFE_INTEGER, game.elapsedMs + Math.round(now - clockAt));
   clockAt = now; clockGame = game;
-  clockActive = Boolean(game && !busy && !readOnly && !document.hidden && !game.completionRecorded && !document.querySelector('dialog[open]'));
+  const available=!busy&&!readOnly&&!document.hidden&&!document.querySelector('dialog[open]');
+  clockActive=Boolean(game&&!game.completionRecorded&&available&&!reefEditing&&!reefViewing);
+  const awake=available&&(clockActive||reefEditing||reefViewing);
+  if(awake!==screenActive){screenActive=awake;screenWake.update(awake);}
   renderRoundStats();
 }
 function persist() {
@@ -142,6 +156,8 @@ function renderText() {
   $('settings-open').title = t('settings');
   $('help-open').setAttribute('aria-label', t('help'));
   $('help-open').title = t('help');
+  $('reef-view-toggle').title=t(reefViewing?'reefReturn':'reefView');
+  $('reef-view-toggle').setAttribute('aria-label',$('reef-view-toggle').title);
   $('achievements-nav').setAttribute('aria-label', t('achievements'));
   $('achievements-nav').title = t('achievements');
   $('number-pad').setAttribute('aria-label', settings.language === 'de' ? 'Zahlen' : 'Numbers');
@@ -151,6 +167,8 @@ function renderText() {
   document.body.dataset.theme = settings.theme; document.body.dataset.reduced = reduced();
   updateBackground();
   $('help-content').className = 'help-copy'; $('help-content').innerHTML = t('helpContent');
+  reefEditor?.renderText();
+  $('reef-editor-status').textContent=reefEditor?'':t(['unavailable','awaiting-models'].includes($('reef-aquarium').dataset.status)?'reefUnavailable':'reefLoading');
   if (storageBlocked) { showNotice('storageInvalid'); $('storage-reset').hidden = false; }
   if (readOnly) showNotice('readOnly');
   if (game) $('difficulty').value = game.difficulty;
@@ -290,19 +308,42 @@ $('board').addEventListener('keydown', event => {
   if (next !== undefined) { event.preventDefault(); selection = next; renderBoard(); cells[selection].focus(); }
 });
 document.addEventListener('keydown', event => {
-  if (document.querySelector('dialog[open]') || /^(INPUT|SELECT|TEXTAREA)$/.test(event.target.tagName) || event.ctrlKey || event.metaKey || event.altKey) return;
+  if (reefEditing || reefViewing || document.querySelector('dialog[open]') || /^(INPUT|SELECT|TEXTAREA)$/.test(event.target.tagName) || event.ctrlKey || event.metaKey || event.altKey) return;
   if (/^[1-9]$/.test(event.key)) { event.preventDefault(); input(Number(event.key)); }
   else if (['Delete','Backspace'].includes(event.key)) { event.preventDefault(); input(0); }
   else if (event.key.toLowerCase() === 'n' && !readOnly && !busy) { noteMode = !noteMode; renderBoard(); }
 });
+for (const type of ['contextmenu', 'selectstart', 'dragstart']) {
+  document.body.addEventListener(type, event => {
+    const target = event.target instanceof Element ? event.target : event.target?.parentElement;
+    if (target && !target.closest('input, textarea, select, [contenteditable], #help-dialog .dialog-body')) event.preventDefault();
+  });
+}
+for (const type of ['pointerdown', 'keydown']) document.addEventListener(type, () => screenWake.update(screenActive), { passive:true });
 document.querySelectorAll('.dialog-close').forEach(button => button.addEventListener('click', () => {
   const dialog = button.closest('dialog');
   if (dialog.id === 'confirm-dialog') $('confirm-no').click(); else dialog.close();
 }));
 for (const id of ['achievements-nav','treasure-open']) $(id).addEventListener('click', () => { renderAchievements(); $('achievements-dialog').showModal(); });
 $('settings-open').addEventListener('click', () => $('settings-dialog').showModal());
+function setReefView(active) {
+  syncClock();reefViewing=active;document.body.dataset.reefView=String(active);
+  $('reef-view-toggle').setAttribute('aria-pressed',String(active));
+  $('reef-view-toggle').title=t(active?'reefReturn':'reefView');
+  $('reef-view-toggle').setAttribute('aria-label',$('reef-view-toggle').title);
+  $('reef-view-actions').hidden=!active;syncClock();
+  if(active){scene.stopEffects();$('reef-view-toggle').focus();}else cells[selection].focus();
+}
+$('reef-view-toggle').addEventListener('click',()=>setReefView(!reefViewing));
 $('help-open').addEventListener('click', () => $('help-dialog').showModal());
-$('play-nav').addEventListener('click', () => { cells[selection].focus(); });
+$('help-dialog').addEventListener('click', event => {
+  const link = event.target.closest('a[href]');
+  if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  const section = [...$('help-dialog').querySelectorAll('details[data-document]')].find(details => new URL(details.dataset.document, location.href).href === link.href);
+  if (!section) return;
+  event.preventDefault(); section.open = true; section.querySelector('summary').focus();
+});
+$('play-nav').addEventListener('click', () => { if(reefViewing)setReefView(false);else cells[selection].focus(); });
 function changeSettings() {
   if (readOnly) { renderText(); return; }
   settings.language = $('language').value; settings.theme = $('dark-theme').checked ? 'dark' : 'light';
@@ -332,11 +373,20 @@ window.addEventListener('storage', event => {
   if (event.key !== STORAGE_KEY) return;
   if (readOnly) { const fresh = load(); if (fresh.game) { game = fresh.game; progress = fresh.progress; scores = fresh.scores; renderBoard(); renderAchievements(); } }
 });
-window.addEventListener('pagehide', () => { syncClock(); persist(); workerJob?.worker.terminate(); });
+window.addEventListener('pagehide', () => { syncClock(); persist(); screenWake.update(false); workerJob?.worker.terminate(); });
 window.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
 document.addEventListener('visibilitychange', () => { syncClock(); if (document.hidden) { persist(); scene.stopEffects(); } });
 const dialogClock = new MutationObserver(syncClock);
 document.querySelectorAll('dialog').forEach(dialog => dialogClock.observe(dialog, { attributes:true, attributeFilter:['open'] }));
+const portraitRequired = matchMedia('(pointer:coarse) and (orientation:landscape)');
+function updatePortrait() {
+  const dialog=$('portrait-dialog');
+  if (portraitRequired.matches && !dialog.open) dialog.showModal();
+  else if (!portraitRequired.matches && dialog.open) dialog.close();
+}
+$('portrait-dialog').addEventListener('cancel', event=>event.preventDefault());
+portraitRequired.addEventListener('change',updatePortrait);
+if (matchMedia('(pointer:coarse)').matches && screen.orientation?.lock) screen.orientation.lock('portrait').catch(()=>{});
 setInterval(() => { syncClock(); if (clockActive && ++clockTicks % 5 === 0) persist(); }, 1000);
 async function acquireWriter() {
   if (!navigator.locks) return;
@@ -362,10 +412,18 @@ $('update').addEventListener('click', () => {
   waitingRegistration?.waiting?.postMessage('ACTIVATE');
 });
 renderText();
+updatePortrait();
 await acquireWriter();
 renderBoard();
 if (game) { $('loading').hidden = true; persist(); }
 else if (!readOnly) newPuzzle('easy', false);
 else $('loading').hidden = true;
 offlineSetup();
-import('./game/aquarium.mjs').then(module => module.createAquarium($('reef-aquarium'))).then(result => { aquarium = result; updateBackground(); }).catch(() => { $('reef-aquarium').dataset.status = 'unavailable'; });
+import('./game/aquarium.mjs').then(module => module.createAquarium($('reef-aquarium'))).then(result => {
+  aquarium=result;updateBackground();
+  if(!result){$('reef-editor-status').textContent=t('reefUnavailable');return;}
+  reefEditor=setupReefEditor(result,{t,language:()=>settings.language,readOnly,
+    confirmReset:()=>confirmation('reefResetTitle','reefResetCopy'),
+    onModeChange(active){syncClock();reefEditing=active;syncClock();if(active)scene.stopEffects();else if(reefViewing)$('reef-view-toggle').focus();else cells[selection].focus();},
+  });
+}).catch(() => { $('reef-aquarium').dataset.status = 'unavailable'; $('reef-editor-status').textContent=t('reefUnavailable'); });
