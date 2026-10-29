@@ -27,7 +27,7 @@ Games and preferences stay in this browser. Achievement saving is optional and c
 
 Eleven supplied instrumental MP3 files cover six themes; “Schwebende Perlen · Variante 2” has been removed from the game. Music is enabled on every page load and starts automatically when allowed, otherwise on the first click, tap or key press. A random different track is chosen on reload and whenever a song finishes. Pause music for the current visit, select a track and adjust volume in Settings. Music keeps playing across tab changes. Volume and the last track are saved to avoid consecutive repeats. All tracks work offline after the complete cache is ready.
 
-Generation prompts and the drop folder are in [web/assets/music](web/assets/music/README.md); audio rights are documented separately in [RIGHTS.md](web/assets/music/RIGHTS.md). The eleven music files and eight procedurally synthesised sound effects have separate [music](web/assets/music/LICENSE.md) and [sound-effect](web/assets/sounds/LICENSE.md) notices under CC BY 4.0, to the extent the project can grant the relevant rights. The music notice also retains the removed track's original licence. Attribution: “MarensSudoku-Projekt”. This does not change the code's MIT licence. Sound sources and reproduction are documented in [PROVENANCE.md](web/assets/sounds/PROVENANCE.md).
+The eleven music files and eight procedurally synthesised sound effects have separate [music](web/assets/music/LICENSE.md) and [sound-effect](web/assets/sounds/LICENSE.md) notices under CC BY 4.0, to the extent the project can grant the relevant rights. The music notice also retains the removed track's original licence. Attribution: “MarensSudoku-Projekt”. This does not change the code's MIT licence.
 
 ## Points
 
@@ -51,10 +51,10 @@ Semantic HTML and CSS render the entire board, including grid lines, glass-like 
 
 Rendering is capped at 30 frames per second, pauses in background tabs, and becomes still with reduced motion. Resizing redraws immediately; an opaque canvas background prevents the fallback image flashing through. A muted background video remains as a fallback if 3D cannot load; only the separate music and sound cues produce audio.
 
-All engine code and 17 uncompressed GLB models are served locally and included in the offline cache. Embedded textures are limited to 1024 pixels; the models together occupy about 6 MB. Meshy is used only during development, never contacted by players. Models and their generation trail are documented in [web/assets/models/PROVENANCE.md](web/assets/models/PROVENANCE.md). Effects use native browser animation and Web Audio, with HTML audio as a fallback. The pure JavaScript Sudoku engine runs in a Web Worker. Difficulty uses solving techniques rather than clue counts alone. Native offline caching verifies complete asset hashes before accepting an update.
+All engine code and 17 uncompressed GLB models are served locally and included in the offline cache. Embedded textures are limited to 1024 pixels; the models together occupy about 6 MB. Meshy is used only during development, never contacted by players. Effects use native browser animation and Web Audio, with HTML audio as a fallback. The pure JavaScript Sudoku engine runs in a Web Worker. Difficulty uses solving techniques rather than clue counts alone. Native offline caching verifies complete asset hashes before accepting an update.
 
 ## Licence
 
-Original code and documentation: MIT. See LICENSE and THIRD_PARTY_NOTICES.md. Graphics provenance and rights limitations are documented in web/assets/ASSET_PROVENANCE.md.
+Original code and documentation: MIT. See LICENSE and THIRD_PARTY_NOTICES.md.
 
 The first release was published on 28 October 2026. Operator and privacy information are included in the app. Real-device testing remains outstanding.

@@ -49,4 +49,4 @@ Es werden nur tatsächlich verfügbare Rechte eingeräumt. Eine gesetzlich erlau
 
 ## Freigabevermerk
 
-Die Erstveröffentlichung wurde vom Projektbetreiber am 28.10.2026 beauftragt. Bereits wirksam eingeräumte CC-BY-Rechte sind bei Einhaltung der Bedingungen nicht einseitig widerrufbar. Zahlungs- und Kontonachweise bleiben privat. Herkunft und Anbieterquellen: [RIGHTS.md](RIGHTS.md).
+Die Erstveröffentlichung wurde vom Projektbetreiber am 28.10.2026 beauftragt. Bereits wirksam eingeräumte CC-BY-Rechte sind bei Einhaltung der Bedingungen nicht einseitig widerrufbar. Zahlungs- und Kontonachweise bleiben privat.

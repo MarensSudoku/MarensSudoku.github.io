@@ -24,7 +24,7 @@ Die Änderungsangabe muss der tatsächlichen Bearbeitung entsprechen; bei unver�
 
 ## Freigabeliste
 
-Freigegeben am 28.10.2026: eigene Synthese, keine Fremdsamples. Details: [PROVENANCE.md](PROVENANCE.md).
+Freigegeben am 28.10.2026: eigene Synthese, keine Fremdsamples.
 
 - `01-zahl-eintragen.wav`
 - `02-notiz-setzen.wav`
