@@ -53,7 +53,6 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
     console.log(`${name}: aquarium ${status}; checking resize, motion and offline reload.`);
     if(status==='ready') {
       assert.ok(await page.evaluate(()=>window.__aquariumDraws)>0);
-      assert.equal(await page.locator('#reef-background-video').evaluate(video=>video.hidden&&video.paused),true);
       await watchResize();
       for(const [width,height] of [[375,559],[667,375],[320,480],[1024,600],[1440,900],[390,664]]) {
         const before=await page.evaluate(()=>window.__resizeDraws.length);
@@ -104,8 +103,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
       await tab.waitForFunction(()=>document.querySelector('#reef-aquarium')?.dataset.status==='unavailable');
       await tab.locator('.board-shell.ready').waitFor();
       assert.equal(await tab.locator('[role=gridcell]').count(),81);
-      assert.equal(await tab.locator('#reef-background-video').evaluate(video=>!video.hidden&&video.muted),true);
-      await fallback.close(); console.log('chromium: unavailable 3D preserves the playable grid and muted fallback.');
+      await fallback.close(); console.log('chromium: unavailable 3D preserves the playable grid.');
     }
   } finally { await browser.close(); }
 }

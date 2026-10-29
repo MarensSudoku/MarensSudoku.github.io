@@ -94,13 +94,8 @@ const media = matchMedia('(prefers-reduced-motion: reduce)');
 const t = key => text[settings.language][key] || text.de[key] || key;
 const reduced = () => settings.reducedMotion || media.matches;
 let aquarium, reefEditor, reefEditing = false, reefViewing = false, screenActive = false;
-const background = $('reef-background-video');
-background.muted = true; background.defaultMuted = true; background.volume = 0;
-background.addEventListener('volumechange', () => { if (!background.muted || background.volume !== 0) { background.muted = true; background.volume = 0; } });
 function updateBackground() {
   aquarium?.updateOptions({ reduced:reduced(), dark:settings.theme === 'dark' });
-  background.hidden = Boolean(aquarium);
-  if (aquarium || reduced()) background.pause(); else background.play().catch(() => {});
 }
 const music = setupMusic(settings, t, persist);
 const scene = createEffects('board-effects');

@@ -49,7 +49,7 @@ Settings → Arrange my reef, or the button below the aquarium view, opens the a
 
 Semantic HTML and CSS render the entire board, including grid lines, glass-like backgrounds, highlights, sharp numbers and notes. Babylon.js 9.32.1 renders a real 3D aquarium behind the interface: a sandy corridor between layered reef ledges, five separate coral types, seagrass, algae, gently swaying anemones and a small walking crab. Six fish species include two coherent schools, with 24 fish on mobile and 36 on desktop. Sun shafts, surface ripples and moving caustic patterns light the sand. The composition follows the original reef illustration's colours, dense edges and open centre.
 
-Rendering is capped at 30 frames per second, pauses in background tabs, and becomes still with reduced motion. Resizing redraws immediately; an opaque canvas background prevents the fallback image flashing through. A muted background video remains as a fallback if 3D cannot load; only the separate music and sound cues produce audio.
+Rendering is capped at 30 frames per second, pauses in background tabs, and becomes still with reduced motion. Resizing redraws immediately. If 3D cannot load, a plain water colour remains behind the game.
 
 All engine code and 17 uncompressed GLB models are served locally and included in the offline cache. Embedded textures are limited to 1024 pixels; the models together occupy about 6 MB. Meshy is used only during development, never contacted by players. Effects use native browser animation and Web Audio, with HTML audio as a fallback. The pure JavaScript Sudoku engine runs in a Web Worker. Difficulty uses solving techniques rather than clue counts alone. Native offline caching verifies complete asset hashes before accepting an update.
 
