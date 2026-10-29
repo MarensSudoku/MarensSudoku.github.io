@@ -1,7 +1,7 @@
 import { emptyProgress, emptyScores, validGame, ACHIEVEMENTS } from './sudoku/model.mjs';
 import { DEFAULT_MUSIC_TRACK } from './music.mjs';
 export const STORAGE_KEY = 'marenssudoku:state:v1';
-export const defaults = () => ({ language: navigator.language.startsWith('de') ? 'de' : 'en', theme: 'light', reducedMotion: false, showConflicts: true, tracking: false, musicVolume: 0.25, musicTrack: DEFAULT_MUSIC_TRACK, musicEnabled: true, sfxEnabled: true, sfxVolume: 0.3 });
+export const defaults = () => ({ language: navigator.language.startsWith('de') ? 'de' : 'en', theme: 'light', reducedMotion: false, showConflicts: true, tracking: true, musicVolume: 0.25, musicTrack: DEFAULT_MUSIC_TRACK, musicEnabled: true, sfxEnabled: true, sfxVolume: 0.3 });
 function validProgress(p) {
   return p && ['total','easy','medium','hard','direct'].every(k => Number.isSafeInteger(p[k]) && p[k] >= 0) &&
     p.total === p.easy + p.medium + p.hard && p.direct <= p.total && Array.isArray(p.unlocked) &&

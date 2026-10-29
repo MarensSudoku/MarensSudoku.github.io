@@ -53,6 +53,10 @@ for (const path of (await files(output)).sort()) {
   assets.push({ path: relative(output, path).replaceAll('\\', '/'), hash: createHash('sha256').update(await readFile(path)).digest('hex') });
 }
 const version = createHash('sha256').update(JSON.stringify(assets)).digest('hex').slice(0, 12);
+const versionedIndex=index.replace('<!-- build-version -->',version);
+if(versionedIndex===index)throw new Error('Build version marker missing');
+await writeFile(join(output,'index.html'),versionedIndex);
+assets.find(asset=>asset.path==='index.html').hash=createHash('sha256').update(versionedIndex).digest('hex');
 const rangeSource = (await readFile(join(root, 'web/range.mjs'), 'utf8')).replace(/^export /gm, '');
 const installSource = (await readFile(join(root, 'web/offline-install.mjs'), 'utf8')).replace(/^export /gm, '');
 const source = `${rangeSource}

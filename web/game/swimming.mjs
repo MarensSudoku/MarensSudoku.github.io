@@ -1,3 +1,5 @@
+import {Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
+
 export function tailWeight(x, min, max) {
   const tail = Math.max(0, Math.min(1, ((max - x) / (max - min || 1) - 0.35) / 0.65));
   return tail * tail;
@@ -26,10 +28,12 @@ export function swayWeight(height, min, max) {
 }
 
 export function aquariumPose(time, object) {
-  if(object.motion==='still')return {x:object.x,y:object.y,z:object.z,yaw:object.yaw};
+  if(object.motion==='still'&&object.type!=='reef-crab')return {x:object.x,y:object.y,z:object.z,yaw:object.yaw,pitch:object.pitch||0,roll:object.roll||0};
   const settings={phase:object.phase,speed:object.baseSpeed*object.speed,radius:object.radius,depth:object.z,height:object.y,member:object.member};
   let pose;
-  if(object.motion==='circle'||object.motion==='school') {
+  if(object.type==='reef-crab') {
+    pose={x:Math.sin(time*.16)*1.4,y:object.y,z:object.z+Math.cos(time*.11)*.5,yaw:0};
+  } else if(object.motion==='circle'||object.motion==='school') {
     pose=object.motion==='school'?schoolPose(time,settings):swimPose(time,settings);
   } else {
     const angle=time*settings.speed+object.phase, x=Math.sin(angle)*object.radius;
@@ -37,6 +41,9 @@ export function aquariumPose(time, object) {
     const vx=Math.cos(angle)*object.radius, vz=object.motion==='eight'?Math.cos(angle*2)*3:-Math.sin(angle)*.35;
     pose={x,y:object.y+Math.sin(angle*2)*.12,z:object.z+z,yaw:Math.atan2(-vz,vx)};
   }
-  const c=Math.cos(object.yaw),s=Math.sin(object.yaw),z=pose.z-object.z;
-  return {...pose,x:object.x+pose.x*c+z*s,z:object.z-pose.x*s+z*c,yaw:pose.yaw+object.yaw};
+  const rotation=Quaternion.RotationYawPitchRoll(object.yaw,object.pitch||0,object.roll||0);
+  const offset=new Vector3(pose.x,pose.y-object.y,pose.z-object.z);
+  offset.rotateByQuaternionToRef(rotation,offset);
+  const facing=rotation.multiply(Quaternion.RotationYawPitchRoll(pose.yaw,0,0)).toEulerAngles();
+  return {x:object.x+offset.x,y:object.y+offset.y,z:object.z+offset.z,yaw:facing.y,pitch:facing.x,roll:facing.z};
 }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readdir, stat } from 'node:fs/promises';
 import { makeMusicTracks, pickMusicTrack, DEFAULT_MUSIC_TRACK } from '../web/music.mjs';
 import { generate } from '../web/sudoku/engine.mjs';
-import { createGame } from '../web/sudoku/model.mjs';
+import { createGame, emptyProgress } from '../web/sudoku/model.mjs';
 import { defaults, load, save, STORAGE_KEY } from '../web/storage.mjs';
 import { parseByteRange, rangeResponse } from '../web/range.mjs';
 
@@ -60,7 +60,7 @@ test('reloading after a music pause re-enables playback without changing saved p
   globalThis.localStorage = { getItem: () => stored, setItem: (key, value) => { stored = value; } };
   const game = createGame(generate('easy', 43));
   const settings = { ...defaults(), musicEnabled:false, musicVolume:0.4, musicTrack:'03-schwebende-perlen_2.mp3' };
-  assert.equal(save(game, settings, null), true);
+  assert.equal(save(game, settings, emptyProgress()), true);
   const restored = load();
   assert.equal(restored.settings.musicEnabled, true);
   assert.equal(restored.settings.musicVolume, 0.4);

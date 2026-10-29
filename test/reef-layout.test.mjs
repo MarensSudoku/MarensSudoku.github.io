@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { reefObject,validReefLayout,readReefLayout,saveReefLayout,REEF_STORAGE_KEY,MAX_REEF_OBJECTS } from '../web/reef-layout.mjs';
 import { aquariumPose } from '../web/game/swimming.mjs';
+import {Matrix,Vector3} from '@babylonjs/core/Maths/math.vector.js';
 
 test('reef storage validates geometry, model names, behaviours and unique IDs',()=>{
   const object=reefObject('blue-tang','my-fish',{motion:'eight',speed:1.7,x:2,z:4});
@@ -9,6 +10,13 @@ test('reef storage validates geometry, model names, behaviours and unique IDs',(
   for(const patch of [{type:'remote.glb'},{x:NaN},{scale:0},{speed:100},{motion:'unknown'},{member:-1},{extra:'payload'}])assert.equal(validReefLayout({schema:1,objects:[{...object,...patch}]}),false);
   assert.equal(validReefLayout({schema:1,objects:[object,object]}),false);
   assert.equal(validReefLayout({schema:1,objects:Array.from({length:MAX_REEF_OBJECTS+1},(_,i)=>({...object,id:'fish-'+i}))}),false);
+  const distant=reefObject('reef-ledge','distant-rock',{x:26,y:14,z:68});
+  assert.equal(validReefLayout({schema:1,objects:[distant]}),true);
+  for(const patch of [{x:31},{y:17},{z:81}])assert.equal(validReefLayout({schema:1,objects:[{...distant,...patch}]}),false);
+  assert.equal(validReefLayout({schema:1,objects:[{...object,pitch:.7,roll:-1.2}]}),true);
+  for(const patch of [{pitch:NaN},{roll:7}])assert.equal(validReefLayout({schema:1,objects:[{...object,...patch}]}),false);
+  for(const hue of [0,180,360])assert.equal(validReefLayout({schema:1,objects:[{...object,hue}]}),true);
+  for(const hue of [-1,361,NaN])assert.equal(validReefLayout({schema:1,objects:[{...object,hue}]}),false);
 });
 
 test('personal reef saves independently and corrupt or unavailable storage is preserved',()=>{
@@ -19,6 +27,10 @@ test('personal reef saves independently and corrupt or unavailable storage is pr
   assert.equal(data.get('marenssudoku:state:v1'),'untouched game');
   data.set(REEF_STORAGE_KEY,'bad saved reef');assert.deepEqual(readReefLayout(storage),{layout:null,problem:true});assert.equal(data.get(REEF_STORAGE_KEY),'bad saved reef');
   assert.equal(saveReefLayout(layout,{setItem(){throw new Error('Quota full');}}),false);
+  const legacy={...layout.objects[0]};delete legacy.pitch;delete legacy.roll;delete legacy.hue;
+  const legacyText=JSON.stringify({schema:1,objects:[legacy]});data.set(REEF_STORAGE_KEY,legacyText);
+  assert.deepEqual(readReefLayout(storage),{layout,problem:false},'older reefs acquire zero X/Z rotations without losing their objects');
+  assert.equal(data.get(REEF_STORAGE_KEY),legacyText,'reading an older reef must not rewrite its saved data');
 });
 
 test('fish routes remain anchored, follow configured speed, and face forwards when rotated',()=>{
@@ -35,4 +47,19 @@ test('fish routes remain anchored, follow configured speed, and face forwards wh
   }
   const still=reefObject('blue-tang','fish',{motion:'still',x:2,y:3,z:4,yaw:.7});
   assert.deepEqual(aquariumPose(0,still),aquariumPose(200,still));
+});
+
+test('all moving routes and school formations rotate rigidly with every object axis',()=>{
+  for(const motion of ['circle','patrol','eight','school','crab'])for(const angles of [{pitch:Math.PI/2,roll:0,yaw:0},{pitch:0,roll:Math.PI/2,yaw:0},{pitch:.7,roll:-.9,yaw:1.1}]){
+    const object=reefObject(motion==='crab'?'reef-crab':'clownfish','moving',{motion:motion==='crab'?'still':motion,x:2,y:4,z:6,phase:.6,member:5});
+    const matrix=Matrix.RotationYawPitchRoll(angles.yaw,angles.pitch,angles.roll);
+    for(const time of [0,3,11,29]){
+      const base=aquariumPose(time,object),rotated=aquariumPose(time,{...object,...angles});
+      const expected=Vector3.TransformNormal(new Vector3(base.x-object.x,base.y-object.y,base.z-object.z),matrix);
+      for(const key of ['x','y','z'])assert.ok(Math.abs(rotated[key]-object[key]-expected[key])<1e-6,`${motion} ${key} follows all rotations`);
+      const forward=Vector3.TransformNormal(new Vector3(Math.cos(base.yaw),0,-Math.sin(base.yaw)),matrix);
+      const actual=Vector3.TransformNormal(new Vector3(1,0,0),Matrix.RotationYawPitchRoll(rotated.yaw,rotated.pitch,rotated.roll));
+      assert.ok(Vector3.Distance(forward,actual)<1e-6,`${motion} faces along its rotated route`);
+    }
+  }
 });

@@ -103,6 +103,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   if(await page.evaluate(()=>CSS.supports('-webkit-touch-callout','none')))assert.equal(await page.locator('body').evaluate(el=>getComputedStyle(el).getPropertyValue('-webkit-touch-callout')),'none');
   const read = () => page.evaluate(() => JSON.parse(localStorage.getItem('marenssudoku:state:v1')));
   assert.equal((await read()).settings.musicEnabled, true);
+  assert.equal(await page.locator('#tracking').isChecked(),true,'achievement saving must start enabled for new players');
   await page.locator('#settings-open').click();
   await page.waitForFunction(()=>window.__wakeHeld===0);
   await page.waitForFunction(() => document.getElementById('music-track').options.length > 0);
@@ -163,6 +164,9 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal(await page.locator('#round-time').textContent(), pausedClock, 'menus must pause the round clock');
   await page.locator('#settings-dialog .dialog-close').click();
   await page.locator('#help-open').click();
+  const appVersion=await page.locator('#app-version').innerText();assert.match(appVersion,/^[a-f0-9]{12}$/);
+  const versionWorker=await context.request.get(new URL('sw.js',base).href);
+  assert.ok((await versionWorker.text()).includes(`const CACHE = PREFIX + '${appVersion}';`),'info must display the same build version used by the offline update cache');
   await page.locator('#help-content p').first().dblclick();
   assert.ok(await page.evaluate(()=>getSelection().toString().length>0),'info text must remain selectable for copying');
   assert.equal(await page.locator('#music-toggle-help, #offline-status').count(), 0);

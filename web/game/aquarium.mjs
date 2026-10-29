@@ -11,6 +11,7 @@ import { DirectionalLight } from '@babylonjs/core/Lights/directionalLight.js';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial.js';
 import { MaterialPluginBase } from '@babylonjs/core/Materials/materialPluginBase.js';
 import { Constants } from '@babylonjs/core/Engines/constants.js';
+import { HighlightLayer } from '@babylonjs/core/Layers/highlightLayer.js';
 import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder.js';
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode.js';
 import { VertexBuffer } from '@babylonjs/core/Buffers/buffer.js';
@@ -30,6 +31,25 @@ class GroundShadow extends MaterialPluginBase {
   getClassName() {return 'GroundShadow';}
   getCustomCode(stage) {
     return stage==='vertex'?{CUSTOM_VERTEX_UPDATE_WORLDPOS:'float shadowHeight = worldPos.y - .055; worldPos.xyz = vec3(worldPos.x + .35 * shadowHeight, .055, worldPos.z + .45 * shadowHeight);'}:null;
+  }
+}
+
+class ReefColor extends MaterialPluginBase {
+  constructor(material) {super(material,'ReefColor',110);this.registerForExtraEvents=true;this._enable(true);}
+  getClassName() {return 'ReefColor';}
+  getUniforms() {return {ubo:[{name:'reefHue',size:1,type:'float'}],fragment:'uniform float reefHue;'};}
+  hardBindForSubMesh(buffer,scene,engine,subMesh) {buffer.updateFloat('reefHue',subMesh.getRenderingMesh().parent?.metadata?.reefEntry?.record.hue||0);}
+  getCustomCode(stage) {
+    if(stage!=='fragment')return null;
+    const code={CUSTOM_FRAGMENT_DEFINITIONS:`vec3 reefColor(vec3 color) {
+      if (reefHue <= 0.) return color;
+      float value = max(max(color.r, color.g), color.b);
+      float saturation = value > 0. ? (value - min(min(color.r, color.g), color.b)) / value : 0.;
+      vec3 palette = clamp(abs(fract(reefHue / 360. + vec3(0., 2./3., 1./3.)) * 6. - 3.) - 1., 0., 1.);
+      return value * mix(vec3(1.), palette, max(saturation, .45));
+    }`};
+    code[this._material.getClassName()==='PBRMaterial'?'CUSTOM_FRAGMENT_UPDATE_ALBEDO':'CUSTOM_FRAGMENT_UPDATE_DIFFUSE']=this._material.getClassName()==='PBRMaterial'?'surfaceAlbedo = reefColor(surfaceAlbedo);':'baseColor.rgb = reefColor(baseColor.rgb);';
+    return code;
   }
 }
 
@@ -61,7 +81,10 @@ export async function createAquarium(canvas) {
     shadowMaterial.disableLighting=true;shadowMaterial.diffuseColor=Color3.Black();shadowMaterial.emissiveColor=new Color3(.12,.18,.2);shadowMaterial.alpha=.22;shadowMaterial.backFaceCulling=false;
     // Stencil shades each sand pixel once, regardless of overlapping projected faces.
     shadowMaterial.stencil.enabled=true;shadowMaterial.stencil.func=shadowMaterial.stencil.backFunc=Constants.NOTEQUAL;
+    shadowMaterial.stencil.mask=shadowMaterial.stencil.funcMask=1;
     new GroundShadow(shadowMaterial);
+    const hoverGlow=new HighlightLayer('reef-hover',scene,{mainTextureRatio:1,blurHorizontalSize:2,blurVerticalSize:2});
+    hoverGlow.innerGlow=false;hoverGlow.numStencilBits=2;hoverGlow.isEnabled=false;
     const sand = CreateGround('white-sand', { width:160, height:160, subdivisions:80, updatable:true }, scene);
     const sandPositions = sand.getVerticesData(VertexBuffer.PositionKind), sandNormals = [];
     for (let i=0;i<sandPositions.length;i+=3) sandPositions[i+1] = Math.sin(sandPositions[i]*.7+sandPositions[i+2]*.4)*.045;
@@ -72,7 +95,7 @@ export async function createAquarium(canvas) {
     sand.isPickable = false;
     const water = createWater(scene,sandMaterial,mobile||software), scenery = [], swaying = [];
     const templates = new Map(), objects = new Map(), fish = [];
-    let framing = 1, editing = false, transformMode = 'move', selected = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {};
+    let framing = 1, editing = false, transformMode = 'move', selected = null, hovered = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {}, beforeChange = () => {};
 
     async function model(spec, size, bottom) {
       // Models ship as uncompressed GLB so the loader never needs remote decoders.
@@ -93,6 +116,7 @@ export async function createAquarium(canvas) {
         mesh.position.setAll(0); mesh.scaling.setAll(1); mesh.rotation.setAll(0); mesh.rotationQuaternion = null;
         mesh.isPickable = false;
         if (mesh.material) {
+          if(!mesh.material.pluginManager.getPlugin('ReefColor'))new ReefColor(mesh.material);
           mesh.material.backFaceCulling = false;
           if (spec.file === 'reef-ledge.glb') { mesh.material.albedoColor = new Color3(.38,.58,.64); mesh.material.roughness = 1; }
         }
@@ -125,7 +149,8 @@ export async function createAquarium(canvas) {
       for(const mesh of node.getChildMeshes()) {
         const shadow=mesh.clone('shadow-'+mesh.name,mesh.parent,true);
         shadow.material=shadowMaterial;shadow.morphTargetManager=mesh.morphTargetManager;
-        shadow.isPickable=false;shadow.alwaysSelectAsActiveMesh=true;
+        shadow.isPickable=false;shadow.alwaysSelectAsActiveMesh=true;shadow.alphaIndex=0;
+        hoverGlow.addExcludedMesh(shadow);
       }
     }
     function bend(root, strength, kind) {
@@ -158,6 +183,7 @@ export async function createAquarium(canvas) {
         mesh.morphTargetManager = steady(mesh.morphTargetManager.clone()); return mesh.morphTargetManager;
       });
       const sceneryItem={node,x}, entry={node,managers,scenery:sceneryItem,record:reefObject(template.metadata.type,name,{x,y,z,scale:size,yaw:Math.atan2(Math.sin(yaw),Math.cos(yaw))})};
+      node.metadata={...node.metadata,reefEntry:entry};
       scenery.push(sceneryItem); objects.set(name,entry);
       if (moving) { entry.sway={managers,phase:scenery.length*.9}; swaying.push(entry.sway); }
       addShadows(node);
@@ -191,13 +217,12 @@ export async function createAquarium(canvas) {
         place(coralTemplates[index],`ledge-growth-${i}-${j}`,x+(j ? .7 : -.7),top,z+.3,.85,i*.6,Boolean(models.corals[index].sway));
       }
     });
-    // Distant pillars stay out of the editable reef and fade into the haze behind it; CPU-only rendering skips their geometry.
-    const decor=(template,name,x,y,z,size,yaw)=>{const node=template.clone(name);node.setEnabled(true);node.position.set(x,y,z);node.scaling.setAll(size);node.rotation.y=yaw;addShadows(node);scenery.push({node,x});return node;};
+    // Distant reef pieces use the same editable records; CPU-only defaults omit their geometry.
     (software ? [] : [[-15,22,1.3,.5],[-19,34,1.6,1.2],[-13,47,1.5,2],[-25,50,2,.3],[15,24,1.4,2.4],[20,36,1.7,.9],[14,49,1.5,1.7],[26,54,2.1,2.8],[-5,62,1.3,.6],[6,68,1.4,2.2]]).forEach(([x,z,size,yaw],i)=> {
       const height=rock.metadata.height, upper=size*.75, top=height*size*.6+height*upper*.72;
-      decor(rock,`pillar-${i}`,x,0,z,size,yaw); decor(rock,`pillar-top-${i}`,x*.98,height*size*.6,z+.3,upper,yaw+1.1);
-      decor(reef,`pillar-reef-${i}`,x*.96,top,z,.6+size*.12,yaw*2);
-      for(let j=0;j<2;j++)decor(coralTemplates[(i+j*3)%coralTemplates.length],`pillar-coral-${i}-${j}`,x+(j?1:-1)*size*.9,height*size*.6,z-.4,.9+size*.15,i+j);
+      place(rock,`pillar-${i}`,x,0,z,size,yaw); place(rock,`pillar-top-${i}`,x*.98,height*size*.6,z+.3,upper,yaw+1.1);
+      place(reef,`pillar-reef-${i}`,x*.96,top,z,.6+size*.12,yaw*2);
+      for(let j=0;j<2;j++)place(coralTemplates[(i+j*3)%coralTemplates.length],`pillar-coral-${i}-${j}`,x+(j?1:-1)*size*.9,height*size*.6,z-.4,.9+size*.15,i+j);
     });
     for(let i=0;i<models.plants.length;i++) {
       const spec=models.plants[i], template=await model(spec,spec.size,true); bend(template,spec.sway,'plant'); template.setEnabled(false);
@@ -218,23 +243,24 @@ export async function createAquarium(canvas) {
         const managers=body.getChildMeshes().map(mesh=> { mesh.morphTargetManager=steady(mesh.morphTargetManager.clone());return mesh.morphTargetManager; });
         addShadows(body);
         const record=reefObject(template.metadata.type,body.name,{motion:school?'school':'circle',member:i,phase:school?species*1.3:species*2+i*1.8,baseSpeed:school?.065+species*.004:.08+species*.014,radius:school?4.5:3.6+i*.6,z:school?9+(species-4)*4:1+species*1.2,y:school?4+(species-4)*1.3:1.6+species*.55+i*.35});
-        const animal={body,managers,record}; fish.push(animal); objects.set(record.id,{node:body,managers,record,animal});
+        const animal={body,managers,record},entry={node:body,managers,record,animal};fish.push(animal);objects.set(record.id,entry);body.metadata={...body.metadata,reefEntry:entry};
       }
     }
     const ring=CreateTorus('selected-object',{diameter:1,thickness:.035,tessellation:32},scene);
     const ringMaterial=new StandardMaterial('selection-light',scene); ringMaterial.emissiveColor=new Color3(.7,1,1);ringMaterial.disableLighting=true;
     ring.material=ringMaterial;ring.isPickable=false;ring.setEnabled(false);
+    hoverGlow.addExcludedMesh(ring);
     function snapshot() {return {schema:1,objects:[...objects.values()].map(entry=>({...entry.record}))};}
+    function changing() {if(!replacing)beforeChange();}
     const defaultLayout=snapshot(), stored=readReefLayout();
     if(!validReefLayout(defaultLayout))throw new Error('Invalid default reef layout');
     function redraw() {if(ready&&!replacing&&(reduced||editing)&&!document.hidden)drawOnce();}
     function placementPose(object) {
-      if(FISH_TYPES.includes(object.type))return aquariumPose(time,object);
-      return object.type==='reef-crab'?{...object,x:object.x+Math.sin(time*.16)*1.4,z:object.z+Math.cos(time*.11)*.5}:object;
+      return FISH_TYPES.includes(object.type)||object.type==='reef-crab'?aquariumPose(time,object):object;
     }
     function updateRoot(entry) {
       const object=entry.record,pose=editing?placementPose(object):object;
-      entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.scaling.setAll(object.scale);entry.node.rotation.y=pose.yaw;
+      entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.scaling.setAll(object.scale);entry.node.rotation.set(pose.pitch||0,pose.yaw,pose.roll||0);
       if(entry.scenery)entry.scenery.x=object.x;
       entry.node.getChildMeshes().forEach(mesh=>mesh.isPickable=editing&&mesh.material!==shadowMaterial);
     }
@@ -242,30 +268,40 @@ export async function createAquarium(canvas) {
       const template=templates.get(object.type), isFish=FISH_TYPES.includes(object.type);
       const moving=!isFish&&object.type!=='reef-crab'&&template.getChildMeshes().some(mesh=>mesh.morphTargetManager);
       const node=place(template,object.id,object.x,object.y,object.z,object.scale,object.yaw,moving), entry=objects.get(object.id);
-      entry.record={...object};
+      entry.record=reefObject(object.type,object.id,object);
       if(isFish) {entry.animal={body:node,managers:entry.managers,record:entry.record};fish.push(entry.animal);}
       updateRoot(entry);return entry;
     }
     function removeObject(id) {
       const entry=objects.get(id);if(!entry)return false;
+      changing();
+      if(hovered===id)setHovered(null);
       for(const list of [scenery,swaying,fish]) {const item=list===scenery?entry.scenery:list===swaying?entry.sway:entry.animal;const index=list.indexOf(item);if(index>=0)list.splice(index,1);}
       entry.node.dispose(false,false);entry.managers.forEach(manager=>manager.dispose());objects.delete(id);
       if(selected===id)select(null);redraw();return true;
     }
     function setLayout(layout) {
       if(!validReefLayout(layout)||!layout.objects.every(object=>templates.has(object.type)))return false;
+      if(JSON.stringify(layout)!==JSON.stringify(snapshot()))changing();
       replacing=true;
       try {for(const id of [...objects.keys()])removeObject(id);layout.objects.forEach(addRecord);select(null);}
       finally {replacing=false;}
       redraw();return true;
     }
-    function select(id) {selected=objects.has(id)?id:null;selectionChanged(selected?{...objects.get(selected).record}:null);redraw();}
+    function setHovered(id) {
+      id=editing&&objects.has(id)?id:null;if(hovered===id)return;
+      hoverGlow.removeAllMeshes();hovered=id;hoverGlow.isEnabled=Boolean(id);
+      if(id)for(const mesh of objects.get(id).node.getChildMeshes())if(mesh.material!==shadowMaterial)hoverGlow.addMesh(mesh,new Color3(1,.85,.35));
+      redraw();
+      if(id&&!scene.isReady())scene.whenReadyAsync().then(()=>{if(hovered===id)redraw();});
+    }
+    function select(id) {selected=objects.has(id)?id:null;setHovered(selected);selectionChanged(selected?{...objects.get(selected).record}:null);redraw();}
     function updateSelectionRing() {
       const entry=editing&&objects.get(selected);ring.setEnabled(Boolean(entry));if(!entry)return;
       ring.position.copyFrom(entry.node.position);ring.position.y+=FISH_TYPES.includes(entry.record.type)?-templates.get(entry.record.type).metadata.height*entry.record.scale-.08:.04;
       ring.scaling.setAll(Math.max(.7,Math.min(3,templates.get(entry.record.type).metadata.height*entry.record.scale)));
     }
-    const schoolFields=['x','y','z','yaw','speed','radius','phase','baseSpeed'];
+    const schoolFields=['x','y','z','yaw','pitch','roll','speed','radius','phase','baseSpeed'];
     function joinSchool(object) {
       const group=[...objects.values()].map(entry=>entry.record).filter(record=>record.id!==object.id&&record.type===object.type&&record.motion==='school');
       const member=Array.from({length:50},(_,i)=>i).find(i=>!group.some(record=>record.member===i));
@@ -278,6 +314,8 @@ export async function createAquarium(canvas) {
       const object={...entry.record,...patch,id:entry.record.id,type:entry.record.type};
       if(!validReefObject(object))return false;
       if(patch.motion==='school'&&!joinSchool(object))return false;
+      if(Object.keys(object).every(key=>object[key]===entry.record[key]))return true;
+      changing();
       Object.assign(entry.record,object);updateRoot(entry);
       if(object.motion==='school')for(const other of objects.values())if(other!==entry&&other.record.type===object.type&&other.record.motion==='school') {
         for(const key of schoolFields)other.record[key]=object[key];updateRoot(other);
@@ -285,9 +323,18 @@ export async function createAquarium(canvas) {
       if(selected===id)selectionChanged({...object});redraw();return true;
     }
     function pointerPosition(event) {const bounds=canvas.getBoundingClientRect();return [event.clientX-bounds.left,event.clientY-bounds.top];}
-    function rotateObject(start,angle) {
-      const yaw=Math.atan2(Math.sin(angle),Math.cos(angle)),before=placementPose(start),after=placementPose({...start,yaw});
-      return updateObject(start.id,{yaw,x:Math.max(-18,Math.min(18,start.x+before.x-after.x)),z:Math.max(-8,Math.min(40,start.z+before.z-after.z))});
+    function projectPoint(point) {
+      const projected=Vector3.Project(point,Matrix.Identity(),scene.getTransformMatrix(),camera.viewport.toGlobal(engine.getRenderWidth(),engine.getRenderHeight())),scale=engine.getHardwareScalingLevel();
+      return [projected.x*scale,projected.y*scale];
+    }
+    function pickObject(x,y) {
+      let node=scene.pick(x,y)?.pickedMesh;
+      while(node){for(const entry of objects.values())if(entry.node===node)return entry;node=node.parent;}
+      return null;
+    }
+    function rotateObject(start,angle,axis='yaw') {
+      const rotation=Math.atan2(Math.sin(angle),Math.cos(angle)),before=placementPose(start),after=placementPose({...start,[axis]:rotation});
+      return updateObject(start.id,{[axis]:rotation,x:Math.max(-30,Math.min(30,start.x+before.x-after.x)),y:Math.max(0,Math.min(16,start.y+before.y-after.y)),z:Math.max(-8,Math.min(80,start.z+before.z-after.z))});
     }
     function pointOnPlane(x,y,plane) {
       const ray=scene.createPickingRay(x,y,Matrix.Identity(),camera),distance=ray.intersectsPlane(plane);
@@ -295,32 +342,35 @@ export async function createAquarium(canvas) {
     }
     function pointerDown(event) {
       if(!editing||event.button!==0||!event.isPrimary)return;
-      const [x,y]=pointerPosition(event), hit=scene.pick(x,y);
-      let node=hit?.pickedMesh;
-      while(node&&![...objects.values()].some(entry=>entry.node===node))node=node.parent;
-      const entry=node&&[...objects.values()].find(entry=>entry.node===node);select(entry?.record.id||null);
+      const [x,y]=pointerPosition(event),entry=objects.get(selected)||pickObject(x,y);select(entry?.record.id||null);
       if(entry){
         const plane=transformMode==='height'?new Plane(0,0,1,-entry.node.position.z):new Plane(0,1,0,-entry.node.position.y);
-        dragging={id:entry.record.id,pointer:event.pointerId,mode:transformMode,x,y,record:{...entry.record},plane,point:pointOnPlane(x,y,plane)};
+        const anchor=projectPoint(entry.node.position);
+        dragging={id:entry.record.id,pointer:event.pointerId,mode:transformMode,x,y,anchor,record:{...entry.record},plane,point:pointOnPlane(...anchor,plane)};
         canvas.setPointerCapture(event.pointerId);canvas.style.cursor='grabbing';
       }
     }
     function pointerMove(event) {
-      if(!dragging||event.pointerId!==dragging.pointer)return;
+      if(!editing)return;
+      if(!dragging){if(!selected)setHovered(event.pointerType==='touch'?null:pickObject(...pointerPosition(event))?.record.id||null);return;}
+      if(event.pointerId!==dragging.pointer)return;
       const [x,y]=pointerPosition(event),start=dragging.record;
-      if(dragging.mode==='rotate') {
-        rotateObject(start,start.yaw+(x-dragging.x)*.012);
+      if(dragging.mode.startsWith('rotate')) {
+        const axis=dragging.mode==='rotate-x'?'pitch':dragging.mode==='rotate-z'?'roll':'yaw';
+        rotateObject(start,(start[axis]||0)+(x-dragging.x)*.012,axis);
       } else if(dragging.mode==='scale') {
         updateObject(start.id,{scale:Math.max(.25,Math.min(2.5,start.scale*Math.exp((dragging.y-y)*.008)))});
       } else {
-        const point=pointOnPlane(x,y,dragging.plane);if(!point||!dragging.point)return;
-        if(dragging.mode==='height')updateObject(start.id,{y:Math.max(0,Math.min(8,start.y+point.y-dragging.point.y))});
-        else updateObject(start.id,{x:Math.max(-18,Math.min(18,start.x+(point.x-dragging.point.x)/framing)),z:Math.max(-8,Math.min(40,start.z+point.z-dragging.point.z))});
+        const point=pointOnPlane(dragging.anchor[0]+x-dragging.x,dragging.anchor[1]+y-dragging.y,dragging.plane);if(!point||!dragging.point)return;
+        if(dragging.mode==='height')updateObject(start.id,{y:Math.max(0,Math.min(16,start.y+point.y-dragging.point.y))});
+        else updateObject(start.id,{x:Math.max(-30,Math.min(30,start.x+(point.x-dragging.point.x)/framing)),z:Math.max(-8,Math.min(80,start.z+point.z-dragging.point.z))});
       }
     }
-    function pointerUp() {dragging=null;canvas.style.cursor=!editing?'':transformMode==='move'?'grab':transformMode==='rotate'?'ew-resize':'ns-resize';}
+    function pointerUp() {dragging=null;canvas.style.cursor=!editing?'':transformMode==='move'?'grab':transformMode.startsWith('rotate')?'ew-resize':'ns-resize';}
+    function pointerLeave() {if(!selected)setHovered(null);}
     canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);
     canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerUp);
+    canvas.addEventListener('pointerleave',pointerLeave);
     let reduced = false, dark = false, time = 0, last = performance.now();
     if(stored.layout)setLayout(stored.layout);
     function render(now = performance.now(), force = false) {
@@ -330,7 +380,7 @@ export async function createAquarium(canvas) {
       for (const animal of fish) {
         const object=animal.record;
         const pose = aquariumPose(time,object);
-        animal.body.position.set(pose.x*framing, pose.y, pose.z); animal.body.rotation.y = pose.yaw;
+        animal.body.position.set(pose.x*framing, pose.y, pose.z); animal.body.rotation.set(pose.pitch,pose.yaw,pose.roll);
         const wave = Math.sin(time * 7*object.speed + object.phase + object.member*.65);
         for (const manager of animal.managers) { manager.getTarget(0).influence = Math.max(0,-wave); manager.getTarget(1).influence = Math.max(0,wave); }
       }
@@ -340,7 +390,7 @@ export async function createAquarium(canvas) {
       }
       for(const entry of objects.values())if(entry.record.type==='reef-crab') {
         const object=entry.record;
-        const pose=placementPose(object);entry.node.position.set(pose.x*framing,pose.y,pose.z);
+        const pose=placementPose(object);entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.rotation.set(pose.pitch,pose.yaw,pose.roll);
         for(const manager of entry.managers){const wave=Math.sin(time*5);manager.getTarget(0).influence=Math.max(0,-wave);manager.getTarget(1).influence=Math.max(0,wave);}
       }
       updateSelectionRing();
@@ -369,21 +419,21 @@ export async function createAquarium(canvas) {
       getLayout:snapshot, defaultLayout, layoutProblem:stored.problem,
       getEditorAnchor() {
         const entry=objects.get(selected);if(!entry)return null;
-        const point=entry.node.position.clone();
-        if(!FISH_TYPES.includes(entry.record.type))point.y+=templates.get(entry.record.type).metadata.height*entry.record.scale*.5;
-        const bounds=canvas.getBoundingClientRect(), projected=Vector3.Project(point,Matrix.Identity(),scene.getTransformMatrix(),camera.viewport.toGlobal(engine.getRenderWidth(),engine.getRenderHeight()));
-        return {x:bounds.left+projected.x*engine.getHardwareScalingLevel(),y:bounds.top+projected.y*engine.getHardwareScalingLevel()};
+        const point=FISH_TYPES.includes(entry.record.type)?entry.node.position:Vector3.TransformCoordinates(new Vector3(0,templates.get(entry.record.type).metadata.height*.5,0),entry.node.computeWorldMatrix(true));
+        const bounds=canvas.getBoundingClientRect(),[x,y]=projectPoint(point);
+        return {x:bounds.left+x,y:bounds.top+y};
       },
       onSelection(callback){selectionChanged=callback;},
+      onBeforeChange(callback){beforeChange=callback;},
       setLayout,
       select,
-      setTransformMode(mode) {if(!['move','height','rotate','scale'].includes(mode))return false;transformMode=mode;pointerUp();return true;},
+      setTransformMode(mode) {if(!['move','height','rotate','rotate-x','rotate-z','scale'].includes(mode))return false;transformMode=mode;pointerUp();return true;},
       nudgeSelection(dx,dy) {
         const object=objects.get(selected)?.record;if(!editing||!object)return false;
-        if(transformMode==='rotate')return dx!==0&&rotateObject(object,object.yaw+dx*Math.PI/36);
-        if(transformMode==='height')return dy!==0&&updateObject(object.id,{y:Math.max(0,Math.min(8,object.y-dy*.2))});
+        if(transformMode.startsWith('rotate')){const axis=transformMode==='rotate-x'?'pitch':transformMode==='rotate-z'?'roll':'yaw';return dx!==0&&rotateObject(object,(object[axis]||0)+dx*Math.PI/36,axis);}
+        if(transformMode==='height')return dy!==0&&updateObject(object.id,{y:Math.max(0,Math.min(16,object.y-dy*.2))});
         if(transformMode==='scale')return updateObject(object.id,{scale:Math.max(.25,Math.min(2.5,object.scale*Math.pow(1.05,dx||-dy)))});
-        return updateObject(object.id,{x:Math.max(-18,Math.min(18,object.x+dx*.2)),z:Math.max(-8,Math.min(40,object.z-dy*.3))});
+        return updateObject(object.id,{x:Math.max(-30,Math.min(30,object.x+dx*.2)),z:Math.max(-8,Math.min(80,object.z-dy*.3))});
       },
       setEditMode(active) {editing=active;pointerUp();objects.forEach(updateRoot);if(!active)select(null);resume();},
       updateObject,
@@ -392,6 +442,7 @@ export async function createAquarium(canvas) {
         const id='reef-'+crypto.randomUUID(),object=reefObject(type,id,{...copy,id,type});
         if(!object)return null;
         if(object.motion==='school'&&!joinSchool(object))return null;
+        changing();
         if(FISH_TYPES.includes(type)&&!copy){object.phase=((Math.PI*2-time*object.baseSpeed)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);object.z=-1.5;object.y=2-Math.sin(object.phase)*.2;}
         addRecord(object);select(object.id);redraw();return object.id;
       },
@@ -401,7 +452,7 @@ export async function createAquarium(canvas) {
         if (reduced !== options.reduced) { reduced = options.reduced; resume(); }
         else if (reduced && !document.hidden) drawOnce();
       },
-      dispose() {window.removeEventListener('resize', resize);document.removeEventListener('visibilitychange',resume);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',pointerUp);engine.dispose();canvas.dataset.status='disposed';},
+      dispose() {window.removeEventListener('resize', resize);document.removeEventListener('visibilitychange',resume);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',pointerUp);canvas.removeEventListener('pointerleave',pointerLeave);engine.dispose();canvas.dataset.status='disposed';},
     };
   } catch (error) { engine?.dispose(); canvas.dataset.status = 'unavailable'; throw error; }
 }
