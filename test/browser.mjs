@@ -176,9 +176,10 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.locator('#legal-imprint a[href="./assets/music/LICENSE.txt"]').click();
   assert.equal(await page.locator('#legal-music').evaluate(el=>el.open),true);
   assert.equal(page.url(),infoURL,'legal cross-links must stay in the info dialog');
-  await page.locator('#update').evaluate(button => { button.hidden = false; });
-  assert.equal(await page.locator('#help-dialog #update').isVisible(), true);
-  await page.locator('#update').evaluate(button => { button.hidden = true; });
+  await page.evaluate(() => { for (const id of ['update-notice','update-badge']) document.getElementById(id).hidden = false; });
+  assert.equal(await page.locator('#help-dialog #update-notice #update').isVisible(), true, 'a waiting update must offer its button in the info dialog');
+  assert.equal(await page.locator('#help-open #update-badge').isVisible(), true, 'a waiting update must be flagged on the info button');
+  await page.evaluate(() => { for (const id of ['update-notice','update-badge']) document.getElementById(id).hidden = true; });
   await page.locator('#help-dialog .dialog-close').click();
   console.log(`${name}: ${tracks.length} music files, random next track and reload, click start after pause, eight decoded SFX and sound mute passed.`);
   const initial = await read(), index = initial.game.puzzle.findIndex(n => !n), solution = initial.game.solution[index];
@@ -318,7 +319,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   for (const [width, height] of [[240,320],[320,240],[320,480],[320,568],[375,559],[390,664],[768,1024],[800,800],[1024,600],[1024,768],[1280,500],[1366,768],[1440,900],[1920,1080],[1600,300],[2560,1440],[3840,2160],[568,320],[667,375],[844,390]]) {
     console.log(`${name}: checking viewport ${width}x${height}.`);
     await page.setViewportSize({ width, height });
-    await page.locator('#update').evaluate(button => { button.hidden = false; });
+    await page.evaluate(() => { for (const id of ['update-notice','update-badge']) document.getElementById(id).hidden = false; });
     const layout = await page.evaluate(() => {
       const board = document.getElementById('board-shell').getBoundingClientRect();
       const space = document.querySelector('.board-space').getBoundingClientRect();
