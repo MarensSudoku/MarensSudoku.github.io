@@ -33,9 +33,9 @@ export async function createAquarium(canvas) {
   let engine;
   try {
     engine = new Engine(canvas, true, { alpha:false, stencil:false, preserveDrawingBuffer:false, powerPreference:'low-power' });
-    engine.setHardwareScalingLevel(mobile ? 1 : 1 / Math.min(devicePixelRatio, 1.5));
-    // Without a real GPU the browser renders on the CPU; a lighter reef at 30 fps keeps the game responsive there.
+    // Without a real GPU every frame is drawn and copied back on the CPU; half resolution, a lighter reef and 30 fps keep the game responsive there.
     const software = /swiftshader|llvmpipe|softpipe|basic render|warp|software/i.test(engine.getGlInfo().renderer);
+    engine.setHardwareScalingLevel(software ? 2 : mobile ? 1 : 1 / Math.min(devicePixelRatio, 1.5));
     const frameBudget = 1000 / (software ? 30 : 60) - 2;
     const scene = new Scene(engine);
     scene.clearColor = new Color4(.2,.7,.86,1);
@@ -107,11 +107,13 @@ export async function createAquarium(canvas) {
       return root;
     }
 
+    // Swaying influences cross zero constantly; keeping every target active avoids a shader switch on each crossing (clone() resets this).
+    const steady = manager => { manager.optimizeInfluencers = false; return manager; };
     function bend(root, strength, kind) {
       const bounds = root.getHierarchyBoundingVectors(true);
       for (const mesh of root.getChildMeshes()) {
         const positions = mesh.getVerticesData(VertexBuffer.PositionKind);
-        const manager = new MorphTargetManager(scene); manager.enableNormalMorphing = false;
+        const manager = steady(new MorphTargetManager(scene)); manager.enableNormalMorphing = false;
         for (const sign of [-1,1]) {
           const target = new MorphTarget('bend-'+sign,0,scene), bent = Float32Array.from(positions);
           for (let i=0;i<bent.length;i+=3) {
@@ -134,7 +136,7 @@ export async function createAquarium(canvas) {
     function place(template,name,x,y,z,size=1,yaw=0,moving=false) {
       const node = template.clone(name); node.setEnabled(true); node.position.set(x,y,z); node.scaling.setAll(size); node.rotation.y = yaw;
       const managers = node.getChildMeshes().filter(mesh=>mesh.morphTargetManager).map(mesh=> {
-        mesh.morphTargetManager = mesh.morphTargetManager.clone(); return mesh.morphTargetManager;
+        mesh.morphTargetManager = steady(mesh.morphTargetManager.clone()); return mesh.morphTargetManager;
       });
       const sceneryItem={node,x}, entry={node,managers,scenery:sceneryItem,record:reefObject(template.metadata.type,name,{x,y,z,scale:size,yaw:Math.atan2(Math.sin(yaw),Math.cos(yaw))})};
       scenery.push(sceneryItem); objects.set(name,entry);
@@ -170,9 +172,9 @@ export async function createAquarium(canvas) {
         place(coralTemplates[index],`ledge-growth-${i}-${j}`,x+(j ? .7 : -.7),top,z+.3,.85,i*.6,Boolean(models.corals[index].sway));
       }
     });
-    // Distant pillars stay out of the editable reef and fade into the haze behind it.
+    // Distant pillars stay out of the editable reef and fade into the haze behind it; CPU-only rendering skips their geometry.
     const decor=(template,name,x,y,z,size,yaw)=>{const node=template.clone(name);node.setEnabled(true);node.position.set(x,y,z);node.scaling.setAll(size);node.rotation.y=yaw;scenery.push({node,x});return node;};
-    [[-15,22,1.3,.5],[-19,34,1.6,1.2],[-13,47,1.5,2],[-25,50,2,.3],[15,24,1.4,2.4],[20,36,1.7,.9],[14,49,1.5,1.7],[26,54,2.1,2.8],[-5,62,1.3,.6],[6,68,1.4,2.2]].forEach(([x,z,size,yaw],i)=> {
+    (software ? [] : [[-15,22,1.3,.5],[-19,34,1.6,1.2],[-13,47,1.5,2],[-25,50,2,.3],[15,24,1.4,2.4],[20,36,1.7,.9],[14,49,1.5,1.7],[26,54,2.1,2.8],[-5,62,1.3,.6],[6,68,1.4,2.2]]).forEach(([x,z,size,yaw],i)=> {
       const height=rock.metadata.height, upper=size*.75, top=height*size*.6+height*upper*.72;
       decor(rock,`pillar-${i}`,x,0,z,size,yaw); decor(rock,`pillar-top-${i}`,x*.98,height*size*.6,z+.3,upper,yaw+1.1);
       decor(reef,`pillar-reef-${i}`,x*.96,top,z,.6+size*.12,yaw*2);
@@ -195,7 +197,7 @@ export async function createAquarium(canvas) {
       bend(template,school ? .045 : .085,'tail'); template.setEnabled(false);
       for (let i = 0; i < (school ? (mobile ? 8 : 12) : (mobile ? 2 : 3)); i++) {
         const body=template.clone(`fish-${species}-${i}`); body.setEnabled(true);
-        const managers=body.getChildMeshes().map(mesh=> { mesh.morphTargetManager=mesh.morphTargetManager.clone();return mesh.morphTargetManager; });
+        const managers=body.getChildMeshes().map(mesh=> { mesh.morphTargetManager=steady(mesh.morphTargetManager.clone());return mesh.morphTargetManager; });
         const record=reefObject(template.metadata.type,body.name,{motion:school?'school':'circle',member:i,phase:school?species*1.3:species*2+i*1.8,baseSpeed:school?.065+species*.004:.08+species*.014,radius:school?4.5:3.6+i*.6,z:school?9+(species-4)*4:1+species*1.2,y:school?4+(species-4)*1.3:1.6+species*.55+i*.35});
         const animal={body,managers,record}; fish.push(animal); objects.set(record.id,{node:body,managers,record,animal});
       }
