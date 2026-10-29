@@ -34,6 +34,9 @@ export async function createAquarium(canvas) {
   try {
     engine = new Engine(canvas, true, { alpha:false, stencil:false, preserveDrawingBuffer:false, powerPreference:'low-power' });
     engine.setHardwareScalingLevel(mobile ? 1 : 1 / Math.min(devicePixelRatio, 1.5));
+    // Without a real GPU the browser renders on the CPU; a lighter reef at 30 fps keeps the game responsive there.
+    const software = /swiftshader|llvmpipe|softpipe|basic render|warp|software/i.test(engine.getGlInfo().renderer);
+    const frameBudget = 1000 / (software ? 30 : 60) - 2;
     const scene = new Scene(engine);
     scene.clearColor = new Color4(.2,.7,.86,1);
     scene.fogMode = Scene.FOGMODE_LINEAR; scene.fogStart = 16; scene.fogEnd = 100; scene.fogColor = new Color3(.2,.7,.86);
@@ -55,7 +58,7 @@ export async function createAquarium(canvas) {
     const sandMaterial = new StandardMaterial('sand', scene);
     sandMaterial.diffuseColor = new Color3(.5,.62,.64); sandMaterial.specularColor = Color3.Black(); sand.material = sandMaterial;
     sand.isPickable = false; sand.receiveShadows = true;
-    const water = createWater(scene,sandMaterial,mobile), scenery = [], swaying = [];
+    const water = createWater(scene,sandMaterial,mobile||software), scenery = [], swaying = [];
     const templates = new Map(), objects = new Map(), fish = [];
     let framing = 1, editing = false, transformMode = 'move', selected = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {};
 
@@ -302,7 +305,7 @@ export async function createAquarium(canvas) {
     let reduced = false, dark = false, time = 0, last = performance.now();
     if(stored.layout)setLayout(stored.layout);
     function render(now = performance.now(), force = false) {
-      if (!force && now - last < 1000 / 60 - 2) return; // Up to 60 fps; the 2 ms slack keeps 60 Hz screens from skipping frames.
+      if (!force && now - last < frameBudget) return; // The 2 ms slack keeps 60 Hz screens from skipping frames.
       const delta = Math.min((now - last) / 1000, 0.08); last = now;
       if (!reduced&&!editing) time += delta;
       for (const animal of fish) {
