@@ -4,6 +4,7 @@ import { mkdir } from 'node:fs/promises';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output',{recursive:true});
 for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
+  console.log(`${name}: starting animated 3D aquarium checks.`);
   const browser=await type.launch({headless:true,args:name==='chromium' ? ['--enable-unsafe-swiftshader'] : []});
   try {
     const context=await browser.newContext({viewport:{width:1440,height:900}});
@@ -47,6 +48,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]]) {
     };
     await page.waitForFunction(()=>['ready','unavailable'].includes(document.querySelector('#reef-aquarium')?.dataset.status));
     const status=await page.locator('#reef-aquarium').getAttribute('data-status');
+    console.log(`${name}: aquarium ${status}; checking resize, motion and offline reload.`);
     if(status==='ready') {
       assert.ok(await page.evaluate(()=>window.__aquariumDraws)>0);
       assert.equal(await page.locator('#reef-background-video').evaluate(video=>video.hidden&&video.paused),true);

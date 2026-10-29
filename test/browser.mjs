@@ -4,9 +4,11 @@ import { mkdir } from 'node:fs/promises';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
 for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) {
-  const browser = await browserType.launch({ headless: true });
+  console.log(`${name}: starting game and audio checks with reduced motion.`);
+  const browser = await browserType.launch({ headless: true, args:name === 'chromium' ? ['--enable-unsafe-swiftshader'] : [] });
   try {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1024 }, locale: 'de-DE' });
+  // Keep UI checks responsive on software renderers; aquarium.mjs covers continuous 3D motion.
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1024 }, locale: 'de-DE', reducedMotion:'reduce' });
   await context.addInitScript(() => {
     window.__audioGesture = false; window.__sfxPlayed = 0; window.__sfxDecoded = 0;
     addEventListener('click', () => { window.__audioGesture = true; }, true);
@@ -148,6 +150,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator('#tracking').check();
   await page.locator('#achievements-dialog .dialog-close').click();
   const snapshot = await read();
+  console.log(`${name}: checking solved rounds, restart and saved points.`);
   for (let i = 0; i < 81; i++) if (!snapshot.game.puzzle[i]) {
     await page.locator(`[data-index="${i}"]`).click();
     await page.keyboard.press(String(snapshot.game.solution[i]));
@@ -228,6 +231,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator('#dark-theme').uncheck(); await page.locator('#language').selectOption('de');
   await page.locator('#settings-dialog .dialog-close').click();
   for (const [width, height] of [[240,320],[320,240],[320,480],[320,568],[375,559],[390,664],[768,1024],[800,800],[1024,600],[1024,768],[1280,500],[1366,768],[1440,900],[1920,1080],[1600,300],[2560,1440],[3840,2160],[568,320],[667,375],[844,390]]) {
+    console.log(`${name}: checking viewport ${width}x${height}.`);
     await page.setViewportSize({ width, height });
     await page.locator('#update').evaluate(button => { button.hidden = false; });
     const layout = await page.evaluate(() => {
