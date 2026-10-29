@@ -358,6 +358,10 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await context.setOffline(true); await page.reload();
   await page.locator('.board-shell.ready').waitFor(); await page.locator('#welcome-start').click();
   assert.deepEqual((await read()).game.values, saved.game.values);
+  await page.locator('#help-open').click(); await page.locator('#help-tour').click();
+  assert.equal(await page.locator('#help-dialog').evaluate(el => el.open), false);
+  assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), true, 'help must restart the tutorial');
+  await page.keyboard.press('Escape'); assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), false);
   await page.locator('#help-open').click(); await page.locator('#legal-commons summary').click();
   assert.ok((await page.locator('#legal-commons pre').textContent()).includes('Section 8 -- Interpretation.'));
   await page.locator('#help-dialog .dialog-close').click();
