@@ -2,6 +2,7 @@ import { cp, mkdir, readdir, readFile, writeFile, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, relative, join } from 'node:path';
 import { createHash } from 'node:crypto';
+import { build } from 'esbuild';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const output = resolve(root, 'dist');
 if (relative(root, output) !== 'dist') throw new Error('Unexpected build output path');
@@ -13,11 +14,12 @@ for (const folder of ['music', 'sounds']) {
   await cp(join(root, 'web/assets', folder, 'LICENSE.md'), join(output, 'assets', folder, 'LICENSE.txt'));
 }
 await mkdir(join(output, 'vendor'), { recursive: true });
-await cp(join(root, 'node_modules/phaser/dist/phaser.esm.min.js'), join(output, 'vendor/phaser.esm.min.js'));
-await cp(join(root, 'node_modules/phaser/LICENSE.md'), join(output, 'vendor/PHASER-LICENSE.txt'));
+await build({ entryPoints:[join(root, 'web/game/aquarium.mjs')], outfile:join(output, 'game/aquarium.mjs'), bundle:true, format:'esm', target:['safari15'], minify:true, legalComments:'linked' });
+await cp(join(root, 'node_modules/@babylonjs/core/license.md'), join(output, 'vendor/BABYLON-LICENSE.txt'));
+await cp(join(root, 'node_modules/@babylonjs/core/NOTICE.md'), join(output, 'vendor/BABYLON-NOTICE.txt'));
 await cp(join(root, 'LICENSE'), join(output, 'LICENSE.txt'));
 let notices = await readFile(join(root, 'THIRD_PARTY_NOTICES.md'), 'utf8');
-for (const [name, path] of [['Phaser 4.2.1','node_modules/phaser/LICENSE.md'], ['EventEmitter3','node_modules/eventemitter3/LICENSE']]) {
+for (const [name, path] of [['Babylon.js 9.32.1','node_modules/@babylonjs/core/license.md'], ['Babylon.js notices','node_modules/@babylonjs/core/NOTICE.md']]) {
   notices += `\n\n${name}\n\n${await readFile(join(root, path), 'utf8')}`;
 }
 await writeFile(join(output, 'THIRD_PARTY_NOTICES.txt'), notices);
@@ -65,4 +67,4 @@ self.addEventListener('fetch', event => {
   })());
 });`;
 await writeFile(join(output, 'sw.js'), source);
-console.log(`Built ${assets.length} files. Version ${version}. Phaser 4.2.1 bundled locally.`);
+console.log(`Built ${assets.length} files. Version ${version}. Babylon.js 9.32.1 bundled locally.`);

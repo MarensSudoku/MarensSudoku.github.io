@@ -37,6 +37,7 @@ jobs:
           trap 'kill "$preview_pid"' EXIT
           node --input-type=module -e 'for(let i=0;i<40;i++){try{if((await fetch("http://127.0.0.1:4175/")).ok)process.exit(0)}catch{}await new Promise(r=>setTimeout(r,250))}process.exit(1)'
           npm run test:browser
+          npm run test:aquarium
       - uses: actions/upload-pages-artifact@v5.0.0
         if: github.event_name != 'pull_request'
         with:

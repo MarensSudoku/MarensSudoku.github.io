@@ -25,7 +25,7 @@ export function setupMusic(settings, t, persist) {
   const audio = document.getElementById('reef-music');
   const select = document.getElementById('music-track');
   const volume = document.getElementById('music-volume');
-  const buttons = [document.getElementById('music-toggle'), document.getElementById('music-toggle-footer')];
+  const button = document.getElementById('music-toggle');
   let revision = 0, failed = false, awaitingGesture = false, tracks = [];
   audio.volume = settings.musicVolume;
 
@@ -36,11 +36,9 @@ export function setupMusic(settings, t, persist) {
     select.value = settings.musicTrack;
     volume.value = Math.round(settings.musicVolume * 100);
     document.getElementById('music-volume-value').textContent = `${volume.value} %`;
-    for (const button of buttons) {
-      button.disabled = !tracks.length;
-      button.textContent = t(audio.paused ? 'musicStart' : 'musicPause');
-      button.setAttribute('aria-pressed', String(!audio.paused));
-    }
+    button.disabled = !tracks.length;
+    button.textContent = t(audio.paused ? 'musicStart' : 'musicPause');
+    button.setAttribute('aria-pressed', String(!audio.paused));
     select.disabled = !tracks.length; volume.disabled = !tracks.length;
     document.getElementById('music-status').textContent = failed ? t('musicError') : awaitingGesture ? t('musicAwaiting') : !audio.paused ? `${t('musicPlaying')}: ${tracks.find(track => track.file === settings.musicTrack)?.[settings.language] || ''}` : t('musicHelp');
   }
@@ -63,7 +61,7 @@ export function setupMusic(settings, t, persist) {
     }
     if (revision === current) render();
   }
-  for (const button of buttons) button.addEventListener('click', () => {
+  button.addEventListener('click', () => {
     settings.musicEnabled = audio.paused;
     awaitingGesture = false; persist();
     if (settings.musicEnabled) play(); else pause();
@@ -82,7 +80,7 @@ export function setupMusic(settings, t, persist) {
   audio.addEventListener('ended', () => { if (settings.musicEnabled) nextTrack(); });
   audio.addEventListener('error', () => { revision++; failed = true; audio.pause(); render(); });
   function userGesture(event) {
-    if (event.isTrusted && !event.target.closest('#music-toggle, #music-toggle-footer') && settings.musicEnabled && audio.paused && tracks.length && !failed) play();
+    if (event.isTrusted && !event.target.closest('#music-toggle') && settings.musicEnabled && audio.paused && tracks.length && !failed) play();
   }
   document.addEventListener('pointerdown', userGesture, { capture:true, passive:true });
   document.addEventListener('click', userGesture, true);

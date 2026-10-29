@@ -39,6 +39,8 @@ Die Freigabe umfasst ausschließlich diese zwölf Aufnahmen einschließlich ihre
 - `06-stille-lagune_1.mp3`
 - `06-stille-lagune_2.mp3`
 
+Die Aufnahme `03-schwebende-perlen_2.mp3` wird im aktuellen Spiel nicht mehr ausgeliefert. Die ursprüngliche Freigabe dieser Aufnahme bleibt unverändert dokumentiert.
+
 Später hinzugefügte Dateien und separat gekennzeichnete Fremdanteile sind nicht automatisch erfasst. Code, Dokumentation, Grafiken und Marken sind ebenfalls nicht Gegenstand dieser Musiklizenz. Der Projektcode behält seine MIT-Lizenz.
 
 ## Rechteumfang und Haftung

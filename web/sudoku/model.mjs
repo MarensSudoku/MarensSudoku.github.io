@@ -1,6 +1,11 @@
 import { isSolved, PEERS, UNITS, validGrid } from './engine.mjs';
 export function createGame(puzzle) {
-  return { ...puzzle, values: [...puzzle.puzzle], notes: Array(81).fill(0), history: [], usedUndo: false, completionRecorded: false, elapsedMs:0, mistakes:0, score:null };
+  return { ...puzzle, values: [...puzzle.puzzle], notes: Array(81).fill(0), history: [], usedUndo: false, completionRecorded: false, credited:false, elapsedMs:0, mistakes:0, score:null };
+}
+export function restartGame(game) {
+  const restarted = createGame(game);
+  restarted.credited = Boolean(game.credited || game.completionRecorded);
+  return restarted;
 }
 const BASE_POINTS = { easy:1000, medium:2000, hard:3000 };
 const TARGET_TIME = { easy:600000, medium:1200000, hard:2400000 };
@@ -41,18 +46,22 @@ export const ACHIEVEMENTS = [
   { id: 'crown', name: 'Riffkrone', en: 'Reef crown', target: 5, kind: 'hard', icon: 'crown' },
   { id: 'direct', name: 'Klarer Kurs', en: 'Clear course', target: 1, kind: 'direct', icon: 'star' },
 ];
-export const emptyProgress = () => ({ total: 0, easy: 0, medium: 0, hard: 0, direct: 0, unlocked: [], points:0, best:0 });
+export const emptyProgress = () => ({ total: 0, easy: 0, medium: 0, hard: 0, direct: 0, unlocked: [] });
+export const emptyScores = () => ({ points:0, best:0, solved:0 });
 export function progressValue(progress, achievement) {
   return achievement.kind === 'variety' ? ['easy','medium','hard'].filter(key => progress[key] > 0).length : progress[achievement.kind];
 }
-export function complete(game, progress, tracking) {
+export function complete(game, progress, tracking, scores) {
   if (game.completionRecorded || !isSolved(game.values)) return [];
-  game.score = scoreRound(game, tracking ? progress.total + 1 : 1);
+  game.score = scoreRound(game, game.credited ? scores.solved : scores.solved + 1);
   game.completionRecorded = true;
+  if (game.credited) return [];
+  game.credited = true;
+  scores.points = Math.min(Number.MAX_SAFE_INTEGER, scores.points + game.score.total);
+  scores.best = Math.max(scores.best, game.score.total);
+  scores.solved++;
   if (!tracking) return [];
   progress.total++; progress[game.difficulty]++;
-  progress.points = Math.min(Number.MAX_SAFE_INTEGER, progress.points + game.score.total);
-  progress.best = Math.max(progress.best, game.score.total);
   if (!game.usedUndo) progress.direct++;
   const fresh = ACHIEVEMENTS.filter(a => !progress.unlocked.includes(a.id) && progressValue(progress, a) >= a.target);
   progress.unlocked.push(...fresh.map(a => a.id));
@@ -65,6 +74,7 @@ export function validGame(game) {
   if (!Array.isArray(game.notes) || game.notes.length !== 81 || !game.notes.every(n => Number.isInteger(n) && n >= 0 && !(n & ~0x3fe))) return false;
   if (!Array.isArray(game.history) || game.history.length > 100 || !game.history.every(h => validGrid(h.values) && game.puzzle.every((n, i) => !n || h.values[i] === n) && Array.isArray(h.notes) && h.notes.length === 81 && h.notes.every(n => Number.isInteger(n) && n >= 0 && !(n & ~0x3fe)))) return false;
   if (!['elapsedMs','mistakes'].every(key => game[key] === undefined || Number.isSafeInteger(game[key]) && game[key] >= 0)) return false;
+  if (game.credited !== undefined && typeof game.credited !== 'boolean') return false;
   if (game.score != null) {
     const score = game.score, base = BASE_POINTS[game.difficulty];
     if (!game.completionRecorded || !['base','time','clean','direct','milestone','total'].every(key => Number.isSafeInteger(score[key]) && score[key] >= 0) ||

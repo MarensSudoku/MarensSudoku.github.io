@@ -34,6 +34,14 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator('#loading').waitFor({ state: 'hidden' });
   await page.locator('.board-shell.ready').waitFor();
   assert.equal(await page.locator('[role=gridcell]').count(), 81);
+  assert.equal(await page.locator('footer').count(), 0);
+  assert.equal(await page.locator('#game-title, #storage-status').count(), 0);
+  assert.equal(await page.locator('header #round-time').isVisible(), true);
+  assert.equal(await page.locator('header #round-points').isVisible(), true);
+  assert.equal(await page.locator('header .header-stat').count(), 2);
+  assert.equal(await page.locator('.game-tools #new-game').count(), 1);
+  assert.equal(await page.locator('nav img').count(), 3);
+  await page.waitForFunction(() => [...document.querySelectorAll('nav img')].every(img => img.complete && img.naturalWidth > 0));
   const read = () => page.evaluate(() => JSON.parse(localStorage.getItem('marenssudoku:state:v1')));
   assert.equal((await read()).settings.musicEnabled, true);
   await page.locator('#settings-open').click();
@@ -41,6 +49,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.waitForFunction(() => !document.getElementById('reef-music').paused);
   const tracks = await page.locator('#music-track option').evaluateAll(options => options.map(option => ({ value:option.value, title:option.textContent })));
   assert.ok(tracks.length >= 6);
+  assert.equal(tracks.some(track => track.value === '03-schwebende-perlen_2.mp3'), false);
   assert.equal(tracks[0].value, '02-zwischen-bunten-korallen_1.mp3');
   assert.equal(new Set(tracks.map(track => track.title)).size, tracks.length);
   for (let i = 0; i < tracks.length; i++) {
@@ -86,12 +95,22 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.waitForTimeout(1100);
   assert.equal(await page.locator('#round-time').textContent(), pausedClock, 'menus must pause the round clock');
   await page.locator('#settings-dialog .dialog-close').click();
+  await page.locator('#help-open').click();
+  assert.equal(await page.locator('#music-toggle-help, #offline-status').count(), 0);
+  assert.equal(await page.locator('#help-content a[href="./impressum.html"]').isVisible(), true);
+  assert.equal(await page.locator('#help-content a[href="./datenschutz.html"]').isVisible(), true);
+  await page.locator('#update').evaluate(button => { button.hidden = false; });
+  assert.equal(await page.locator('#help-dialog #update').isVisible(), true);
+  await page.locator('#update').evaluate(button => { button.hidden = true; });
+  await page.locator('#help-dialog .dialog-close').click();
   console.log(`${name}: ${tracks.length} music files, random next track and reload, click start after pause, eight decoded SFX and sound mute passed.`);
   const initial = await read(), index = initial.game.puzzle.findIndex(n => !n), solution = initial.game.solution[index];
   await page.waitForFunction(previous => document.getElementById('round-time').textContent !== previous, pausedClock);
   await page.locator(`[data-index="${index}"]`).click();
   await page.keyboard.press(String(solution));
   assert.equal((await read()).game.values[index], solution);
+  assert.equal(await page.locator(`[data-index="${index}"] .cell-value`).textContent(), String(solution));
+  assert.ok(await page.locator(`[data-index="${index}"] .cell-value`).evaluate(el => getComputedStyle(el).color !== 'rgba(0, 0, 0, 0)' && getComputedStyle(el).fontFamily === getComputedStyle(document.body).fontFamily));
   await page.evaluate(() => { Object.defineProperty(document,'hidden',{ configurable:true, value:true }); document.dispatchEvent(new Event('visibilitychange')); });
   const hiddenClock = await page.locator('#round-time').textContent();
   await page.waitForTimeout(1100);
@@ -103,12 +122,28 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator('#notes').click();
   await page.locator(`#number-pad [data-number="${solution}"]`).click();
   assert.equal((await read()).game.notes[index], 1 << solution);
+  assert.equal(await page.locator(`[data-index="${index}"] .cell-notes span`).count(), 9);
+  assert.equal(await page.locator(`[data-index="${index}"] .cell-notes`).textContent(), String(solution));
   await page.locator('#notes').click();
   const elapsedBeforeReload = (await read()).game.elapsedMs;
   await page.reload();
   await page.locator('.board-shell.ready').waitFor();
   assert.equal((await read()).game.notes[index], 1 << solution);
   assert.ok((await read()).game.elapsedMs >= elapsedBeforeReload);
+  const beforeRestart = await read();
+  await page.locator('#restart-game').click(); await page.locator('#confirm-dialog .dialog-close').click();
+  assert.deepEqual((await read()).game.values, beforeRestart.game.values);
+  assert.deepEqual((await read()).game.notes, beforeRestart.game.notes);
+  await page.locator('#restart-game').click(); await page.locator('#confirm-yes').click();
+  const restarted = (await read()).game;
+  assert.equal(restarted.seed, beforeRestart.game.seed);
+  assert.deepEqual(restarted.puzzle, beforeRestart.game.puzzle);
+  assert.deepEqual(restarted.solution, beforeRestart.game.solution);
+  assert.deepEqual(restarted.values, restarted.puzzle);
+  assert.ok(restarted.notes.every(note => note === 0));
+  assert.equal(restarted.history.length, 0); assert.equal(restarted.usedUndo, false);
+  assert.equal(restarted.mistakes, 0); assert.equal(restarted.score, null);
+  assert.ok(restarted.elapsedMs < 1000);
   await page.locator('#achievements-nav').click();
   await page.locator('#tracking').check();
   await page.locator('#achievements-dialog .dialog-close').click();
@@ -122,8 +157,9 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   assert.equal((await read()).progress.unlocked.includes('first'), true);
   const scored = await read();
   assert.ok(scored.game.score.total > 0);
-  assert.equal(scored.progress.points, scored.game.score.total);
-  assert.equal(scored.progress.best, scored.game.score.total);
+  assert.equal(scored.scores.points, scored.game.score.total);
+  assert.equal(scored.scores.best, scored.game.score.total);
+  assert.equal(scored.scores.solved, 1);
   assert.equal(await page.locator('#win-points').textContent(), scored.game.score.total.toLocaleString('de'));
   assert.equal(await page.locator('#score-breakdown dd').count(), 5);
   await page.screenshot({ path: `output/${name}-win.png`, fullPage: true });
@@ -133,7 +169,21 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator(`[data-index="${changed}"]`).click();
   await page.keyboard.press(String(afterUndo.game.solution[changed]));
   assert.equal((await read()).progress.total, 1);
-  assert.equal((await read()).progress.points, scored.progress.points, 'undo and re-solving must not award points again');
+  assert.equal((await read()).scores.points, scored.scores.points, 'undo and re-solving must not award points again');
+  await page.locator('#restart-game').click(); await page.locator('#confirm-yes').click();
+  const replay = await read();
+  assert.deepEqual(replay.game.puzzle, scored.game.puzzle);
+  for (let i = 0; i < 81; i++) if (!replay.game.puzzle[i]) {
+    await page.locator(`[data-index="${i}"]`).click();
+    await page.keyboard.press(String(replay.game.solution[i]));
+  }
+  await page.locator('#win-dialog').waitFor({ state:'visible' });
+  assert.equal(await page.locator('#win-score-status').isVisible(), true);
+  assert.deepEqual((await read()).scores, scored.scores, 'restarting a credited puzzle must not bank another score');
+  assert.equal((await read()).progress.total, 1);
+  await page.locator('#win-dialog .dialog-close').click();
+  await page.reload(); await page.locator('.board-shell.ready').waitFor();
+  assert.deepEqual((await read()).scores, scored.scores, 'banked points must survive a reload');
   await page.locator('#achievements-nav').click();
   await page.locator('#tracking').uncheck();
   await page.locator('#confirm-no').click();
@@ -142,9 +192,10 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await page.locator('#tracking').uncheck(); await page.locator('#confirm-yes').click();
   assert.equal((await read()).settings.tracking, false);
   assert.equal((await read()).progress, null);
+  assert.deepEqual((await read()).scores, scored.scores, 'opting out of achievements must keep banked points');
   await page.locator('#tracking').check();
-  assert.equal((await read()).progress.points, 0);
-  assert.equal((await read()).progress.best, 0);
+  assert.equal((await read()).progress.total, 0);
+  assert.deepEqual((await read()).scores, scored.scores);
   await page.locator('#achievements-dialog .dialog-close').click();
   await page.locator('#new-game').click();
   await page.locator('#loading').waitFor({ state: 'hidden' });
@@ -153,40 +204,63 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]]) 
   await second.goto(base); await second.locator('#loading').waitFor({ state: 'hidden' });
   assert.equal(await second.locator('#new-game').isDisabled(), true);
   await second.close();
+  await page.locator('#settings-open').click();
+  const beforeDifficulty = await read();
+  await page.locator('#settings-dialog #difficulty').selectOption('hard');
+  await page.locator('#confirm-no').click();
+  assert.equal(await page.locator('#settings-dialog').isVisible(), true);
+  assert.equal(await page.locator('#difficulty').inputValue(), beforeDifficulty.game.difficulty);
+  assert.equal((await read()).game.seed, beforeDifficulty.game.seed);
   await page.locator('#difficulty').selectOption('hard');
   await page.locator('#confirm-yes').click();
   await page.locator('#loading').waitFor({ state: 'hidden' });
   assert.equal((await read()).game.difficulty, 'hard');
+  assert.equal(await page.locator('#settings-dialog').isVisible(), false);
   await page.locator('#settings-open').click();
   await page.locator('#reduced-motion').check();
   await page.locator('#language').selectOption('en');
-  assert.equal(await page.locator('#game-title').textContent(), 'A little reef break');
+  assert.equal(await page.locator('html').getAttribute('lang'), 'en');
+  assert.equal(await page.locator('#notes span').textContent(), 'Notes');
   await page.locator('#dark-theme').check();
   await page.locator('#settings-dialog .dialog-close').click();
   await page.screenshot({ path: `output/${name}-dark.png`, fullPage: true });
   await page.locator('#settings-open').click();
   await page.locator('#dark-theme').uncheck(); await page.locator('#language').selectOption('de');
   await page.locator('#settings-dialog .dialog-close').click();
-  for (const [width, height] of [[320,568],[360,640],[390,664],[390,844],[430,932],[844,390],[667,375],[568,320]]) {
+  for (const [width, height] of [[240,320],[320,240],[320,480],[320,568],[375,559],[390,664],[768,1024],[800,800],[1024,600],[1024,768],[1280,500],[1366,768],[1440,900],[1920,1080],[1600,300],[2560,1440],[3840,2160],[568,320],[667,375],[844,390]]) {
     await page.setViewportSize({ width, height });
-    await page.waitForTimeout(100);
     await page.locator('#update').evaluate(button => { button.hidden = false; });
     const layout = await page.evaluate(() => {
       const board = document.getElementById('board-shell').getBoundingClientRect();
-      const controls = ['#board-shell','#difficulty','#notes','#erase','#number-pad button','#new-game','#settings-open','#achievements-nav','footer button','footer a'];
+      const space = document.querySelector('.board-space').getBoundingClientRect();
+      const grid = document.getElementById('board').getBoundingClientRect();
+      const controls = ['#board-shell','#notes','#erase','#restart-game','#number-pad button','#new-game','#settings-open','#achievements-nav','#help-open','#round-time','#round-points'];
+      const cell = index => getComputedStyle(document.querySelector(`[data-index="${index}"]`));
       return {
         fits:document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight,
         viewport:[innerWidth,innerHeight], page:[document.documentElement.scrollWidth,document.documentElement.scrollHeight],
         square:Math.abs(board.width-board.height)<1, size:Math.min(board.width,board.height),
+        compact:Math.abs(board.top-space.top)<2 && Math.abs(board.bottom-space.bottom)<2,
+        nativeGrid:Math.abs(grid.width - grid.height) < 1 && Math.abs(grid.width - board.width) < 4 && Math.abs(grid.height - board.height) < 4 && cell(0).borderRightWidth === '1px' && cell(2).borderRightWidth === '2px' && cell(18).borderBottomWidth === '2px',
         visible:controls.every(selector => [...document.querySelectorAll(selector)].filter(el => !el.hidden).every(el => { const r=el.getBoundingClientRect(); return r.width>0 && r.height>0 && r.top>=0 && r.left>=0 && r.bottom<=innerHeight+1 && r.right<=innerWidth+1; })),
       };
     });
     await page.screenshot({ path: `output/${name}-mobile-${width}x${height}.png`, fullPage: true });
-    assert.ok(layout.fits && layout.square && layout.visible && layout.size >= 216, `mobile ${width}x${height}: ${JSON.stringify(layout)}`);
+    assert.ok(layout.fits && layout.square && layout.compact && layout.nativeGrid && layout.visible && layout.size >= (width >= 320 && height >= 320 ? 216 : 60), `viewport ${width}x${height}: ${JSON.stringify(layout)}`);
     await page.mouse.wheel(0, 600);
-    assert.equal(await page.evaluate(() => scrollY), 0, 'mobile page must not scroll');
+    assert.equal(await page.evaluate(() => scrollY), 0, 'the game page must not scroll');
   }
-  await page.waitForFunction(() => document.getElementById('offline-status').textContent === 'Offline bereit');
+  await page.setViewportSize({width:375,height:559});
+  for (const [open,dialog] of [['settings-open','settings-dialog'],['achievements-nav','achievements-dialog'],['help-open','help-dialog']]) {
+    await page.locator('#'+open).click();
+    const close = page.locator(`#${dialog} .dialog-close`), before = await close.boundingBox();
+    await page.locator(`#${dialog} .dialog-body`).evaluate(el => {el.scrollTop=el.scrollHeight;});
+    const after = await close.boundingBox();
+    assert.ok(before && after && Math.abs(before.y-after.y)<1 && after.y>=0 && after.y+after.height<=559, `${name}: ${dialog} close must stay visible while scrolling`);
+    if (dialog==='settings-dialog') await page.screenshot({path:`output/${name}-dialog-scrolled.png`,fullPage:true});
+    await close.click();
+  }
+  await page.evaluate(async () => { await navigator.serviceWorker.ready; });
   const saved = await read();
   await context.setOffline(true); await page.reload();
   await page.locator('.board-shell.ready').waitFor();

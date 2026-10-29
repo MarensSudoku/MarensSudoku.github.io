@@ -1,0 +1,22 @@
+{
+  "reef":{"file":"reef.glb","yaw":0},
+  "fish":[
+    {"file":"clownfish.glb","yaw":1.5707963267948966},
+    {"file":"blue-tang.glb","yaw":1.5707963267948966},
+    {"file":"butterflyfish.glb","yaw":1.5707963267948966},
+    {"file":"wrasse.glb","yaw":1.5707963267948966},
+    {"file":"anthias.glb","yaw":1.5707963267948966,"school":true},
+    {"file":"chromis.glb","yaw":1.5707963267948966,"school":true}
+  ],
+  "corals":[
+    {"file":"coral-fan.glb","size":2.7,"sway":0.04},
+    {"file":"coral-staghorn.glb","size":2.6},
+    {"file":"coral-plates.glb","size":2.3},
+    {"file":"coral-brain.glb","size":1.35},
+    {"file":"coral-tubes.glb","size":1.7}
+  ],
+  "plants":[{"file":"ribbon-grass.glb","size":2.4,"sway":0.22},{"file":"sea-fern.glb","size":1.8,"sway":0.18}],
+  "anemone":{"file":"anemone.glb","size":1.6,"sway":0.13},
+  "rock":{"file":"reef-ledge.glb","size":5.8},
+  "crab":{"file":"reef-crab.glb","yaw":3.141592653589793,"size":0.95}
+}

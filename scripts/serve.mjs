@@ -6,6 +6,7 @@ import { parseByteRange } from '../web/range.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../dist');
 const port = Number(process.env.PORT || 4175);
 const mime = { '.html':'text/html; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml', '.json':'application/json', '.webmanifest':'application/manifest+json', '.txt':'text/plain; charset=utf-8', '.mp3':'audio/mpeg', '.ogg':'audio/ogg', '.wav':'audio/wav', '.m4a':'audio/mp4', '.mp4':'video/mp4' };
+mime['.glb'] = 'model/gltf-binary';
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');

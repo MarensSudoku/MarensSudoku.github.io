@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { countSolutions, generate, isSolved, solveLogic } from '../web/sudoku/engine.mjs';
-import { createGame, enter, undo, complete, emptyProgress, validGame } from '../web/sudoku/model.mjs';
+import { createGame, enter, undo, complete, emptyProgress, emptyScores, validGame } from '../web/sudoku/model.mjs';
 const puzzle = '530070000600195000098000060800060003400803001700020006060000280000419005000080079'.split('').map(Number);
 const solution = '534678912672195348198342567859761423426853791713924856961537284287419635345286179'.split('').map(Number);
 test('solver distinguishes impossible, unique and multiple solutions', () => {
@@ -38,15 +38,15 @@ test('notes, peer cleanup and complete undo preserve givens', () => {
 });
 test('achievements credit one round once, including after undo and reload', () => {
   const game = createGame({ puzzle, solution, difficulty: 'hard', seed: 1, version: 1 });
-  const progress = emptyProgress();
+  const progress = emptyProgress(), scores = emptyScores();
   game.values = [...solution];
-  assert.equal(complete(game, progress, true).length, 2);
+  assert.equal(complete(game, progress, true, scores).length, 2);
   assert.equal(progress.total, 1);
-  assert.deepEqual(complete(JSON.parse(JSON.stringify(game)), progress, true), []);
+  assert.deepEqual(complete(JSON.parse(JSON.stringify(game)), progress, true, scores), []);
   assert.equal(progress.total, 1);
   const disabled = createGame({ puzzle, solution, difficulty: 'easy', seed: 1, version: 1 });
   disabled.values = [...solution];
-  complete(disabled, progress, false);
+  complete(disabled, progress, false, scores);
   assert.equal(progress.total, 1);
 });
 test('storage validation rejects changed givens, invalid notes and malformed histories', () => {

@@ -10,6 +10,7 @@ import { parseByteRange, rangeResponse } from '../web/range.mjs';
 test('dropped music files and numbered variants have distinct translated names', async () => {
   const tracks = makeMusicTracks(await readdir(new URL('../web/assets/music/', import.meta.url)));
   assert.ok(tracks.length > 0);
+  assert.equal(tracks.some(track => track.file === '03-schwebende-perlen_2.mp3'), false);
   assert.equal(tracks[0].file, DEFAULT_MUSIC_TRACK);
   assert.equal(new Set(tracks.map(track => track.file)).size, tracks.length);
   for (const track of tracks) {
@@ -44,7 +45,7 @@ test('older game saves acquire music defaults without losing game or progress', 
   stored = JSON.stringify({ schema:1, game, settings, progress });
   const restored = load();
   assert.equal(restored.problem, false);
-  assert.deepEqual(restored.game, game); assert.deepEqual(restored.progress, { ...progress, points:0, best:0 });
+  assert.deepEqual(restored.game, game); assert.deepEqual(restored.progress, progress);
   assert.equal(restored.settings.musicVolume, 0.25);
   assert.equal(restored.settings.musicTrack, DEFAULT_MUSIC_TRACK);
   assert.equal(restored.settings.musicEnabled, true);
