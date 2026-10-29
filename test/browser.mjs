@@ -187,6 +187,9 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.keyboard.press(String(solution));
   assert.equal((await read()).game.values[index], solution);
   assert.equal(await page.locator(`[data-index="${index}"] .cell-value`).textContent(), String(solution));
+  const placed = (await read()).game.values;
+  assert.deepEqual(await page.locator('.cell.is-matching').evaluateAll(cells => cells.map(cell => Number(cell.dataset.index))), placed.flatMap((value, i) => value === solution ? [i] : []), 'tapping a number must highlight every equal number');
+  assert.deepEqual(await page.locator('#number-pad button').evaluateAll(buttons => buttons.map(button => button.classList.contains('is-complete'))), [1,2,3,4,5,6,7,8,9].map(n => placed.filter(value => value === n).length >= 9), 'numbers placed nine times must be greyed out');
   assert.ok(await page.locator(`[data-index="${index}"] .cell-value`).evaluate(el => getComputedStyle(el).color !== 'rgba(0, 0, 0, 0)' && getComputedStyle(el).fontFamily === getComputedStyle(document.body).fontFamily));
   await page.evaluate(() => { Object.defineProperty(document,'hidden',{ configurable:true, value:true }); document.dispatchEvent(new Event('visibilitychange')); });
   const hiddenClock = await page.locator('#round-time').textContent();
@@ -203,6 +206,8 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal((await read()).game.notes[index], 1 << solution);
   assert.equal(await page.locator(`[data-index="${index}"] .cell-notes span`).count(), 9);
   assert.equal(await page.locator(`[data-index="${index}"] .cell-notes`).textContent(), String(solution));
+  assert.deepEqual(await page.locator('#number-pad button.is-noted').evaluateAll(buttons => buttons.map(button => button.dataset.number)), [String(solution)], 'noted candidates must be marked on the number pad');
+  assert.equal(await page.locator(`#number-pad [data-number="${solution}"]`).getAttribute('aria-label'), `${solution}, notiert`);
   await page.locator('#notes').click();
   const elapsedBeforeReload = (await read()).game.elapsedMs;
   await page.reload();
