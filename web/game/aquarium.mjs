@@ -16,6 +16,7 @@ import { VertexBuffer } from '@babylonjs/core/Buffers/buffer.js';
 import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData.js';
 import { MorphTarget } from '@babylonjs/core/Morph/morphTarget.js';
 import { MorphTargetManager } from '@babylonjs/core/Morph/morphTargetManager.js';
+import { ColorCurves } from '@babylonjs/core/Materials/colorCurves.js';
 import { ImportMeshAsync } from '@babylonjs/core/Loading/sceneLoader.js';
 import '@babylonjs/loaders/glTF/glTFFileLoader.js';
 import '@babylonjs/loaders/glTF/2.0/index.js';
@@ -34,11 +35,13 @@ export async function createAquarium(canvas) {
     engine = new Engine(canvas, true, { alpha:false, stencil:false, preserveDrawingBuffer:false, powerPreference:'low-power' });
     engine.setHardwareScalingLevel(mobile ? 1 : 1 / Math.min(devicePixelRatio, 1.5));
     const scene = new Scene(engine);
-    scene.clearColor = new Color4(.08,.62,.8,1);
-    scene.fogMode = Scene.FOGMODE_LINEAR; scene.fogStart = 18; scene.fogEnd = 44; scene.fogColor = new Color3(.08,.62,.8);
+    scene.clearColor = new Color4(.2,.7,.86,1);
+    scene.fogMode = Scene.FOGMODE_LINEAR; scene.fogStart = 16; scene.fogEnd = 100; scene.fogColor = new Color3(.2,.7,.86);
+    scene.imageProcessingConfiguration.contrast = 1.1;
+    scene.imageProcessingConfiguration.colorCurvesEnabled = true; scene.imageProcessingConfiguration.colorCurves = Object.assign(new ColorCurves(), { globalSaturation:28 });
     scene.skipPointerMovePicking = true; scene.autoClear = true;
     const camera = new FreeCamera('reef-camera', new Vector3(0, 3.8, -12), scene);
-    camera.setTarget(new Vector3(0, 2.2, 8)); camera.fov = 1.0; camera.minZ = 0.1; camera.maxZ = 65;
+    camera.setTarget(new Vector3(0, 2.7, 8)); camera.fov = 1.0; camera.minZ = 0.1; camera.maxZ = 140;
     const sky = new HemisphericLight('water-light', new Vector3(0, 1, -0.4), scene);
     sky.intensity = .95; sky.groundColor = new Color3(.32,.55,.6);
     const sun = new DirectionalLight('sunlight', new Vector3(.35,-1,.45), scene); sun.intensity = .85; sun.position.set(-7,12,-8);
@@ -50,7 +53,7 @@ export async function createAquarium(canvas) {
     VertexData.ComputeNormals(sandPositions,sand.getIndices(),sandNormals);
     sand.updateVerticesData(VertexBuffer.PositionKind,sandPositions); sand.updateVerticesData(VertexBuffer.NormalKind,sandNormals);
     const sandMaterial = new StandardMaterial('sand', scene);
-    sandMaterial.diffuseColor = new Color3(.5,.56,.53); sandMaterial.specularColor = Color3.Black(); sand.material = sandMaterial;
+    sandMaterial.diffuseColor = new Color3(.5,.62,.64); sandMaterial.specularColor = Color3.Black(); sand.material = sandMaterial;
     sand.isPickable = false; sand.receiveShadows = true;
     const water = createWater(scene,sandMaterial,mobile), scenery = [], swaying = [];
     const templates = new Map(), objects = new Map(), fish = [];
@@ -163,6 +166,14 @@ export async function createAquarium(canvas) {
         const index=(i+j*2)%coralTemplates.length;
         place(coralTemplates[index],`ledge-growth-${i}-${j}`,x+(j ? .7 : -.7),top,z+.3,.85,i*.6,Boolean(models.corals[index].sway));
       }
+    });
+    // Distant pillars stay out of the editable reef and fade into the haze behind it.
+    const decor=(template,name,x,y,z,size,yaw)=>{const node=template.clone(name);node.setEnabled(true);node.position.set(x,y,z);node.scaling.setAll(size);node.rotation.y=yaw;scenery.push({node,x});return node;};
+    [[-15,22,1.3,.5],[-19,34,1.6,1.2],[-13,47,1.5,2],[-25,50,2,.3],[15,24,1.4,2.4],[20,36,1.7,.9],[14,49,1.5,1.7],[26,54,2.1,2.8],[-5,62,1.3,.6],[6,68,1.4,2.2]].forEach(([x,z,size,yaw],i)=> {
+      const height=rock.metadata.height, upper=size*.75, top=height*size*.6+height*upper*.72;
+      decor(rock,`pillar-${i}`,x,0,z,size,yaw); decor(rock,`pillar-top-${i}`,x*.98,height*size*.6,z+.3,upper,yaw+1.1);
+      decor(reef,`pillar-reef-${i}`,x*.96,top,z,.6+size*.12,yaw*2);
+      for(let j=0;j<2;j++)decor(coralTemplates[(i+j*3)%coralTemplates.length],`pillar-coral-${i}-${j}`,x+(j?1:-1)*size*.9,height*size*.6,z-.4,.9+size*.15,i+j);
     });
     for(let i=0;i<models.plants.length;i++) {
       const spec=models.plants[i], template=await model(spec,spec.size,true); bend(template,spec.sway,'plant'); template.setEnabled(false);
@@ -291,7 +302,7 @@ export async function createAquarium(canvas) {
     let reduced = false, dark = false, time = 0, last = performance.now();
     if(stored.layout)setLayout(stored.layout);
     function render(now = performance.now(), force = false) {
-      if (!force && now - last < 1000 / 30) return;
+      if (!force && now - last < 1000 / 60 - 2) return; // Up to 60 fps; the 2 ms slack keeps 60 Hz screens from skipping frames.
       const delta = Math.min((now - last) / 1000, 0.08); last = now;
       if (!reduced&&!editing) time += delta;
       for (const animal of fish) {
