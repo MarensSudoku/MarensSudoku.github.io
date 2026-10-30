@@ -412,7 +412,7 @@ export async function createAquarium(canvas) {
       for(const entry of objects.values())if(entry.record.type==='reef-crab') {
         const object=entry.record;
         const pose=placementPose(object);entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.rotation.set(pose.pitch,pose.yaw,pose.roll);
-        for(const manager of entry.managers){const wave=Math.sin(time*5);manager.getTarget(0).influence=Math.max(0,-wave);manager.getTarget(1).influence=Math.max(0,wave);}
+        for(const manager of entry.managers){const wave=object.motion==='rest'?0:Math.sin(time*5*object.speed);manager.getTarget(0).influence=Math.max(0,-wave);manager.getTarget(1).influence=Math.max(0,wave);}
       }
       updateSelectionRing();
       water.update(time,dark);

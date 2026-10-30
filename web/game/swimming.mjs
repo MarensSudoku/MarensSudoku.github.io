@@ -28,11 +28,12 @@ export function swayWeight(height, min, max) {
 }
 
 export function aquariumPose(time, object) {
-  if(object.motion==='still'&&object.type!=='reef-crab')return {x:object.x,y:object.y,z:object.z,yaw:object.yaw,pitch:object.pitch||0,roll:object.roll||0};
+  if(object.motion==='rest'||object.motion==='still'&&object.type!=='reef-crab')return {x:object.x,y:object.y,z:object.z,yaw:object.yaw,pitch:object.pitch||0,roll:object.roll||0};
   const settings={phase:object.phase,speed:object.baseSpeed*object.speed,radius:object.radius,depth:object.z,height:object.y,member:object.member};
   let pose;
-  if(object.type==='reef-crab') {
-    pose={x:Math.sin(time*.16)*1.4,y:object.y,z:object.z+Math.cos(time*.11)*.5,yaw:0};
+  if(object.type==='reef-crab'&&object.motion==='still') {
+    const step=time*object.speed,reach=object.radius/3;
+    pose={x:Math.sin(step*.16)*1.4*reach,y:object.y,z:object.z+Math.cos(step*.11)*.5*reach,yaw:0};
   } else if(object.motion==='circle'||object.motion==='school') {
     pose=object.motion==='school'?schoolPose(time,settings):swimPose(time,settings);
   } else {
@@ -41,6 +42,7 @@ export function aquariumPose(time, object) {
     const vx=Math.cos(angle)*object.radius, vz=object.motion==='eight'?Math.cos(angle*2)*3:-Math.sin(angle)*.35;
     pose={x,y:object.y+Math.sin(angle*2)*.12,z:object.z+z,yaw:Math.atan2(-vz,vx)};
   }
+  if(object.type==='reef-crab')pose.y=object.y;
   const rotation=Quaternion.RotationYawPitchRoll(object.yaw,object.pitch||0,object.roll||0);
   const offset=new Vector3(pose.x,pose.y-object.y,pose.z-object.z);
   offset.rotateByQuaternionToRef(rotation,offset);

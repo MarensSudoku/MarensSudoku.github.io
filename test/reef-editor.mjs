@@ -3,9 +3,9 @@ import { REEF_STORAGE_KEY,validReefLayout } from '../web/reef-layout.mjs';
 
 export async function checkReefEditor(page,name) {
   const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('marenssudoku:state:v1')));
-  const enter=async()=>{await page.locator('#settings-open').click();await page.locator('#reef-editor-open').click();await page.locator('#reef-editor').waitFor({state:'visible'});};
+  const enter=async()=>{if(await page.locator('#reef-view-toggle').getAttribute('aria-pressed')!=='true')await page.locator('#reef-view-toggle').click();await page.locator('#reef-view-edit').click();await page.locator('#reef-editor').waitFor({state:'visible'});};
   const release=async()=>{if(await page.locator('#reef-deselect').isVisible())await page.locator('#reef-deselect').click();};
-  const behaviour=async()=>{await page.locator('#reef-properties-open').click();await page.locator('#reef-fish-settings summary').click();};
+  const behaviour=async()=>{await page.locator('#reef-ring-motion-open').click();};
   const chooseType=async type=>{await release();const count=Number(await page.locator('#reef-count').textContent());await page.locator('#reef-add-type').click();await page.locator(`[data-reef-type="${type}"]`).click();assert.equal(Number(await page.locator('#reef-count').textContent()),count+1,'choosing a model must immediately add exactly one object');};
   const chooseObject=async id=>{await release();const count=await page.locator('#reef-count').textContent();await page.locator('#reef-object-list').click();await page.locator(`[data-reef-id="${id}"]`).check();await page.locator('#reef-edit-selected').click();assert.equal(await page.locator('#reef-count').textContent(),count,'selecting an existing object must not add a copy');};
   const selected=()=>page.locator('#reef-editor').getAttribute('data-selected');
@@ -25,6 +25,8 @@ export async function checkReefEditor(page,name) {
   assert.equal(await page.evaluate(()=>document.activeElement.id),'reef-add-type','dismissing hints must retain keyboard focus in the editor');
   await chooseObject('ledge-0');await page.locator('[data-reef-mode="height"]').click();
   assert.equal(await page.locator('#reef-hint').isHidden(),true,'selection and mode changes must keep dismissed tips hidden');
+  assert.equal(await page.locator('.reef-editor-top').isHidden(),true,'selecting an object must hide the upper editor bar');
+  await release();assert.equal(await page.locator('.reef-editor-top').isVisible(),true,'the green ring checkmark must restore the editor bar');
   await page.locator('#reef-cancel').click();await page.locator('#reef-view-edit').click();
   assert.equal(await page.locator('#reef-hint').isVisible(),true,'a new editor visit must show its hints again');
   assert.deepEqual(await page.locator('.reef-editor-actions>button').evaluateAll(buttons=>buttons.map(button=>button.id)),['reef-undo','reef-object-list','reef-reset','reef-cancel','reef-finish']);
@@ -40,22 +42,23 @@ export async function checkReefEditor(page,name) {
   await page.locator('#reef-view-toggle').click();assert.equal(await page.locator('.reef-layout').isVisible(),true);
   await page.locator('#settings-open').click();await page.locator('#reduced-motion').check();await page.locator('#settings-dialog .dialog-close').click();
   await enter();
-  await chooseObject('ledge-0');await page.locator('#reef-properties-open').click();
-  assert.equal(await page.locator('#reef-hue').isVisible(),true);assert.equal(await page.locator('#reef-fish-settings').isVisible(),false,'reef objects offer colour without fish behaviour');
-  assert.equal(await page.locator('#reef-properties-dialog').evaluate(dialog=>dialog.matches(':modal')),false,'colour editing must leave the reef visible and interactive');
+  await chooseObject('ledge-0');await page.locator('#reef-ring-hue-open').click();
+  assert.equal(await page.locator('[data-reef-slider="speed"]').isHidden(),true);assert.equal(await page.locator('[data-reef-slider="radius"]').isHidden(),true);
+  assert.equal(await page.locator('#reef-ring-hue').isVisible(),true);assert.equal(await page.locator('[data-reef-slider="motion"]').isVisible(),false,'reef objects offer colour without fish behaviour');
+  assert.equal(await page.locator('#reef-properties-dialog, #reef-properties-open').count(),0,'all object settings must be directly available in the ring');
   for(const [width,height] of [[1440,900],[375,559],[240,320]]){
     await page.setViewportSize({width,height});
-    await page.waitForFunction(()=>{const r=document.getElementById('reef-properties-dialog').getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;});
-    const panel=await page.locator('#reef-properties-dialog').boundingBox();
+    await page.waitForFunction(()=>{const r=document.querySelector('[data-reef-slider="hue"]').getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;});
+    const panel=await page.locator('[data-reef-slider="hue"]').boundingBox();
     assert.ok(panel.x>=0&&panel.y>=0&&panel.x+panel.width<=width&&panel.y+panel.height<=height&&panel.height<height/2,`the compact palette must fit and leave room for the selected object: ${width}x${height}, ${JSON.stringify(panel)}`);
     await page.screenshot({path:`output/${name}-palette-${width}.png`});
   }
   await page.setViewportSize({width:1440,height:900});
-  await page.locator('#reef-hue').evaluate(input=>{input.value='60';input.dispatchEvent(new Event('input',{bubbles:true}));});
+  await page.locator('#reef-ring-hue').evaluate(input=>{input.value='60';input.dispatchEvent(new Event('input',{bubbles:true}));});
   await page.screenshot({path:`output/${name}-reef-colour.png`});
-  await page.locator('#reef-properties-dialog .dialog-close').click();await page.locator('#reef-undo').click();
-  await page.locator('#reef-properties-open').click();assert.equal(await page.locator('#reef-hue').inputValue(),'0','undo must restore the original colour');
-  await page.locator('#reef-properties-dialog .dialog-close').click();await release();
+  await page.keyboard.press('Escape');await page.locator('#reef-undo').click();
+  await page.locator('#reef-ring-hue-open').click();assert.equal(await page.locator('#reef-ring-hue').inputValue(),'0','undo must restore the original colour');
+  await page.keyboard.press('Escape');await release();
   const count=Number(await page.locator('#reef-count').textContent()),clock=await page.locator('#round-time').textContent();
   await page.waitForTimeout(1100);assert.equal(await page.locator('#round-time').textContent(),clock,'arranging the reef must pause the Sudoku timer');
   await page.locator('#reef-object-list').click();
@@ -68,7 +71,7 @@ export async function checkReefEditor(page,name) {
   await page.locator('[data-reef-type="blue-tang"]').click();assert.equal(await page.locator('#reef-add').count(),0);
   const id=await selected();assert.equal(Number(await page.locator('#reef-count').textContent()),count+1);
   const readLayout=()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)),REEF_STORAGE_KEY);
-  const saveDraft=async()=>{await page.locator('#reef-finish').click();const layout=await readLayout();assert.equal(validReefLayout(layout),true);return layout;};
+  const saveDraft=async()=>{await release();await page.locator('#reef-finish').click();const layout=await readLayout();assert.equal(validReefLayout(layout),true);return layout;};
   const checkpoint=async()=>{const layout=await saveDraft();await enter();await chooseObject(id);return layout.objects.find(object=>object.id===id);};
   const seed=async patch=>{
     const layout=await saveDraft();Object.assign(layout.objects.find(object=>object.id===id),patch);assert.equal(validReefLayout(layout),true);
@@ -84,7 +87,26 @@ export async function checkReefEditor(page,name) {
   });
   assert.equal(ring.clear,true,'ring controls must have no surrounding panel');
   assert.equal(ring.centre,'reef-aquarium','the object at the menu centre must remain draggable');
-  assert.equal(ring.radii.length,10);assert.ok(Math.min(...ring.radii)>50&&Math.max(...ring.radii)-Math.min(...ring.radii)<1,'controls must form a circle around the object');
+  assert.equal(ring.radii.length,14);assert.ok(Math.min(...ring.radii)>50&&Math.max(...ring.radii)-Math.min(...ring.radii)<1,'controls must form a circle around the object');
+  for(const field of ['hue','speed','radius']){
+    await page.locator('#reef-ring-'+field+'-open').click();
+    assert.equal(await page.locator('.reef-ring-slider:not([hidden])').count(),1,'only one slider may be expanded');
+    assert.equal(await page.locator('[data-reef-slider="'+field+'"]').evaluate(node=>node.getBoundingClientRect().height-node.querySelector('button').getBoundingClientRect().height<=6),true,'the expanded slider must stay as compact as its icon button');
+    assert.equal(await page.locator('#reef-ring-'+field+'-panel label').evaluate(node=>node.getBoundingClientRect().width<=1),true,'slider names and values must remain available to screen readers without visible text');
+    const input=page.locator('#reef-ring-'+field),before=Number(await input.inputValue());
+    await input.focus();await page.keyboard.press('ArrowRight');assert.ok(Number(await input.inputValue())>before,'native range keys must change the selected field');
+    await page.keyboard.press('Escape');assert.equal(await input.isHidden(),true);
+    assert.equal(await page.evaluate(()=>document.activeElement.id),'reef-ring-'+field+'-open');
+    await page.locator('#reef-undo').click();assert.deepEqual(await checkpoint(),record,'undo must restore the field without changing the object transform');
+    for(const [width,height] of [[375,559],[240,320],[667,375]]){
+      await page.setViewportSize({width,height});await page.locator('#reef-ring-'+field+'-open').click();
+      await page.waitForFunction(field=>{const r=document.querySelector('[data-reef-slider="'+field+'"]').getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;},field);
+      assert.equal(await page.locator('[data-reef-slider="'+field+'"]').evaluate(node=>{const r=node.getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;}),true,'expanded sliders must fit portrait and landscape');
+      if(width===375)await page.screenshot({path:`output/${name}-ring-${field}.png`});
+      await page.keyboard.press('Escape');
+    }
+    await page.setViewportSize({width:1440,height:900});
+  }
   assert.equal(await page.locator('#reef-add-type').isDisabled(),true);assert.equal(await page.locator('#reef-object-list').isDisabled(),true);assert.equal(await page.locator('#reef-reset').isDisabled(),true);
   await page.mouse.move(x,yAnchor);await page.mouse.down();
   await page.mouse.move(x+60,yAnchor,{steps:5});await page.mouse.up();
@@ -156,18 +178,18 @@ export async function checkReefEditor(page,name) {
     assert.ok(Math.hypot(after.x-before.x,after.y-before.y)<1,`${mode}: rotating a swimming route must keep its current visible position`);
     transformed=await checkpoint();
   }
+  assert.deepEqual(await page.locator('#reef-object-tools [data-reef-field]').evaluateAll(inputs=>inputs.map(input=>input.dataset.reefField)),['hue','speed','radius','motion']);
+  for(const [key,value] of Object.entries({speed:1.7,radius:2.5,hue:30})){await page.locator('#reef-ring-'+key+'-open').click();await page.locator('#reef-ring-'+key).evaluate((el,value)=>{el.value=String(value);el.dispatchEvent(new Event('input',{bubbles:true}));},value);await page.keyboard.press('Escape');}
   await behaviour();
-  assert.deepEqual(await page.locator('#reef-properties [data-reef-field]').evaluateAll(inputs=>inputs.map(input=>input.dataset.reefField)),['hue','motion','speed','radius']);
-  for(const [key,value] of Object.entries({speed:1.7,radius:2.5,hue:30}))await page.locator('#reef-'+key).evaluate((el,value)=>{el.value=String(value);el.dispatchEvent(new Event('input',{bubbles:true}));},value);
-  await page.locator('#reef-motion').selectOption('eight');
+  await page.locator('#reef-ring-motion').selectOption('eight');
   await page.screenshot({path:`output/${name}-fish-behaviour.png`});
-  await page.locator('#reef-properties-dialog .dialog-close').click();
+  await page.keyboard.press('Escape');
   await page.screenshot({path:`output/${name}-reef-editor.png`});
   for(const [width,height] of [[375,559],[240,320],[667,375],[844,390]]) {
     await page.setViewportSize({width,height});
     await page.waitForFunction(()=>{const r=document.getElementById('reef-object-tools').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;});
     const fits=await page.evaluate(()=>{
-      return document.documentElement.scrollWidth<=innerWidth&&document.documentElement.scrollHeight<=innerHeight&&['reef-undo','reef-finish','reef-cancel','reef-add-type','reef-object-tools','reef-reset','reef-object-list'].every(id=>{const r=document.getElementById(id).getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;});
+      return document.documentElement.scrollWidth<=innerWidth&&document.documentElement.scrollHeight<=innerHeight&&['reef-undo','reef-object-tools','reef-deselect'].every(id=>{const r=document.getElementById(id).getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;})&&document.querySelector('.reef-editor-top').hidden;
     });
     assert.equal(fits,true,`${name}: aquarium editor must fit ${width}x${height}`);
     if(width===375)await page.screenshot({path:`output/${name}-reef-editor-mobile.png`});
@@ -176,12 +198,12 @@ export async function checkReefEditor(page,name) {
   await page.setViewportSize({width:1440,height:900});
   await page.locator('#reef-duplicate').click();assert.equal(Number(await page.locator('#reef-count').textContent()),count+2);
   await page.locator('#reef-remove').click();assert.equal(Number(await page.locator('#reef-count').textContent()),count+1);
-  await chooseObject('fish-4-0');await behaviour();
-  await page.locator('#reef-speed').evaluate(el=>{el.value='2';el.dispatchEvent(new Event('input',{bubbles:true}));});
-  await page.locator('#reef-properties-dialog .dialog-close').click();
-  await chooseType('anthias');await behaviour();await page.locator('#reef-motion').selectOption('school');
-  await page.locator('#reef-properties-dialog .dialog-close').click();
-  await page.locator('#reef-finish').click();await page.locator('#reef-editor').waitFor({state:'hidden'});
+  await chooseObject('fish-4-0');await page.locator('#reef-ring-speed-open').click();
+  await page.locator('#reef-ring-speed').evaluate(el=>{el.value='2';el.dispatchEvent(new Event('input',{bubbles:true}));});
+  await page.keyboard.press('Escape');
+  await chooseType('anthias');await behaviour();await page.locator('#reef-ring-motion').selectOption('school');
+  await page.keyboard.press('Escape');
+  await release();await page.locator('#reef-finish').click();await page.locator('#reef-editor').waitFor({state:'hidden'});
   const saved=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),REEF_STORAGE_KEY);assert.equal(validReefLayout(saved),true);
   const fish=saved.objects.find(object=>object.id===id);assert.equal(fish.motion,'eight');assert.equal(fish.speed,1.7);assert.equal(fish.radius,2.5);
   assert.equal(fish.hue,30,'the selected palette colour must be saved');
@@ -189,7 +211,7 @@ export async function checkReefEditor(page,name) {
   const school=saved.objects.filter(object=>object.type==='anthias'&&object.motion==='school');assert.ok(school.length>=9);assert.ok(school.every(object=>object.speed===2&&object.x===school[0].x&&object.z===school[0].z));assert.equal(new Set(school.map(object=>object.member)).size,school.length);
   const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('marenssudoku:state:v1')));
   assert.deepEqual(after.game.values,game.game.values);assert.deepEqual(after.scores,game.scores);
-  await enter();await chooseType('anemone');await page.locator('#reef-cancel').click();
+  await enter();await chooseType('anemone');await release();await page.locator('#reef-cancel').click();
   await enter();assert.equal(Number(await page.locator('#reef-count').textContent()),count+2);
   await page.locator('#reef-reset').click();await page.locator('#confirm-yes').click();assert.equal(Number(await page.locator('#reef-count').textContent()),count);
   await page.locator('#reef-cancel').click();

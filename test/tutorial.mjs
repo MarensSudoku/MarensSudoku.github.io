@@ -29,18 +29,22 @@ export async function checkTutorial(page,name) {
       await example.evaluate(cell=>cell.setAttribute('aria-selected','false'));
     }
     if(key.startsWith('tourEditor'))assert.equal(await page.locator('#reef-editor').isVisible(),true,'the editor must actually open during its tutorial');
-    if(key==='tourEditorColor')assert.equal(await page.locator('#reef-properties-dialog').isVisible(),true);
-    if(key==='tourEditorFish')assert.equal(await page.locator('#reef-fish-settings').getAttribute('open')!==null,true);
+    for(const [step,field] of [['tourEditorColor','hue'],['tourEditorSpeed','speed'],['tourEditorRadius','radius']])if(key===step){
+      assert.equal(await page.locator('#reef-ring-'+field).isVisible(),true);
+      assert.equal(await page.locator('#reef-ring-'+field+'-open').getAttribute('aria-expanded'),'true');
+    }
+    if(key==='tourEditorFish')assert.equal(await page.locator('#reef-ring-motion').isVisible(),true);
     if(key==='tourEditorCatalog'||key==='tourEditorList')assert.equal(await page.locator('#reef-picker-dialog').isVisible(),true);
     if(['tourErrors','tourEditorSelect','tourEditorCatalog','tourEditorFish'].includes(key))await page.screenshot({path:`output/${name}-${key}.png`});
     await page.waitForTimeout(step===1?1100:0);
     await page.locator('#tour-next')[touch?'tap':'click']();
   }
   for(const key of ['tourFocus','tourMatching','tourErrors','tourPadColors'])assert.ok(seen.has(key));
-  if(editor)for(const key of ['tourEditorSelect','tourEditorRotate','tourEditorFish','tourEditorList','tourEditorSave'])assert.ok(seen.has(key));
+  if(editor)for(const key of ['tourEditorSelect','tourEditorRotate','tourEditorColor','tourEditorSpeed','tourEditorRadius','tourEditorFish','tourEditorList','tourEditorSave'])assert.ok(seen.has(key));
   assert.equal(await page.locator('#tour-dialog').evaluate(node=>node.open),false);
   assert.equal(await page.locator('#reef-editor').isHidden(),true);
-  assert.equal(await page.locator('#reef-picker-dialog, #reef-properties-dialog').evaluateAll(nodes=>nodes.every(node=>!node.open)),true);
+  assert.equal(await page.locator('#reef-picker-dialog').evaluate(node=>!node.open),true);
+  assert.equal(await page.locator('#reef-properties-dialog, #reef-properties-open').count(),0);
   assert.equal(await page.locator('.tour-target').count(),0);
   assert.equal(await page.locator('.site-header').evaluate(node=>node.inert),false);
   assert.equal(await page.evaluate(key=>localStorage.getItem(key),REEF_STORAGE_KEY),savedReef,'the example reef must never overwrite the saved arrangement');

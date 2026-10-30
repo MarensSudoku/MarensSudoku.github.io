@@ -4,6 +4,7 @@ import { mkdir } from 'node:fs/promises';
 import { checkTutorial } from './tutorial.mjs';
 import { RELEASE } from '../web/release.mjs';
 import { checkUpdates } from './updates.mjs';
+import { checkWaiting } from './waiting.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
 for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].filter(([name]) => !process.env.BROWSER || process.env.BROWSER === name)) {
@@ -145,11 +146,12 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.screenshot({ path:`output/${name}-music-reload.png`, fullPage:true });
   await page.waitForFunction(() => window.__sfxDecoded === 8 || window.__sfxAudioTags.filter(audio => audio.src.includes('/assets/sounds/')).length === 8);
   const beforeSound = await page.evaluate(() => window.__sfxPlayed);
-  await page.locator('#test-sound').click();
+  assert.equal(await page.locator('#test-sound, #settings-dialog #reef-editor-open').count(),0);
+  await page.locator('#sfx-volume').focus();await page.keyboard.press('ArrowRight');
   await page.waitForFunction(count => window.__sfxPlayed > count, beforeSound);
   await page.locator('#sfx-enabled').uncheck();
   const mutedCount = await page.evaluate(() => window.__sfxPlayed);
-  await page.locator('#test-sound').click();
+  await page.locator('#sfx-volume').focus();await page.keyboard.press('ArrowLeft');
   assert.equal(await page.evaluate(() => window.__sfxPlayed), mutedCount);
   await page.locator('#sfx-enabled').check();
   const pausedClock = await page.locator('#round-time').textContent();
@@ -379,6 +381,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal(await page.locator('#app-version').innerText(),appVersion,'offline reload must retain the installed release');
   assert.equal(await page.locator('#app-version').getAttribute('data-build'),buildVersion,'offline reload must retain the installed build');
   await page.locator('#help-open').click(); await page.locator('#help-tour').click();
+  await page.locator('#tour-dialog').waitFor({state:'visible'});
   assert.equal(await page.locator('#help-dialog').evaluate(el => el.open), false);
   assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), true, 'help must restart the tutorial');
   await page.keyboard.press('Escape'); assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), false);
@@ -420,6 +423,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'2','rotating must preserve the game');
   await touchContext.close();
   await checkUpdates(browser,name);
+  await checkWaiting(browser,name,base);
   console.log(`${name}: guarded browser actions, native touch input and active-play screen-lock lifecycle passed.`);
   } finally { await browser.close(); }
 }

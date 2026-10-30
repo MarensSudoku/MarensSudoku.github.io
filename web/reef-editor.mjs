@@ -6,11 +6,11 @@ const names={
   'coral-fan':['Fächerkoralle','Sea fan'],'coral-staghorn':['Geweihkoralle','Staghorn coral'],'coral-plates':['Tellerkoralle','Plate coral'],'coral-brain':['Hirnkoralle','Brain coral'],'coral-tubes':['Röhrenkoralle','Tube coral'],
 };
 export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,readOnly}) {
-  const $=id=>document.getElementById(id), root=$('reef-editor'), open=$('reef-editor-open');
-  let selected=null, original=null, addType=REEF_TYPES[0],mode='move',hintsHidden=false;
+  const $=id=>document.getElementById(id), root=$('reef-editor');
+  let selected=null, original=null, addType=REEF_TYPES[0],mode='move',hintsHidden=false,sliderField=null;
   const history=[];
   let restoring=false,pointerAction=null,pointerSaved=false;
-  const label=type=>names[type][language()==='de'?0:1], tools=$('reef-object-tools'), picker=$('reef-picker-dialog'), properties=$('reef-properties-dialog'),hintPanel=$('reef-hint');
+  const label=type=>names[type][language()==='de'?0:1], tools=$('reef-object-tools'), picker=$('reef-picker-dialog'),hintPanel=$('reef-hint'),top=document.querySelector('.reef-editor-top'),ring=tools.querySelector('.reef-tool-ring'),actions=document.querySelector('.reef-editor-actions');
   const preview=type=>`./assets/models/previews/${type}.png`;
   const hints={move:'reefMoveHint',height:'reefHeightHint',rotate:'reefRotateHint','rotate-x':'reefRotateXHint','rotate-z':'reefRotateZHint',scale:'reefScaleHint'};
   function message(key,warning=false) {
@@ -19,6 +19,7 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
   }
   function setMode(next) {
     if(!aquarium.setTransformMode(next))return;
+    setSlider(null);
     mode=next;
     tools.querySelectorAll('[data-reef-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.reefMode===mode)));
     if(selected&&$('reef-message').dataset.warning!=='true')message(hints[mode]);
@@ -39,36 +40,71 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
   function positionTools() {
     if(!original||!selected)return;
     const anchor=aquarium.getEditorAnchor();if(!anchor)return;
-    const top=document.querySelector('.reef-editor-top').getBoundingClientRect().bottom+10;
+    const minTop=root.getBoundingClientRect().top+10;
     const bottom=(hintPanel.getClientRects().length?hintPanel.getBoundingClientRect().top:root.getBoundingClientRect().bottom)-10;
-    const buttons=tools.querySelectorAll('button:not([hidden])');buttons.forEach((button,index)=>button.style.setProperty('--angle',`${index*360/buttons.length}deg`));
-    const size=Math.max(112,Math.min(196,innerWidth-16,bottom-top));
+    const buttons=[...ring.children].filter(node=>!node.hidden);
+    const size=Math.max(112,Math.min(236,innerWidth-16,bottom-minTop));
     tools.style.setProperty('--ring-size',`${size}px`);
     const spacing=Math.sin(Math.PI/buttons.length);
-    tools.style.setProperty('--ring-button',`${Math.max(24,Math.min(40,Math.floor(((size-4)*spacing-2)/(1+spacing))))}px`);
+    const buttonSize=Math.max(24,Math.min(40,Math.floor(((size-4)*spacing-2)/(1+spacing)))),radius=(size-buttonSize)/2-2;
+    tools.style.setProperty('--ring-button',`${buttonSize}px`);
+    buttons.forEach((button,index)=>{
+      const angle=index*2*Math.PI/buttons.length;
+      button.style.left=`${size/2+Math.sin(angle)*radius}px`;button.style.top=`${size/2-Math.cos(angle)*radius}px`;
+    });
     const left=anchor.x-size/2;
     tools.style.left=`${Math.max(8,Math.min(innerWidth-tools.offsetWidth-8,left))}px`;
-    tools.style.top=`${Math.max(top,Math.min(bottom-tools.offsetHeight,anchor.y-tools.offsetHeight/2))}px`;
-    if(properties.open){
-      properties.style.left=`${anchor.x>innerWidth/2?12:Math.max(12,innerWidth-properties.offsetWidth-12)}px`;
-      properties.style.top=`${anchor.y>innerHeight/2?12:Math.max(12,innerHeight-properties.offsetHeight-12)}px`;
+    tools.style.top=`${Math.max(minTop,Math.min(bottom-tools.offsetHeight,anchor.y-tools.offsetHeight/2))}px`;
+    if(sliderField){
+      const control=ring.querySelector(`[data-reef-slider="${sliderField}"]`);
+      const box=control.getBoundingClientRect();
+      control.style.left=`${parseFloat(control.style.left)+Math.max(8-box.left,Math.min(0,innerWidth-8-box.right))}px`;
+      control.style.top=`${parseFloat(control.style.top)+Math.max(8-box.top,Math.min(0,innerHeight-8-box.bottom))}px`;
     }
   }
+  function setSlider(field,focus=false) {
+    sliderField=field;
+    for(const control of ring.querySelectorAll('[data-reef-slider]')){
+      const expanded=control.dataset.reefSlider===field;
+      control.dataset.open=String(expanded);control.querySelector('button').setAttribute('aria-expanded',String(expanded));
+      control.querySelector('.reef-ring-slider').hidden=!expanded;
+    }
+    aquarium.setColorPreview(field==='hue');positionTools();
+    if(field&&focus)$('reef-ring-'+field).focus();
+  }
   function showSelection(object) {
+    if((object?.id||null)!==selected)setSlider(null);
     selected=object?.id||null;root.dataset.selected=selected||'';tools.hidden=!object;
+    top.hidden=Boolean(object);
+    if(object&&$('reef-undo').parentElement!==ring)ring.insertBefore($('reef-undo'),$('reef-deselect'));
+    if(!object&&$('reef-undo').parentElement!==actions)actions.prepend($('reef-undo'));
     $('reef-add-type').disabled=Boolean(object);$('reef-object-list').disabled=Boolean(object);$('reef-reset').disabled=Boolean(object);
-    if(!object){properties.close();if(original)message('reefHint');return;}
-    $('reef-selected-name').textContent=label(object.type);$('reef-properties-name').textContent=label(object.type);
+    if(!object){if(original)message('reefHint');return;}
+    $('reef-selected-name').textContent=label(object.type);
     if($('reef-message').dataset.warning!=='true')message(hints[mode]);
-    $('reef-fish-settings').hidden=!FISH_TYPES.includes(object.type);
-    $('reef-motion').title=object.motion==='school'?t('reefSchoolHint'):'';
-    for(const input of properties.querySelectorAll('[data-reef-field]')) {
+    const crab=object.type==='reef-crab',motion=$('reef-ring-motion'),motionControl=ring.querySelector('[data-reef-slider="motion"]'),motionLabel=crab?'reefWalkMotion':'reefMotion';
+    motionControl.hidden=!FISH_TYPES.includes(object.type)&&!crab;
+    const motionButton=motionControl.querySelector('button');motionButton.dataset.reefLabel=motionLabel;motionButton.title=t(motionLabel);motionButton.setAttribute('aria-label',t(motionLabel));
+    motionButton.querySelector('use').setAttribute('href',crab?'#i-crab':'#i-fish');
+    const motionName=motionControl.querySelector('label');motionName.dataset.t=motionLabel;motionName.textContent=t(motionLabel);
+    if(motion.dataset.animal!==(crab?'crab':'fish')){
+      const options=crab?[['still','reefCrabWander'],['circle','reefCrabCircle'],['patrol','reefPatrol'],['eight','reefCrabEight'],['rest','reefStill']]:[['circle','reefCircle'],['patrol','reefPatrol'],['eight','reefEight'],['still','reefStill'],['school','reefSchool']];
+      motion.replaceChildren(...options.map(([value,key])=>{const option=new Option(t(key),value);option.dataset.t=key;return option;}));
+      motion.dataset.animal=crab?'crab':'fish';
+    }
+    for(const [field,fishLabel,crabLabel] of [['speed','reefSpeed','reefWalkSpeed'],['radius','reefRadius','reefWalkRadius']]){
+      const control=ring.querySelector(`[data-reef-slider="${field}"]`),key=object.type==='reef-crab'?crabLabel:fishLabel,button=control.querySelector('button'),text=control.querySelector('[data-t]');
+      control.hidden=!FISH_TYPES.includes(object.type)&&object.type!=='reef-crab';
+      button.dataset.reefLabel=key;button.title=t(key);button.setAttribute('aria-label',t(key));text.dataset.t=key;text.textContent=t(key);
+    }
+    $('reef-ring-motion').title=object.motion==='school'?t('reefSchoolHint'):'';
+    for(const input of tools.querySelectorAll('[data-reef-field]')) {
       const key=input.dataset.reefField,value=object[key];
       input.value=String(value);
-      const output=$('reef-'+key+'-value');
-      if(output)output.textContent=key==='hue'?(value?`${Math.round(value)}°`:t('reefOriginalColor')):Number(value).toFixed(1);
+      const output=$(input.id+'-value');
+      if(output)output.textContent=key==='hue'?(value?`${Math.round(value)}°`:t('reefOriginalColor')):Number(value).toFixed(key==='radius'?2:1);
     }
-    positionTools();
+    if(!sliderField)positionTools();
   }
   function renderText() {
     $('reef-add-type').querySelector('img').src=preview(addType);
@@ -105,7 +141,7 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
   }
   function finish(save) {
     if(save&&!saveReefLayout(aquarium.getLayout())){message('reefSaveFailed',true);return;}
-    picker.close();properties.close();
+    picker.close();
     if(!save)aquarium.setLayout(original);
     aquarium.setEditMode(false);root.hidden=true;delete document.body.dataset.editor;
     document.querySelector('.site-header').inert=false;original=null;resetUndo();onModeChange(false);
@@ -117,7 +153,7 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
     document.querySelector('.site-header').inert=true;aquarium.setEditMode(true);setMode('move');onModeChange(true);
     list();showSelection(null);message(aquarium.layoutProblem?'reefInvalid':'reefHint',Boolean(aquarium.layoutProblem));$('reef-add-type').focus();
   }
-  for(const button of [open,$('reef-view-edit')]) {button.disabled=readOnly;button.addEventListener('click',start);}
+  $('reef-view-edit').disabled=readOnly;$('reef-view-edit').addEventListener('click',start);
   $('reef-finish').addEventListener('click',()=>finish(true));
   $('reef-cancel').addEventListener('click',()=>finish(false));
   $('reef-hint-close').addEventListener('click',()=>{
@@ -130,9 +166,6 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
   $('reef-select-all').addEventListener('change',()=>{picker.querySelectorAll('[data-reef-id]').forEach(input=>input.checked=$('reef-select-all').checked);updateListActions();});
   $('reef-edit-selected').addEventListener('click',()=>{const input=picker.querySelector('[data-reef-id]:checked');if(input){picker.close();aquarium.select(input.dataset.reefId);}});
   $('reef-delete-selected').addEventListener('click',()=>{const ids=new Set([...picker.querySelectorAll('[data-reef-id]:checked')].map(input=>input.dataset.reefId)),layout=aquarium.getLayout();aquarium.setLayout({...layout,objects:layout.objects.filter(object=>!ids.has(object.id))});list();showPicker(true);});
-  $('reef-properties-open').addEventListener('click',()=>{properties.show();aquarium.setColorPreview(true);positionTools();$('reef-hue').focus();});
-  properties.addEventListener('close',()=>{aquarium.setColorPreview(false);$('reef-fish-settings').open=false;if(selected&&original)$('reef-properties-open').focus();});
-  $('reef-fish-settings').addEventListener('toggle',positionTools);
   $('reef-deselect').addEventListener('click',()=>{aquarium.select(null);$('reef-object-list').focus();});
   $('reef-remove').addEventListener('click',()=>{if(selected)aquarium.removeObject(selected);list();$('reef-object-list').focus();});
   $('reef-duplicate').addEventListener('click',()=>{
@@ -141,10 +174,14 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
     if(!aquarium.addObject(object.type,copy))message('reefFull',true);else message(hints[mode]);list();
   });
   $('reef-reset').addEventListener('click',async()=>{if(await confirmReset()){aquarium.setLayout(aquarium.defaultLayout);list();}});
-  properties.addEventListener('input',event=>{
+  function changeField(event) {
     const key=event.target.dataset.reefField;if(!key||!selected)return;
     const value=key==='motion'?event.target.value:Number(event.target.value);
     aquarium.updateObject(selected,{[key]:value});
+  }
+  tools.addEventListener('input',changeField);
+  for(const control of ring.querySelectorAll('[data-reef-slider]'))control.querySelector('button').addEventListener('click',()=>{
+    setSlider(sliderField===control.dataset.reefSlider?null:control.dataset.reefSlider,true);
   });
   root.addEventListener('click',event=>{
     const button=event.target.closest('[data-reef-mode]');if(button)setMode(button.dataset.reefMode);
@@ -154,11 +191,12 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
   function endPointerAction(event) {if(event.pointerId===pointerAction)pointerAction=null;}
   document.addEventListener('pointerup',endPointerAction,true);document.addEventListener('pointercancel',endPointerAction,true);
   document.addEventListener('keydown',event=>{
-    if(event.key==='Escape'&&properties.open){event.preventDefault();properties.close();return;}
+    if(event.key==='Escape'&&sliderField){const field=sliderField;event.preventDefault();setSlider(null);$('reef-ring-'+field+'-open').focus();return;}
+    if(event.target.closest('input,select,textarea,[contenteditable]'))return;
     if(!original||!selected||event.ctrlKey||event.metaKey||event.altKey||document.querySelector('dialog[open]'))return;
     const direction={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[event.key];
     if(direction&&aquarium.nudgeSelection(...direction))event.preventDefault();
   });
   aquarium.onBeforeChange(remember);aquarium.onSelection(showSelection);renderText();
-  return {renderText,start,finish,setMode,showPicker};
+  return {renderText,start,finish,setMode,showPicker,setSlider};
 }

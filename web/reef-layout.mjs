@@ -10,7 +10,7 @@ export function validReefObject(object) {
     Object.entries(ranges).every(([key,[min,max]])=>Number.isFinite(object[key])&&object[key]>=min&&object[key]<=max) &&
     ['pitch','roll'].every(key=>!(key in object)||(Number.isFinite(object[key])&&Math.abs(object[key])<=Math.PI*2)) &&
     (!('hue' in object)||(Number.isFinite(object.hue)&&object.hue>=0&&object.hue<=360)) &&
-    Number.isInteger(object.member)&&object.member>=0&&object.member<50&&FISH_MOTIONS.includes(object.motion);
+    Number.isInteger(object.member)&&object.member>=0&&object.member<50&&(FISH_MOTIONS.includes(object.motion)||object.type==='reef-crab'&&object.motion==='rest');
 }
 export function reefObject(type,id,values={}) {
   const object={id,type,x:0,y:FISH_TYPES.includes(type)?2:.02,z:0,scale:1,yaw:0,pitch:0,roll:0,hue:0,motion:FISH_TYPES.includes(type)?'circle':'still',speed:1,radius:3,phase:0,member:0,baseSpeed:.1,...values};

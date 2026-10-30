@@ -49,6 +49,19 @@ test('fish routes remain anchored, follow configured speed, and face forwards wh
   assert.deepEqual(aquariumPose(0,still),aquariumPose(200,still));
 });
 
+test('crab speed and radius control its ground route while preserving the default motion',()=>{
+  const crab=reefObject('reef-crab','crab',{x:2,y:.025,z:4});
+  for(const time of [0,3,11,29]){
+    const normal=aquariumPose(time,crab),wider=aquariumPose(time,{...crab,radius:6});
+    assert.deepEqual(aquariumPose(time,{...crab,speed:2}),aquariumPose(time*2,crab));
+    assert.ok(Math.abs(normal.x-crab.x-Math.sin(time*.16)*1.4)<1e-10);
+    assert.ok(Math.abs(normal.z-crab.z-Math.cos(time*.11)*.5)<1e-10);
+    for(const key of ['x','z'])assert.ok(Math.abs(wider[key]-crab[key]-(normal[key]-crab[key])*2)<1e-10);
+    assert.equal(wider.y,crab.y);
+    assert.equal(validReefLayout({schema:1,objects:[{...crab,speed:2,radius:6}]}),true);
+  }
+});
+
 test('all moving routes and school formations rotate rigidly with every object axis',()=>{
   for(const motion of ['circle','patrol','eight','school','crab'])for(const angles of [{pitch:Math.PI/2,roll:0,yaw:0},{pitch:0,roll:Math.PI/2,yaw:0},{pitch:.7,roll:-.9,yaw:1.1}]){
     const object=reefObject(motion==='crab'?'reef-crab':'clownfish','moving',{motion:motion==='crab'?'still':motion,x:2,y:4,z:6,phase:.6,member:5});
@@ -62,4 +75,26 @@ test('all moving routes and school formations rotate rigidly with every object a
       assert.ok(Vector3.Distance(forward,actual)<1e-6,`${motion} faces along its rotated route`);
     }
   }
+});
+
+test('crabs can choose ground routes or rest, and rest survives saving and loading',()=>{
+  const crab=reefObject('reef-crab','crab',{x:2,y:.025,z:4,phase:.3});
+  const routes=new Set();
+  for(const motion of ['still','circle','patrol','eight']){
+    const moving={...crab,motion};
+    assert.equal(validReefLayout({schema:1,objects:[moving]}),true);
+    assert.notDeepEqual(aquariumPose(0,moving),aquariumPose(20,moving));
+    for(const time of [0,3,11,29]){
+      assert.equal(aquariumPose(time,moving).y,crab.y,'walking routes must not make the crab bob above the ground');
+      assert.deepEqual(aquariumPose(time,{...moving,speed:2}),aquariumPose(time*2,moving));
+    }
+    routes.add(JSON.stringify(aquariumPose(11,moving)));
+  }
+  assert.equal(routes.size,4,'each walking choice must use a different route');
+  const resting={...crab,motion:'rest'},data=new Map(),storage={getItem:key=>data.get(key),setItem:(key,value)=>data.set(key,value)};
+  assert.equal(saveReefLayout({schema:1,objects:[resting]},storage),true);
+  const loaded=readReefLayout(storage).layout.objects[0];assert.equal(loaded.motion,'rest');
+  assert.deepEqual(aquariumPose(0,loaded),aquariumPose(200,loaded));
+  assert.equal(aquariumPose(200,loaded).x,crab.x);assert.equal(aquariumPose(200,loaded).z,crab.z);
+  assert.equal(validReefLayout({schema:1,objects:[{...resting,type:'blue-tang'}]}),false,'the crab-only rest choice must not alter fish behaviour');
 });
