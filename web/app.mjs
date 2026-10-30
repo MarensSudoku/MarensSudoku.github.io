@@ -1,6 +1,7 @@
 import { createEffects } from './game/effects.mjs';
 import { createScreenWakeLock } from './screen.mjs';
 import { setupReefEditor } from './reef-editor.mjs';
+import {REEF_REWARDS} from './reef-additions.mjs';
 import { conflicts, isSolved, PEERS } from './sudoku/engine.mjs';
 import { createGame, restartGame, enter, undo, fullUnits, complete, emptyProgress, emptyScores, progressValue, ACHIEVEMENTS, validGame } from './sudoku/model.mjs';
 import { load, save, STORAGE_KEY } from './storage.mjs';
@@ -10,6 +11,7 @@ import { RELEASE } from './release.mjs';
 const $ = id => document.getElementById(id);
 const text = {
   de: {
+    reefLoadFailed:'Dieses Objekt konnte nicht geladen werden. Bitte versuche es erneut.',reefRewards:'Für dein Riff',
     appVersion:'Version', releaseNotes:'Neu in dieser Version', pleaseWait:'Einen Moment …',
     updateAction:'Update', updating:'Dein Update wird gestartet …', updatePrompt:'Eine neue Version ist bereit. Dein Spielstand bleibt beim Update erhalten.', updateSaveFailed:'Dein Spielstand konnte gerade nicht gespeichert werden. Schließe dieses Fenster, um in der bisherigen Version weiterzuspielen.', updateFailed:'Das Update konnte gerade nicht gestartet werden. Schließe dieses Fenster und versuche es später in den Einstellungen erneut.',
     numberDone:'alle gesetzt', noted:'notiert', helpTour:'Tutorial starten', updateCopy:'Eine neue Version von MarensSudoku ist bereit. Dein Spielstand bleibt erhalten.', updateNow:'Jetzt aktualisieren',
@@ -87,10 +89,12 @@ const text = {
     resetTitle:'Gespeicherten Stand ersetzen?', resetCopy:'Der bisher nicht lesbare lokale Spielstand wird durch das hier angezeigte Spiel ersetzt.',
     unlocked:'Freigeschaltet', trackingOff:'Speicherung aus', filled:'Felder gefüllt', remaining:'Felder warten noch auf dich', completed:'Alle 81 Felder gelöst. Gut gemacht!',
     firstCondition:'Eine Runde lösen', flowCondition:'10 Runden lösen', magicCondition:'50 Runden lösen', starsCondition:'100 Runden lösen', varietyCondition:'Jede Schwierigkeit einmal lösen', crownCondition:'5 schwere Runden lösen', directCondition:'Eine Runde ohne Rückgängig lösen',
+    starfinderCondition:'5 Runden lösen', reefkeeperCondition:'3 leichte Runden lösen', patienceCondition:'10 leichte Runden lösen', snapCondition:'3 Runden ohne Rückgängig lösen', trailsCondition:'5 mittlere Runden lösen', driftCondition:'15 Runden lösen',
     close:'Schließen', cell:'Reihe', column:'Spalte', given:'Vorgegeben', empty:'Leer', conflict:'Regelkonflikt', newAchievement:'Neuer Erfolg',
     helpContent:'<h3>So tauchst du ein</h3><p>Fülle jede Reihe, jede Spalte und jeden 3×3-Block mit den Zahlen 1–9. Jede Zahl kommt darin genau einmal vor. Die vorgegebenen Zahlen bleiben unverändert.</p><p>Tippe auf ein Feld und dann auf eine Zahl. Im Notizmodus sammelst du mögliche Zahlen. Zurück nimmt deinen letzten Zug einschließlich seiner Notizen zurück. Neustart leert nach Bestätigung deine Eingaben und Notizen im selben Rätsel; bereits gesammelte Punkte bleiben erhalten. Doppelte Zahlen werden auf Wunsch markiert.</p><h3>Dein eigenes Aquarium</h3><p>Mit dem Fischknopf oben blendest du das Sudoku aus und genießt dein Riff. Ein erneuter Tipp auf den Fischknopf bringt dich zurück. Die Rätselzeit pausiert; Fische und Musik laufen weiter, sofern Bewegung und Musik eingeschaltet sind.</p><p>Über den Fischknopf und „Mein Riff einrichten“ kannst du Fische, Pflanzen und Korallen platzieren, verschieben, drehen und vergrößern. Per Touch legst du den Finger auf die Riff-Fläche und fährst ohne Abheben über die Objekte. Das anvisierte Objekt wird vollständig golden markiert. Erst beim Loslassen öffnet sich seine Bearbeitung. Danach ziehst du zum Bearbeiten. Das grüne Häkchen im Ringmenü löst die Auswahl. Für Fische wählst du Schwimmverhalten, Tempo und Radius. Die Auswahl und Regler funktionieren auch ohne Ziehen. Speichern merkt sich dein Riff lokal; Verwerfen kehrt zur bisherigen Einrichtung zurück. Dein Sudoku pausiert währenddessen.</p><h3>Ungestört spielen</h3><p>Auf der Spielfläche werden versehentliche Textmarkierungen, Ziehen von Bildern und Browsermenüs unterdrückt. Infotexte kannst du weiterhin kopieren. Beim aktiven Rätseln bleibt der Bildschirm wach, soweit Browser und Energiespareinstellungen das erlauben. In Menüs und im Hintergrund wird das Wachhalten pausiert.</p><h3>Dein Spiel bleibt bei dir</h3><p>Spielstand, Gesamtpunkte und Einstellungen werden lokal in diesem Browser gespeichert. Erfolge werden erst nach Aktivierung gespeichert. Beim Löschen der Websitedaten, auf einem anderen Gerät oder unter einer anderen Adresse steht dieser Fortschritt nicht zur Verfügung.</p><p>Die App lädt ihre Offline-Dateien im Hintergrund. Nach vollständigem Download kannst du dieselbe Adresse ohne Internet öffnen und neue Rätsel erzeugen. Updates werden erst nach deiner Bestätigung aktiviert.</p><h3>Offenes Projekt</h3><p>MarensSudoku · Babylon.js 9.32.1. Eigener Code und Dokumentation unter MIT. Generierte Grafiken werden weitergegeben, soweit die Rechte dafür bestehen; eine exklusive Schutzfähigkeit wird nicht zugesichert.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Quellcode auf GitHub</a></p>',
   },
   en: {
+    reefLoadFailed:'This object could not be loaded. Please try again.',reefRewards:'For your reef',
     appVersion:'Version', releaseNotes:'New in this version', pleaseWait:'Just a moment …',
     updateAction:'Update', updating:'Starting your update …', updatePrompt:'A new version is ready. Updating keeps your saved game.', updateSaveFailed:'Your game could not be saved right now. Close this window to keep playing the current version.', updateFailed:'The update could not be started right now. Close this window and try again later in Settings.',
     numberDone:'all placed', noted:'noted', helpTour:'Start tutorial', updateCopy:'A new version of MarensSudoku is ready. Your game stays saved.', updateNow:'Update now',
@@ -164,6 +168,7 @@ const text = {
     resetTitle:'Replace the saved game?', resetCopy:'The unreadable local save will be replaced by the game currently shown here.', unlocked:'Unlocked', trackingOff:'Saving off',
     filled:'squares filled', remaining:'squares left to discover', completed:'All 81 squares solved. Beautiful work!',
     firstCondition:'Solve one round', flowCondition:'Solve 10 rounds', magicCondition:'Solve 50 rounds', starsCondition:'Solve 100 rounds', varietyCondition:'Solve every difficulty once', crownCondition:'Solve 5 hard rounds', directCondition:'Solve a round without undo',
+    starfinderCondition:'Solve 5 rounds', reefkeeperCondition:'Solve 3 easy rounds', patienceCondition:'Solve 10 easy rounds', snapCondition:'Solve 3 rounds without undo', trailsCondition:'Solve 5 medium rounds', driftCondition:'Solve 15 rounds',
     close:'Close', cell:'Row', column:'column', given:'Given', empty:'Empty', conflict:'Rule conflict', newAchievement:'New achievement',
     helpContent:'<h3>Take a little dive</h3><p>Fill each row, column and 3×3 box with the numbers 1–9, using each number exactly once. Given numbers cannot be changed.</p><p>Select a square and then a number. Use notes to collect candidates. Undo restores your previous move and its notes. Restart clears entries and notes after confirmation, keeping the same puzzle and points already collected. Duplicate numbers can be highlighted.</p><h3>Your own aquarium</h3><p>The fish button in the header hides Sudoku so you can enjoy your reef. Tap the fish button again to return. Puzzle time pauses; fish and music continue when motion and music are enabled.</p><p>Use the fish button, then Arrange my reef, to place, move, rotate and resize fish, plants and corals. With touch, place your finger on the reef and slide over objects without lifting it. The current target is tinted gold across its whole surface. Release to open its editing controls. Then drag to edit. The green checkmark in the ring menu releases the selection. Choose swimming behaviour, speed and radius for fish. Selection and sliders also work without dragging. Save keeps your reef locally; Discard restores your previous arrangement. Your Sudoku pauses while you edit.</p><h3>Play without distractions</h3><p>Accidental text selection, image dragging and browser menus are suppressed on the game surface. Info text remains copyable. During active play, the screen stays awake where the browser and power settings allow it. This pauses in menus and in the background.</p><h3>Your game stays with you</h3><p>Your game, banked points and preferences are saved locally in this browser. Achievement saving is optional. Clearing site data, changing devices or changing the address can remove access to your progress.</p><p>The app downloads its offline files in the background. After the complete download, reopen the same address without internet and generate new puzzles. Updates are activated only after your confirmation.</p><h3>Open project</h3><p>MarensSudoku · Babylon.js 9.32.1. Original code and documentation are MIT licensed. Generated graphics are shared to the extent the necessary rights exist; exclusive copyright protection is not guaranteed.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Source on GitHub</a></p>',
   },
@@ -313,7 +318,10 @@ function renderAchievements() {
     const description = document.createElement('p'); description.textContent = t(a.id + 'Condition');
     const meter = document.createElement('progress'); meter.max = a.target; meter.value = value; meter.setAttribute('aria-label', title.textContent);
     const label = document.createElement('small'); label.textContent = !settings.tracking ? t('trackingOff') : unlocked ? t('unlocked') : `${value} / ${a.target}`;
-    article.append(icon, title, description, meter, label); $('achievement-grid').append(article);
+    const rewards=document.createElement('p');rewards.className='achievement-rewards';
+    const models=REEF_REWARDS.filter(item=>item.unlock===a.id);
+    rewards.hidden=!models.length;rewards.textContent=t('reefRewards')+': '+models.map(item=>item.name[settings.language==='de'?0:1]).join(', ');
+    article.append(icon, title, description, meter, label,rewards); $('achievement-grid').append(article);
   }
 }
 function input(number) {
@@ -336,7 +344,11 @@ function input(number) {
       $('score-breakdown').append(name,value);
     }
     $('new-achievements').replaceChildren();
-    for (const a of fresh) { const item = document.createElement('div'); item.className = 'new-badge'; item.textContent = `${t('newAchievement')}: ${settings.language === 'de' ? a.name : a.en}`; $('new-achievements').append(item); }
+    for (const a of fresh) {
+      const item = document.createElement('div'); item.className = 'new-badge';
+      const rewards=REEF_REWARDS.filter(model=>model.unlock===a.id).map(model=>model.name[settings.language==='de'?0:1]);
+      item.textContent = `${t('newAchievement')}: ${settings.language === 'de' ? a.name : a.en}`+(rewards.length?` · ${t('reefRewards')}: ${rewards.join(', ')}`:''); $('new-achievements').append(item);
+    }
     scene.playSfx('win'); scene.celebrate(); $('win-dialog').classList.toggle('motion-celebrate', !reduced()); $('win-dialog').showModal(); announce(t('completed'));
   } else {
     const added = fullUnits(game).filter(n => !before.includes(n));
@@ -666,6 +678,12 @@ aquariumReady=import('./game/aquarium.mjs').then(module => module.createAquarium
   aquarium=result;updateBackground();
   if(!result){$('reef-editor-status').textContent=t('reefUnavailable');return;}
   reefEditor=setupReefEditor(result,{t,language:()=>settings.language,readOnly,
+    unlocked:()=>progress.unlocked,
+    async prepareObject(type){
+      if(result.hasObjectType(type))return;
+      showWaiting('reefLoading');
+      try{await result.prepareObject(type);}finally{$('loading').close();}
+    },
     confirmReset:()=>confirmation('reefResetTitle','reefResetCopy'),
     onModeChange(active){syncClock();reefEditing=active;syncClock();if(active)scene.stopEffects();else if(reefViewing)$('reef-view-toggle').focus();else cells[selection].focus();},
   });

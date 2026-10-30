@@ -6,6 +6,7 @@ import { checkShadows } from './shadows.mjs';
 import { checkEditorInteractions } from './editor-interactions.mjs';
 import { checkCrabEditor } from './crab-editor.mjs';
 import { checkMobileRing } from './mobile-ring.mjs';
+import { checkReefAdditions } from './reef-additions.mjs';
 import { REEF_STORAGE_KEY } from '../web/reef-layout.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output',{recursive:true});
@@ -100,7 +101,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]].filter(([nam
     }
     assert.deepEqual(errors,[]); assert.deepEqual(external,[]);
     await context.close();
-    if(status==='ready'){await checkShadows(browser,name,base);await checkEditorInteractions(browser,name,base);await checkCrabEditor(browser,name,base);await checkMobileRing(browser,name,base);}
+    if(status==='ready'){await checkShadows(browser,name,base);await checkEditorInteractions(browser,name,base);await checkCrabEditor(browser,name,base);await checkMobileRing(browser,name,base);await checkReefAdditions(browser,name,base);}
     const mobile=await browser.newContext({viewport:{width:375,height:559},deviceScaleFactor:2,hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
     try {
       const tab=await mobile.newPage(); await tab.goto(base);

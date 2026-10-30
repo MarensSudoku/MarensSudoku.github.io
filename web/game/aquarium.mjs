@@ -22,9 +22,11 @@ import { ColorCurves } from '@babylonjs/core/Materials/colorCurves.js';
 import { ImportMeshAsync } from '@babylonjs/core/Loading/sceneLoader.js';
 import '@babylonjs/loaders/glTF/glTFFileLoader.js';
 import '@babylonjs/loaders/glTF/2.0/index.js';
-import { aquariumPose, tailWeight, swayWeight } from './swimming.mjs';
+import { aquariumPose, tailWeight, swayWeight, jellyfishTargets, jellyfishInfluences, seahorseFinTargets, seahorseFinInfluences, shrimpLegTargets, shrimpLegInfluences } from './swimming.mjs';
 import { createWater } from './water.mjs';
-import { FISH_TYPES, MAX_REEF_OBJECTS, reefObject, validReefObject, validReefLayout, readReefLayout } from '../reef-layout.mjs';
+import { FISH_TYPES, WALKING_TYPES, MAX_REEF_OBJECTS, reefObject, validReefObject, validReefLayout, readReefLayout } from '../reef-layout.mjs';
+import {REEF_ADDITIONS} from '../reef-additions.mjs';
+import {loadRiggedModel} from './rigged-model.mjs';
 
 class GroundShadow extends MaterialPluginBase {
   constructor(material) {super(material,'GroundShadow',100);this._enable(true);}
@@ -37,10 +39,12 @@ class GroundShadow extends MaterialPluginBase {
 class ReefColor extends MaterialPluginBase {
   constructor(material) {super(material,'ReefColor',110);this.registerForExtraEvents=true;this._enable(true);}
   getClassName() {return 'ReefColor';}
-  getUniforms() {return {ubo:[{name:'reefHue',size:1,type:'float'},{name:'reefHighlight',size:1,type:'float'}],fragment:'uniform float reefHue; uniform float reefHighlight;'};}
+  getUniforms() {return {ubo:[{name:'reefHue',size:1,type:'float'},{name:'reefHighlight',size:1,type:'float'},{name:'reefSparkle',size:1,type:'float'},{name:'reefTime',size:1,type:'float'}],fragment:'uniform float reefHue; uniform float reefHighlight; uniform float reefSparkle; uniform float reefTime;'};}
   hardBindForSubMesh(buffer,scene,engine,subMesh) {
-    const entry=subMesh.getRenderingMesh().parent?.metadata?.reefEntry;
+    let node=subMesh.getRenderingMesh();while(node&&!node.metadata?.reefEntry)node=node.parent;
+    const entry=node?.metadata?.reefEntry;
     buffer.updateFloat('reefHue',entry?.record.hue||0);buffer.updateFloat('reefHighlight',entry?.highlighted?1:0);
+    buffer.updateFloat('reefSparkle',entry?.record.type==='treasure-chest'?1:0);buffer.updateFloat('reefTime',scene.metadata?.reefTime||0);
   }
   getCustomCode(stage) {
     if(stage!=='fragment')return null;
@@ -53,6 +57,14 @@ class ReefColor extends MaterialPluginBase {
       return value * mix(vec3(1.), palette, max(saturation, .45));
     }`};
     code[this._material.getClassName()==='PBRMaterial'?'CUSTOM_FRAGMENT_UPDATE_ALBEDO':'CUSTOM_FRAGMENT_UPDATE_DIFFUSE']=this._material.getClassName()==='PBRMaterial'?'surfaceAlbedo = reefColor(surfaceAlbedo);':'baseColor.rgb = reefColor(baseColor.rgb);';
+    if(this._material.getClassName()==='PBRMaterial')code.CUSTOM_FRAGMENT_BEFORE_FINALCOLORCOMPOSITION=`
+      if (reefSparkle > 0. && reefHighlight < .5) {
+        float gold = smoothstep(.12,.35,surfaceAlbedo.r-surfaceAlbedo.b) * smoothstep(.2,.5,surfaceAlbedo.g);
+        vec3 cell = floor(vPositionW * 65.);
+        float seed = fract(sin(dot(cell,vec3(12.9898,78.233,45.164))) * 43758.5453);
+        float twinkle = pow(max(0.,sin(reefTime*2.8+seed*80.)),32.) * step(.965,seed);
+        finalEmissive += vec3(1.,.86,.48) * gold * twinkle * 2.;
+      }`;
     return code;
   }
 }
@@ -98,15 +110,23 @@ export async function createAquarium(canvas) {
     sandMaterial.diffuseColor = new Color3(.5,.62,.64); sandMaterial.specularColor = Color3.Black(); sand.material = sandMaterial;
     sand.isPickable = false;
     const water = createWater(scene,sandMaterial,mobile||software), scenery = [], swaying = [];
-    const templates = new Map(), objects = new Map(), fish = [];
+    const templates = new Map(), riggedTemplates = new Map(), pendingModels = new Map(), objects = new Map(), fish = [];
     let framing = 1, editing = false, transformMode = 'move', selected = null, hovered = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {}, beforeChange = () => {};
 
     async function model(spec, size, bottom) {
+      if(spec.rigged){
+        const rigged=await loadRiggedModel(new URL('../assets/models/'+spec.file,import.meta.url).href,scene,spec,size,bottom);
+        for(const mesh of rigged.root.getChildMeshes()){
+          mesh.isPickable=false;
+          if(mesh.material){if(!mesh.material.pluginManager.getPlugin('ReefColor'))new ReefColor(mesh.material);mesh.material.backFaceCulling=false;}
+        }
+        riggedTemplates.set(spec.id,rigged);templates.set(spec.id,rigged.root);return rigged.root;
+      }
       // Models ship as uncompressed GLB so the loader never needs remote decoders.
       const imported = await ImportMeshAsync(new URL('../assets/models/' + spec.file, import.meta.url).href, scene);
       const source = new TransformNode('source-' + spec.file, scene);
       for (const mesh of imported.meshes) if (!mesh.parent) mesh.parent = source;
-      source.rotation.y = spec.yaw || 0;
+      source.rotation.set(spec.pitch||0,spec.yaw||0,spec.roll||0);
       const bounds = source.getHierarchyBoundingVectors(true);
       const extent = bounds.max.subtract(bounds.min), scale = size / Math.max(extent.x, extent.y, extent.z);
       if (!Number.isFinite(scale) || scale <= 0) throw new Error('Invalid aquarium model bounds');
@@ -150,7 +170,7 @@ export async function createAquarium(canvas) {
     // Swaying influences cross zero constantly; keeping every target active avoids a shader switch on each crossing (clone() resets this).
     const steady = manager => { manager.optimizeInfluencers = false; return manager; };
     function addShadows(node) {
-      for(const mesh of node.getChildMeshes()) {
+      for(const mesh of node.getChildMeshes().filter(mesh=>mesh.getTotalVertices()>0)) {
         const shadow=mesh.clone('shadow-'+mesh.name,mesh.parent,true);
         shadow.material=shadowMaterial;shadow.morphTargetManager=mesh.morphTargetManager;
         shadow.isPickable=false;shadow.alwaysSelectAsActiveMesh=true;shadow.alphaIndex=0;
@@ -181,12 +201,42 @@ export async function createAquarium(canvas) {
         mesh.morphTargetManager = manager;
       }
     }
+    function softMotion(root,type) {
+      const bounds=root.getHierarchyBoundingVectors(true);
+      for(const mesh of root.getChildMeshes().filter(mesh=>mesh.getTotalVertices()>0)){
+        const positions=mesh.getVerticesData(VertexBuffer.PositionKind),manager=steady(new MorphTargetManager(scene));
+        // Keep the rig's authored normals so fin motion cannot invert body lighting.
+        manager.enableNormalMorphing=type!=='seahorse';
+        const targets=type==='jellyfish'?jellyfishTargets(positions,bounds.min.y,bounds.max.y):type==='seahorse'?seahorseFinTargets(positions):shrimpLegTargets(positions,bounds.min.y,bounds.max.y,Math.max(bounds.max.x-bounds.min.x,bounds.max.z-bounds.min.z));
+        targets.forEach((positions,i)=>{
+          const target=new MorphTarget(type+'-'+i,0,scene),normals=[];
+          target.setPositions(positions);
+          if(type!=='seahorse'){VertexData.ComputeNormals(positions,mesh.getIndices(),normals);target.setNormals(normals);}
+          manager.addTarget(target);
+        });
+        mesh.morphTargetManager=manager;
+      }
+    }
+    async function prepareObject(type) {
+      if(templates.has(type))return;
+      const spec=REEF_ADDITIONS.find(item=>item.id===type);
+      if(!spec)throw new Error('Unknown reef model');
+      if(!pendingModels.has(type))pendingModels.set(type,(async()=>{
+        try {
+          const template=await model({...spec,file:type+'.glb'},spec.size,spec.kind!=='swim');
+          if(spec.kind==='walk'&&!spec.rigged&&type!=='cleaner-shrimp')bend(template,.006,'crab');
+          if(['jellyfish','seahorse','cleaner-shrimp'].includes(type))softMotion(template,type);
+          template.setEnabled(false);
+        }finally{pendingModels.delete(type);}
+      })());
+      await pendingModels.get(type);
+    }
     function place(template,name,x,y,z,size=1,yaw=0,moving=false) {
-      const node = template.clone(name); node.setEnabled(true); node.position.set(x,y,z); node.scaling.setAll(size); node.rotation.y = yaw;
+      const rig=riggedTemplates.get(template.metadata.type)?.create(name),node=rig?.node||template.clone(name); node.setEnabled(true); node.position.set(x,y,z); node.scaling.setAll(size); node.rotation.y = yaw;
       const managers = node.getChildMeshes().filter(mesh=>mesh.morphTargetManager).map(mesh=> {
-        mesh.morphTargetManager = steady(mesh.morphTargetManager.clone()); return mesh.morphTargetManager;
+        mesh.morphTargetManager = steady(rig?mesh.morphTargetManager:mesh.morphTargetManager.clone()); return mesh.morphTargetManager;
       });
-      const sceneryItem={node,x}, entry={node,managers,scenery:sceneryItem,record:reefObject(template.metadata.type,name,{x,y,z,scale:size,yaw:Math.atan2(Math.sin(yaw),Math.cos(yaw))})};
+      const sceneryItem={node,x}, entry={node,rig,managers,scenery:sceneryItem,record:reefObject(template.metadata.type,name,{x,y,z,scale:size,yaw:Math.atan2(Math.sin(yaw),Math.cos(yaw))})};
       node.metadata={...node.metadata,reefEntry:entry};
       scenery.push(sceneryItem); objects.set(name,entry);
       if (moving) { entry.sway={managers,phase:scenery.length*.9}; swaying.push(entry.sway); }
@@ -260,7 +310,7 @@ export async function createAquarium(canvas) {
     if(!validReefLayout(defaultLayout))throw new Error('Invalid default reef layout');
     function redraw() {if(ready&&!replacing&&(reduced||editing)&&!document.hidden)drawOnce();}
     function placementPose(object) {
-      return FISH_TYPES.includes(object.type)||object.type==='reef-crab'?aquariumPose(time,object):object;
+      return FISH_TYPES.includes(object.type)||WALKING_TYPES.includes(object.type)?aquariumPose(time,object):object;
     }
     function updateRoot(entry) {
       const object=entry.record,pose=editing?placementPose(object):object;
@@ -270,7 +320,7 @@ export async function createAquarium(canvas) {
     }
     function addRecord(object) {
       const template=templates.get(object.type), isFish=FISH_TYPES.includes(object.type);
-      const moving=!isFish&&object.type!=='reef-crab'&&template.getChildMeshes().some(mesh=>mesh.morphTargetManager);
+      const moving=!isFish&&!WALKING_TYPES.includes(object.type)&&template.getChildMeshes().some(mesh=>mesh.morphTargetManager);
       const node=place(template,object.id,object.x,object.y,object.z,object.scale,object.yaw,moving), entry=objects.get(object.id);
       entry.record=reefObject(object.type,object.id,object);
       if(isFish) {entry.animal={body:node,managers:entry.managers,record:entry.record};fish.push(entry.animal);}
@@ -281,7 +331,7 @@ export async function createAquarium(canvas) {
       changing();
       if(hovered===id)setHovered(null);
       for(const list of [scenery,swaying,fish]) {const item=list===scenery?entry.scenery:list===swaying?entry.sway:entry.animal;const index=list.indexOf(item);if(index>=0)list.splice(index,1);}
-      entry.node.dispose(false,false);entry.managers.forEach(manager=>manager.dispose());objects.delete(id);
+      if(entry.rig)entry.rig.dispose();else entry.node.dispose(false,false);entry.managers.forEach(manager=>manager.dispose());objects.delete(id);
       if(selected===id)select(null);redraw();return true;
     }
     function setLayout(layout) {
@@ -393,7 +443,10 @@ export async function createAquarium(canvas) {
     canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerUp);
     canvas.addEventListener('pointerleave',pointerLeave);
     let reduced = false, dark = false, time = 0, last = performance.now();
-    if(stored.layout)setLayout(stored.layout);
+    if(stored.layout){
+      await Promise.all([...new Set(stored.layout.objects.map(object=>object.type))].filter(type=>!templates.has(type)).map(prepareObject));
+      setLayout(stored.layout);
+    }
     function render(now = performance.now(), force = false) {
       if (!force && now - last < frameBudget) return; // The 2 ms slack keeps 60 Hz screens from skipping frames.
       const delta = Math.min((now - last) / 1000, 0.08); last = now;
@@ -402,19 +455,27 @@ export async function createAquarium(canvas) {
         const object=animal.record;
         const pose = aquariumPose(time,object);
         animal.body.position.set(pose.x*framing, pose.y, pose.z); animal.body.rotation.set(pose.pitch,pose.yaw,pose.roll);
-        const wave = Math.sin(time * 7*object.speed + object.phase + object.member*.65);
-        for (const manager of animal.managers) { manager.getTarget(0).influence = Math.max(0,-wave); manager.getTarget(1).influence = Math.max(0,wave); }
+        const seconds=time*object.speed+object.phase*.2,wave=Math.sin(time*7*object.speed+object.phase+object.member*.65);
+        const influences=object.type==='jellyfish'?jellyfishInfluences(seconds):object.type==='seahorse'?seahorseFinInfluences(seconds):[Math.max(0,-wave),Math.max(0,wave)];
+        for(const manager of animal.managers)influences.forEach((value,i)=>manager.getTarget(i).influence=value);
       }
       for(const plant of swaying) {
         const wave=Math.sin(time*.75+plant.phase);
         for(const manager of plant.managers) {manager.getTarget(0).influence=Math.max(0,-wave);manager.getTarget(1).influence=Math.max(0,wave);}
       }
-      for(const entry of objects.values())if(entry.record.type==='reef-crab') {
+      for(const entry of objects.values())if(WALKING_TYPES.includes(entry.record.type)) {
         const object=entry.record;
         const pose=placementPose(object);entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.rotation.set(pose.pitch,pose.yaw,pose.roll);
-        for(const manager of entry.managers){const wave=object.motion==='rest'?0:Math.sin(time*5*object.speed);manager.getTarget(0).influence=Math.max(0,-wave);manager.getTarget(1).influence=Math.max(0,wave);}
+        const wave=object.motion==='rest'?0:Math.sin(time*5*object.speed);
+        const influences=object.type==='cleaner-shrimp'?(object.motion==='rest'?[0,0,0]:shrimpLegInfluences(time*object.speed+object.phase*.2)):[Math.max(0,-wave),Math.max(0,wave)];
+        for(const manager of entry.managers)influences.forEach((value,i)=>manager.getTarget(i).influence=value);
+      }
+      for(const entry of objects.values())if(entry.rig){
+        const object=entry.record,moving=WALKING_TYPES.includes(object.type)?object.motion!=='rest':FISH_TYPES.includes(object.type)&&object.motion!=='still';
+        entry.rig.pose(time*object.speed+object.phase*.2,moving);
       }
       updateSelectionRing();
+      scene.metadata={reefTime:time};
       water.update(time,dark);
       scene.render();
     }
@@ -438,6 +499,7 @@ export async function createAquarium(canvas) {
     ready=true;resize(); resume(); canvas.dataset.status = 'ready';
     return {
       getLayout:snapshot, defaultLayout, layoutProblem:stored.problem,
+      prepareObject, hasObjectType:type=>templates.has(type),
       getEditorAnchor() {
         const entry=objects.get(selected);if(!entry)return null;
         const point=FISH_TYPES.includes(entry.record.type)?entry.node.position:Vector3.TransformCoordinates(new Vector3(0,templates.get(entry.record.type).metadata.height*.5,0),entry.node.computeWorldMatrix(true));

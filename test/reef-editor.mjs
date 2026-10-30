@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { REEF_STORAGE_KEY,validReefLayout } from '../web/reef-layout.mjs';
+import { REEF_STORAGE_KEY,validReefLayout,REEF_TYPES } from '../web/reef-layout.mjs';
 
 export async function checkReefEditor(page,name) {
   const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('marenssudoku:state:v1')));
@@ -65,7 +65,7 @@ export async function checkReefEditor(page,name) {
   assert.equal(await page.locator('[data-reef-id^="foreground-plant-"]').count(),4);
   assert.equal(await page.locator('[data-reef-id^="foreground-anemone-"]').count(),2);
   await page.locator('#reef-picker-dialog .dialog-close').click();
-  await page.locator('#reef-add-type').click();assert.equal(await page.locator('[data-reef-type]').count(),17);
+  await page.locator('#reef-add-type').click();assert.equal(await page.locator('[data-reef-type]').count(),REEF_TYPES.length);
   await page.waitForFunction(()=>[...document.querySelectorAll('#reef-picker img')].every(img=>img.complete&&img.naturalWidth===192));
   await page.screenshot({path:`output/${name}-reef-picker.png`});
   await page.locator('[data-reef-type="blue-tang"]').click();assert.equal(await page.locator('#reef-add').count(),0);

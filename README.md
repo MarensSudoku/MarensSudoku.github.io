@@ -53,7 +53,27 @@ Semantic HTML and CSS render the entire board, including grid lines, glass-like 
 
 Rendering runs at up to 60 frames per second, pauses in background tabs, and becomes still with reduced motion. Fish, corals, plants and rocks cast translucent grey silhouettes onto the sand, projected along the sunlight direction from copies sharing the original model geometry and deformation. These ground shadows follow movement and editor changes; overlapping faces do not compound their opacity. Mobile devices render at native screen resolution, including high-density displays. Software rendering uses a lighter reef at 30 frames per second and reduces resolution on desktop. Resizing redraws immediately. If 3D cannot load, a plain water colour remains behind the game.
 
-All engine code and 17 uncompressed GLB models are served locally and included in the offline cache. Embedded textures are limited to 1024 pixels; the models together occupy about 6 MB. Meshy is used only during development, never contacted by players. Effects use native browser animation and Web Audio, with HTML audio as a fallback. The pure JavaScript Sudoku engine runs in a Web Worker. Difficulty uses solving techniques rather than clue counts alone. Native offline caching verifies complete asset hashes before accepting an update.
+All engine code and 30 uncompressed GLB models are served locally and included in the offline cache. Embedded textures are limited to 1024 pixels. Meshy is used only during development, never contacted by players. Effects use native browser animation and Web Audio, with HTML audio as a fallback. The pure JavaScript Sudoku engine runs in a Web Worker. Difficulty uses solving techniques rather than clue counts alone. Native offline caching verifies complete asset hashes before accepting an update.
+
+The editor adds 13 reef residents and props, loaded on demand with thumbnail previews. Each achievement is named for its reward. Seahorse discovery unlocks the seahorse after one solved round; Gliding with the manta unlocks the manta ray after ten. Six new achievements join the seven published ones, whose stored IDs and conditions remain valid. Existing achievement counters count toward the new badges when the next round is completed. Previously placed rewards remain editable if achievement saving is later turned off. Eight Smart Rig models retain their skin weights and use portable `idle` and `move` skeletal clips, cloned independently per animal. Speed controls the cycle, resting stops walking, and reduced motion, editing and backgrounding freeze the aquarium. The treasure has a subtle sparkle. Other models retain gentle vertex deformation where appropriate.
+
+| Erfolg | Bedingung | Riffobjekt |
+| --- | --- | --- |
+| Seepferdchen entdeckt | 1 Runde | Seepferdchen |
+| Mit dem Manta gleiten | 10 Runden | Mantarochen |
+| Sternstunde | 5 Runden | Seestern |
+| Riffpflegerin | 3 leichte Runden | Putzergarnele |
+| Geduld wie eine Schnecke | 10 leichte Runden | Bunte Meeresschnecke |
+| Ein Knall im Riff | 3 Runden ohne Rückgängig | Pistolenkrebs |
+| Farben der Nacktschnecke | Jede Schwierigkeit einmal | Nacktschnecke |
+| Auf den Spuren der Languste | 5 mittlere Runden | Languste |
+| Tanz der Quallen | 15 Runden | Ohrenqualle |
+| Acht Arme, klarer Kopf | 1 Runde ohne Rückgängig | Krake |
+| Freundin der Schildkröten | 5 schwere Runden | Meeresschildkröte |
+| Wracktaucherin | 50 Runden | Schiffswrack |
+| Schatzjägerin | 100 Runden | Piratenschatz |
+
+To author the bundled clips again from the original Smart Rig GLBs, keep the source files in a separate local directory and run `node scripts/animate-reef.mjs INPUT_DIRECTORY OUTPUT_DIRECTORY`. The script preserves embedded geometry, textures and skin weights and refuses to replace existing animations. Source downloads and review output remain private local files.
 
 ## Licence
 
@@ -63,6 +83,6 @@ The first release was published on 28 October 2026. Operator and privacy informa
 
 ## Releases
 
-Public releases use consecutive numbers: v1, v2, v3. Update `web/release.mjs` for every publication: increase the version, set the release date and describe the changes in German and English. This file is the single source for the app, build and GitHub release notes. The private Node package version is independent of the public release number.
+Public releases use consecutive numbers: v1, v2, v3, v4. Update `web/release.mjs` for every publication: increase the version, set the release date and describe the changes in German and English. This file is the single source for the app, build and GitHub release notes. The private Node package version is independent of the public release number.
 
 The build keeps a separate content fingerprint for safe offline updates. After all checks and Pages deployment succeed, GitHub Actions creates the matching version tag and GitHub release. Re-running the same commit reuses its release; a version tagged to another commit is rejected before deployment. Pushes still require a current locally tested preview and explicit approval.

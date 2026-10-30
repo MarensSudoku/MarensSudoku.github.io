@@ -10,6 +10,8 @@ Generated original graphics are distributed with this project to the extent the 
 
 The coral and fish models were generated through Meshy using original text descriptions after paid-plan access was enabled. They are distributed under the project's MIT licence to the extent the contributors can grant rights. No Meshy software, account credentials or API access is included in the player application.
 
+The additional reef residents and props also use original AI-generated reference images. Eight models use Meshy Smart Rig skeletons with locally authored animation clips. These assets follow the same rights limitations stated above; their embedded textures and original skin weights are retained.
+
 The listed music and procedurally synthesised sound effects have separate CC BY 4.0 notices, limited to rights the project can grant. No exclusive copyright or third-party clearance is guaranteed. The code's MIT licence does not automatically license audio files. Private billing and account records are not included.
 
 The built app includes the application notices as assets/music/LICENSE.txt and assets/sounds/LICENSE.txt. Each notice links to the unchanged Creative Commons legal code. The music notice retains the original twelve-file release, including one track no longer shipped; the current game includes eleven music files. The sound-effect notice identifies eight files. Attribution designation for released audio: MarensSudoku-Projekt.

@@ -1,11 +1,13 @@
-import { FISH_TYPES, REEF_TYPES, saveReefLayout } from './reef-layout.mjs';
+import { FISH_TYPES, WALKING_TYPES, REEF_TYPES, saveReefLayout } from './reef-layout.mjs';
+import {REEF_ADDITIONS,canAddReefType} from './reef-additions.mjs';
 
 const names={
   clownfish:['Anemonenfisch','Clownfish'],'blue-tang':['Blauer Doktorfisch','Blue tang'],butterflyfish:['Falterfisch','Butterflyfish'],wrasse:['Lippfisch','Wrasse'],anthias:['Fahnenbarsch','Anthias'],chromis:['Grüner Riffbarsch','Green chromis'],
   reef:['Bunter Korallengarten','Mixed coral garden'],'reef-ledge':['Riffgestein','Reef rock'],'ribbon-grass':['Grüne Wasserpflanze','Ribbon grass'],'sea-fern':['Meeresfarn','Sea fern'],anemone:['Lila Anemone','Purple anemone'],'reef-crab':['Riffkrebs','Reef crab'],
   'coral-fan':['Fächerkoralle','Sea fan'],'coral-staghorn':['Geweihkoralle','Staghorn coral'],'coral-plates':['Tellerkoralle','Plate coral'],'coral-brain':['Hirnkoralle','Brain coral'],'coral-tubes':['Röhrenkoralle','Tube coral'],
 };
-export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,readOnly}) {
+Object.assign(names,Object.fromEntries(REEF_ADDITIONS.map(item=>[item.id,item.name])));
+export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,readOnly,unlocked=()=>[],prepareObject=type=>aquarium.prepareObject(type)}) {
   const $=id=>document.getElementById(id), root=$('reef-editor');
   let selected=null, original=null, addType=REEF_TYPES[0],mode='move',hintsHidden=false,sliderField=null;
   const history=[];
@@ -81,8 +83,9 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
     $('reef-add-type').disabled=Boolean(object);$('reef-object-list').disabled=Boolean(object);$('reef-reset').disabled=Boolean(object);
     if(!object){if(original)message('reefHint');return;}
     $('reef-selected-name').textContent=label(object.type);
+    $('reef-duplicate').disabled=!canAddReefType(object.type,unlocked());
     if($('reef-message').dataset.warning!=='true')message(hints[mode]);
-    const crab=object.type==='reef-crab',motion=$('reef-ring-motion'),motionControl=ring.querySelector('[data-reef-slider="motion"]'),motionLabel=crab?'reefWalkMotion':'reefMotion';
+    const crab=WALKING_TYPES.includes(object.type),motion=$('reef-ring-motion'),motionControl=ring.querySelector('[data-reef-slider="motion"]'),motionLabel=crab?'reefWalkMotion':'reefMotion';
     motionControl.hidden=!FISH_TYPES.includes(object.type)&&!crab;
     const motionButton=motionControl.querySelector('button');motionButton.dataset.reefLabel=motionLabel;motionButton.title=t(motionLabel);motionButton.setAttribute('aria-label',t(motionLabel));
     motionButton.querySelector('use').setAttribute('href',crab?'#i-crab':'#i-fish');
@@ -93,8 +96,8 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
       motion.dataset.animal=crab?'crab':'fish';
     }
     for(const [field,fishLabel,crabLabel] of [['speed','reefSpeed','reefWalkSpeed'],['radius','reefRadius','reefWalkRadius']]){
-      const control=ring.querySelector(`[data-reef-slider="${field}"]`),key=object.type==='reef-crab'?crabLabel:fishLabel,button=control.querySelector('button'),text=control.querySelector('[data-t]');
-      control.hidden=!FISH_TYPES.includes(object.type)&&object.type!=='reef-crab';
+      const control=ring.querySelector(`[data-reef-slider="${field}"]`),key=crab?crabLabel:fishLabel,button=control.querySelector('button'),text=control.querySelector('[data-t]');
+      control.hidden=!FISH_TYPES.includes(object.type)&&!crab;
       button.dataset.reefLabel=key;button.title=t(key);button.setAttribute('aria-label',t(key));text.dataset.t=key;text.textContent=t(key);
     }
     $('reef-ring-motion').title=object.motion==='school'?t('reefSchoolHint'):'';
@@ -129,10 +132,18 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
       image.src=preview(object.type);image.alt='';image.width=96;image.height=80;
       name.textContent=label(object.type)+(existing?` · ${i+1}`:'');
       if(existing){const check=document.createElement('input');check.type='checkbox';check.dataset.reefId=object.id;check.addEventListener('change',updateListActions);card.append(check);}
-      else{card.type='button';card.dataset.reefType=object.type;card.setAttribute('aria-pressed',String(object.type===addType));card.addEventListener('click',()=>{
+      else{card.type='button';card.dataset.reefType=object.type;card.setAttribute('aria-pressed',String(object.type===addType));
+        const reward=REEF_ADDITIONS.find(item=>item.id===object.type)?.unlock;
+        card.disabled=!canAddReefType(object.type,unlocked());
+        if(reward){const hint=document.createElement('small');hint.className='reef-reward';hint.textContent=(card.disabled?'🔒 ':t('unlocked')+' · ')+t(reward+'Condition');card.append(hint);}
+        card.addEventListener('click',async()=>{
+        if(!canAddReefType(object.type,unlocked()))return;
         picker.close();
-        if(aquarium.addObject(object.type)){addType=object.type;renderText();message(hints[mode]);}
-        else message('reefFull',true);
+        try {
+          await prepareObject(object.type);
+          if(aquarium.addObject(object.type)){addType=object.type;renderText();message(hints[mode]);}
+          else message('reefFull',true);
+        }catch{message('reefLoadFailed',true);}
       });}
       card.append(image,name);return card;
     }));
@@ -169,7 +180,7 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
   $('reef-deselect').addEventListener('click',()=>{aquarium.select(null);$('reef-object-list').focus();});
   $('reef-remove').addEventListener('click',()=>{if(selected)aquarium.removeObject(selected);list();$('reef-object-list').focus();});
   $('reef-duplicate').addEventListener('click',()=>{
-    const object=aquarium.getLayout().objects.find(object=>object.id===selected);if(!object)return;
+    const object=aquarium.getLayout().objects.find(object=>object.id===selected);if(!object||!canAddReefType(object.type,unlocked()))return;
     const copy={...object,x:Math.min(30,object.x+.6),z:Math.min(80,object.z+.3),phase:Math.min(100,object.phase+.3),member:(object.member+1)%50};
     if(!aquarium.addObject(object.type,copy))message('reefFull',true);else message(hints[mode]);list();
   });
