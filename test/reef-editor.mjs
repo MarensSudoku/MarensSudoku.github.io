@@ -21,6 +21,12 @@ export async function checkReefEditor(page,name) {
   assert.equal(await page.locator('#round-time').textContent(),viewClock,'viewing the reef must pause the Sudoku timer');
   assert.ok(await page.evaluate(()=>window.__aquariumDraws)>draws,'fish must keep swimming while watching the reef');
   await page.locator('#reef-view-edit').click();await page.locator('#reef-editor').waitFor({state:'visible'});
+  await page.locator('#reef-hint-close').click();assert.equal(await page.locator('#reef-hint').isHidden(),true);
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'reef-add-type','dismissing hints must retain keyboard focus in the editor');
+  await chooseObject('ledge-0');await page.locator('[data-reef-mode="height"]').click();
+  assert.equal(await page.locator('#reef-hint').isHidden(),true,'selection and mode changes must keep dismissed tips hidden');
+  await page.locator('#reef-cancel').click();await page.locator('#reef-view-edit').click();
+  assert.equal(await page.locator('#reef-hint').isVisible(),true,'a new editor visit must show its hints again');
   assert.deepEqual(await page.locator('.reef-editor-actions>button').evaluateAll(buttons=>buttons.map(button=>button.id)),['reef-undo','reef-object-list','reef-reset','reef-cancel','reef-finish']);
   assert.equal(await page.locator('#reef-view-actions').isVisible(),false);
   await page.locator('#reef-cancel').click();assert.equal(await page.locator('#reef-view-toggle').getAttribute('aria-pressed'),'true');
@@ -113,6 +119,19 @@ export async function checkReefEditor(page,name) {
     record=await seed({motion:'still',x:0,y:2.6,z:-6,scale:1,yaw:0});
     const touch=await page.context().newCDPSession(page);
     try {
+      const box=await page.locator('#reef-object-tools').boundingBox(),target={x:box.x+box.width/2,y:box.y+box.height/2,id:1};
+      await release();
+      await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:20,y:350,id:1}]});
+      await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[target]});
+      assert.equal(await selected(),'','touch selection must stay pending while the finger moves');
+      assert.equal(await page.locator('#reef-object-tools').isHidden(),true,'object editing controls must wait for release');
+      assert.equal(await page.locator('#reef-undo').isDisabled(),true,'selection must not add an undo action');
+      await page.screenshot({path:`output/${name}-touch-selection.png`});
+      await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+      assert.equal(await selected(),id,'releasing must open controls for the final touch target');
+      assert.equal(await page.locator('#reef-object-tools').isVisible(),true);
+      assert.deepEqual(await checkpoint(),record,'the selection gesture must not transform the target');
+      await page.screenshot({path:`output/${name}-touch-edit-ready.png`});
       for(const [mode,dx,dy,field] of [['move',35,0,'x'],['height',0,-25,'y'],['rotate',35,0,'yaw'],['rotate-x',35,0,'pitch'],['rotate-z',35,0,'roll'],['scale',0,-30,'scale']]){
         await page.locator(`[data-reef-mode="${mode}"]`).click();
         const {x,y}=await page.evaluate(()=>{for(const y of [innerHeight*.5,innerHeight*.65,innerHeight*.8])for(const x of [20,innerWidth-55])if(document.elementFromPoint(x,y)?.id==='reef-aquarium')return {x,y};throw new Error('No free canvas area for touch gesture');}),before=record[field];
@@ -144,7 +163,7 @@ export async function checkReefEditor(page,name) {
   await page.screenshot({path:`output/${name}-fish-behaviour.png`});
   await page.locator('#reef-properties-dialog .dialog-close').click();
   await page.screenshot({path:`output/${name}-reef-editor.png`});
-  for(const [width,height] of [[375,559],[240,320]]) {
+  for(const [width,height] of [[375,559],[240,320],[667,375],[844,390]]) {
     await page.setViewportSize({width,height});
     await page.waitForFunction(()=>{const r=document.getElementById('reef-object-tools').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;});
     const fits=await page.evaluate(()=>{
@@ -152,6 +171,7 @@ export async function checkReefEditor(page,name) {
     });
     assert.equal(fits,true,`${name}: aquarium editor must fit ${width}x${height}`);
     if(width===375)await page.screenshot({path:`output/${name}-reef-editor-mobile.png`});
+    if(width===667)await page.screenshot({path:`output/${name}-reef-editor-landscape.png`});
   }
   await page.setViewportSize({width:1440,height:900});
   await page.locator('#reef-duplicate').click();assert.equal(Number(await page.locator('#reef-count').textContent()),count+2);

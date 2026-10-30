@@ -1,6 +1,7 @@
 import { chromium, webkit } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
+import { checkTutorial } from './tutorial.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
 for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].filter(([name]) => !process.env.BROWSER || process.env.BROWSER === name)) {
@@ -43,21 +44,11 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.locator('#loading').waitFor({ state: 'hidden' });
   await page.locator('.board-shell.ready').waitFor();
   assert.equal(await page.locator('#welcome-dialog').evaluate(el => el.open), true);
+  assert.equal(await page.locator('#welcome-tutorial-hint').isVisible(),true,'the first launch must recommend the tutorial');
+  assert.equal(await page.locator('#welcome-dialog').evaluate(node=>node.classList.contains('first-visit')),true);
   assert.equal(await page.locator('#reef-music').evaluate(audio => audio.paused), true, 'music must wait for the welcome dialog');
   const welcomeClock = await page.locator('#round-time').textContent();
-  await page.locator('#welcome-tour').click();
-  const tourSteps = Number((await page.locator('#tour-step').textContent()).match(/\d+$/)[0]);
-  assert.ok(tourSteps >= 14, 'the tutorial must explain the rules and the main controls');
-  for (let step = 1; step <= tourSteps; step++) {
-    assert.match(await page.locator('#tour-step').textContent(), new RegExp(`^Schritt ${step} von ${tourSteps}$`));
-    assert.ok(await page.locator('.tour-target').count() > 0);
-    assert.ok((await page.locator('#tour-title').textContent()).length > 0);
-    const hint = await page.locator('#tour-bubble').evaluate(el => { const box = el.getBoundingClientRect(); return box.left >= 0 && box.top >= 0 && box.right <= innerWidth && box.bottom <= innerHeight; });
-    assert.equal(hint, true, `tutorial step ${step} must stay inside the viewport`);
-    assert.equal(await page.evaluate(() => document.activeElement.id), 'tour-next');
-    await page.waitForTimeout(step === 1 ? 1100 : 0);
-    await page.locator('#tour-next').click();
-  }
+  await checkTutorial(page,name);
   assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), false);
   assert.equal(await page.locator('.tour-target').count(), 0);
   assert.equal(await page.locator('#round-time').textContent(), welcomeClock, 'the welcome and tutorial must pause the round clock');
@@ -406,15 +397,19 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   console.log(`${name}: input, notes, undo, save, win, achievements, second tab, languages, themes, 320px, offline generation and offline audio seeking passed.`);
   const touchContext=await browser.newContext({viewport:{width:375,height:559},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
   const touch=await touchContext.newPage(); await touch.goto(base); await touch.locator('.board-shell.ready').waitFor(); await touch.locator('#welcome-start').tap();
+  assert.equal(await touch.evaluate(async()=>{const manifest=await (await fetch('./manifest.webmanifest')).json();return manifest.orientation;}),'any','the installed app must allow either orientation');
   const blank=await touch.locator('.cell').evaluateAll(cells=>cells.findIndex(cell=>cell.getAttribute('aria-label').endsWith('Leer')||cell.getAttribute('aria-label').endsWith('Empty')));
   await touch.locator(`[data-index="${blank}"]`).tap(); await touch.locator('#number-pad [data-number="1"]').tap(); await touch.locator('#number-pad [data-number="1"]').tap();
   assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'1');
   assert.equal(await touch.evaluate(()=>visualViewport.scale),1);
-  await touch.setViewportSize({width:667,height:375}); await touch.locator('#portrait-dialog').waitFor({state:'visible'});
-  await touch.keyboard.press('Escape'); assert.equal(await touch.locator('#portrait-dialog').evaluate(el=>el.open),true);
-  await touch.screenshot({path:`output/${name}-portrait-required.png`});
-  await touch.setViewportSize({width:375,height:559}); await touch.locator('#portrait-dialog').waitFor({state:'hidden'});
-  assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'1');
+  await touch.setViewportSize({width:667,height:375});
+  assert.equal(await touch.locator('dialog[open]').count(),0,'landscape must keep the game accessible');
+  assert.equal(await touch.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.documentElement.scrollHeight<=innerHeight),true,'the landscape game must fit the viewport');
+  await touch.locator(`[data-index="${blank}"]`).tap();await touch.locator('#number-pad [data-number="2"]').tap();
+  assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'2','Sudoku input must work in landscape');
+  await touch.screenshot({path:`output/${name}-mobile-landscape.png`});
+  await touch.setViewportSize({width:375,height:559});
+  assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'2','rotating must preserve the game');
   await touchContext.close();
   console.log(`${name}: guarded browser actions, native touch input and active-play screen-lock lifecycle passed.`);
   } finally { await browser.close(); }

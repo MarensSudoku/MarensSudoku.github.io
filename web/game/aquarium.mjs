@@ -37,11 +37,15 @@ class GroundShadow extends MaterialPluginBase {
 class ReefColor extends MaterialPluginBase {
   constructor(material) {super(material,'ReefColor',110);this.registerForExtraEvents=true;this._enable(true);}
   getClassName() {return 'ReefColor';}
-  getUniforms() {return {ubo:[{name:'reefHue',size:1,type:'float'}],fragment:'uniform float reefHue;'};}
-  hardBindForSubMesh(buffer,scene,engine,subMesh) {buffer.updateFloat('reefHue',subMesh.getRenderingMesh().parent?.metadata?.reefEntry?.record.hue||0);}
+  getUniforms() {return {ubo:[{name:'reefHue',size:1,type:'float'},{name:'reefHighlight',size:1,type:'float'}],fragment:'uniform float reefHue; uniform float reefHighlight;'};}
+  hardBindForSubMesh(buffer,scene,engine,subMesh) {
+    const entry=subMesh.getRenderingMesh().parent?.metadata?.reefEntry;
+    buffer.updateFloat('reefHue',entry?.record.hue||0);buffer.updateFloat('reefHighlight',entry?.highlighted?1:0);
+  }
   getCustomCode(stage) {
     if(stage!=='fragment')return null;
     const code={CUSTOM_FRAGMENT_DEFINITIONS:`vec3 reefColor(vec3 color) {
+      if (reefHighlight > 0.) return vec3(1., .7, .05);
       if (reefHue <= 0.) return color;
       float value = max(max(color.r, color.g), color.b);
       float saturation = value > 0. ? (value - min(min(color.r, color.g), color.b)) / value : 0.;
@@ -290,7 +294,9 @@ export async function createAquarium(canvas) {
     }
     function setHovered(id) {
       id=editing&&objects.has(id)?id:null;if(hovered===id)return;
+      const previous=objects.get(hovered);if(previous)previous.highlighted=false;
       hoverGlow.removeAllMeshes();hovered=id;hoverGlow.isEnabled=Boolean(id);
+      if(id)objects.get(id).highlighted=true;
       if(id)for(const mesh of objects.get(id).node.getChildMeshes())if(mesh.material!==shadowMaterial)hoverGlow.addMesh(mesh,new Color3(1,.85,.35));
       redraw();
       if(id&&!scene.isReady())scene.whenReadyAsync().then(()=>{if(hovered===id)redraw();});
@@ -342,7 +348,12 @@ export async function createAquarium(canvas) {
     }
     function pointerDown(event) {
       if(!editing||event.button!==0||!event.isPrimary)return;
-      const [x,y]=pointerPosition(event),entry=objects.get(selected)||pickObject(x,y);select(entry?.record.id||null);
+      const [x,y]=pointerPosition(event);
+      if(event.pointerType==='touch'&&!selected){
+        dragging={pointer:event.pointerId,mode:'select'};setHovered(pickObject(x,y)?.record.id||null);
+        canvas.setPointerCapture(event.pointerId);return;
+      }
+      const entry=objects.get(selected)||pickObject(x,y);select(entry?.record.id||null);
       if(entry){
         const plane=transformMode==='height'?new Plane(0,0,1,-entry.node.position.z):new Plane(0,1,0,-entry.node.position.y);
         const anchor=projectPoint(entry.node.position);
@@ -354,6 +365,7 @@ export async function createAquarium(canvas) {
       if(!editing)return;
       if(!dragging){if(!selected)setHovered(event.pointerType==='touch'?null:pickObject(...pointerPosition(event))?.record.id||null);return;}
       if(event.pointerId!==dragging.pointer)return;
+      if(dragging.mode==='select'){setHovered(pickObject(...pointerPosition(event))?.record.id||null);return;}
       const [x,y]=pointerPosition(event),start=dragging.record;
       if(dragging.mode.startsWith('rotate')) {
         const axis=dragging.mode==='rotate-x'?'pitch':dragging.mode==='rotate-z'?'roll':'yaw';
@@ -366,7 +378,16 @@ export async function createAquarium(canvas) {
         else updateObject(start.id,{x:Math.max(-30,Math.min(30,start.x+(point.x-dragging.point.x)/framing)),z:Math.max(-8,Math.min(80,start.z+point.z-dragging.point.z))});
       }
     }
-    function pointerUp() {dragging=null;canvas.style.cursor=!editing?'':transformMode==='move'?'grab':transformMode.startsWith('rotate')?'ew-resize':'ns-resize';}
+    function pointerUp(event) {
+      if(event&&dragging&&event.pointerId!==dragging.pointer)return;
+      if(dragging?.mode==='select'){
+        if(event?.type==='pointerup')select(pickObject(...pointerPosition(event))?.record.id||null);
+        else setHovered(null);
+      }
+      const pointer=dragging?.pointer;dragging=null;
+      if(pointer!==undefined&&canvas.hasPointerCapture(pointer))canvas.releasePointerCapture(pointer);
+      canvas.style.cursor=!editing?'':transformMode==='move'?'grab':transformMode.startsWith('rotate')?'ew-resize':'ns-resize';
+    }
     function pointerLeave() {if(!selected)setHovered(null);}
     canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);
     canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerUp);
@@ -427,6 +448,7 @@ export async function createAquarium(canvas) {
       onBeforeChange(callback){beforeChange=callback;},
       setLayout,
       select,
+      setColorPreview(active) {const entry=objects.get(selected);if(entry){entry.highlighted=!active;redraw();}},
       setTransformMode(mode) {if(!['move','height','rotate','rotate-x','rotate-z','scale'].includes(mode))return false;transformMode=mode;pointerUp();return true;},
       nudgeSelection(dx,dy) {
         const object=objects.get(selected)?.record;if(!editing||!object)return false;
@@ -439,7 +461,7 @@ export async function createAquarium(canvas) {
       updateObject,
       addObject(type,copy) {
         if(objects.size>=MAX_REEF_OBJECTS||!templates.has(type))return null;
-        const id='reef-'+crypto.randomUUID(),object=reefObject(type,id,{...copy,id,type});
+        const id='reef-'+Array.from(crypto.getRandomValues(new Uint32Array(4)),n=>n.toString(16).padStart(8,'0')).join(''),object=reefObject(type,id,{...copy,id,type});
         if(!object)return null;
         if(object.motion==='school'&&!joinSchool(object))return null;
         changing();
