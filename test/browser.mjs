@@ -2,6 +2,7 @@ import { chromium, webkit } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { checkTutorial } from './tutorial.mjs';
+import { RELEASE } from '../web/release.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
 for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].filter(([name]) => !process.env.BROWSER || process.env.BROWSER === name)) {
@@ -155,9 +156,12 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal(await page.locator('#round-time').textContent(), pausedClock, 'menus must pause the round clock');
   await page.locator('#settings-dialog .dialog-close').click();
   await page.locator('#help-open').click();
-  const appVersion=await page.locator('#app-version').innerText();assert.match(appVersion,/^[a-f0-9]{12}$/);
+  const appVersion=await page.locator('#app-version').innerText();assert.equal(appVersion,RELEASE.version);
+  const buildVersion=await page.locator('#app-version').getAttribute('data-build');assert.match(buildVersion,new RegExp('^'+appVersion+'-[a-f0-9]{12}$'));
+  assert.equal(await page.locator('#app-release-date').getAttribute('datetime'),RELEASE.date);
+  assert.deepEqual(await page.locator('#release-notes li').allTextContents(),RELEASE.notes.de);
   const versionWorker=await context.request.get(new URL('sw.js',base).href);
-  assert.ok((await versionWorker.text()).includes(`const CACHE = PREFIX + '${appVersion}';`),'info must display the same build version used by the offline update cache');
+  assert.ok((await versionWorker.text()).includes(`const CACHE = PREFIX + '${buildVersion}';`),'the readable release and build must match the offline update cache');
   await page.locator('#help-content p').first().dblclick();
   assert.ok(await page.evaluate(()=>getSelection().toString().length>0),'info text must remain selectable for copying');
   assert.equal(await page.locator('#music-toggle-help, #offline-status').count(), 0);
@@ -318,6 +322,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.locator('#settings-open').click();
   await page.locator('#reduced-motion').check();
   await page.locator('#language').selectOption('en');
+  assert.deepEqual(await page.locator('#release-notes li').allTextContents(),RELEASE.notes.en);
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');
   assert.equal(await page.locator('#notes span').textContent(), 'Notes');
   assert.equal(await page.locator('#legal-code summary').textContent(),'Project licence · MIT');
@@ -370,6 +375,8 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await context.setOffline(true); await page.reload();
   await page.locator('.board-shell.ready').waitFor(); await page.locator('#welcome-start').click();
   assert.deepEqual((await read()).game.values, saved.game.values);
+  assert.equal(await page.locator('#app-version').innerText(),appVersion,'offline reload must retain the installed release');
+  assert.equal(await page.locator('#app-version').getAttribute('data-build'),buildVersion,'offline reload must retain the installed build');
   await page.locator('#help-open').click(); await page.locator('#help-tour').click();
   assert.equal(await page.locator('#help-dialog').evaluate(el => el.open), false);
   assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), true, 'help must restart the tutorial');

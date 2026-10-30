@@ -18,6 +18,8 @@ jobs:
   check:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    outputs:
+      version: ${{ steps.release.outputs.version }}
     strategy:
       matrix:
         browser: [chromium, webkit]
@@ -43,6 +45,28 @@ jobs:
       - if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps ${{ matrix.browser }}
       - run: npm run build
+      - name: Read checked release version
+        id: release
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync } from 'node:fs';
+          import { RELEASE } from './web/release.mjs';
+          appendFileSync(process.env.GITHUB_OUTPUT, 'version=' + RELEASE.version + '\n');
+          NODE
+      - name: Reject a version already used by another commit
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          refs=$(gh api "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/$RELEASE_VERSION" --jq '.[].ref')
+          if printf '%s\n' "$refs" | grep -Fxq "refs/tags/$RELEASE_VERSION"; then
+            tagged_commit=$(gh api "repos/$GITHUB_REPOSITORY/commits/$RELEASE_VERSION" --jq .sha)
+            if [ "$tagged_commit" != "$GITHUB_SHA" ]; then
+              printf 'Version %s already belongs to another commit. Increase the release version.\n' "$RELEASE_VERSION" >&2
+              exit 1
+            fi
+          fi
       - name: Check the built game in ${{ matrix.browser }}
         shell: bash
         env:
@@ -74,3 +98,35 @@ jobs:
       - uses: actions/configure-pages@v6.0.0
       - uses: actions/deploy-pages@v5.0.1
         id: deployment
+
+  release:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [check, deploy]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 22
+      - name: Publish checked release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ needs.check.outputs.version }}
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          import { RELEASE } from './web/release.mjs';
+          assert.equal(RELEASE.version, process.env.RELEASE_VERSION);
+          writeFileSync(join(process.env.RUNNER_TEMP, 'release-notes.txt'), RELEASE.date + '\n\n' + RELEASE.notes.en.map(note => '- ' + note).join('\n') + '\n');
+          NODE
+          if ! gh release view "$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$RELEASE_VERSION" --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" --title "MarensSudoku $RELEASE_VERSION" \
+              --notes-file "$RUNNER_TEMP/release-notes.txt" --latest
+          fi

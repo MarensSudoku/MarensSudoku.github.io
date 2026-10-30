@@ -5,10 +5,12 @@ import { conflicts, isSolved, PEERS } from './sudoku/engine.mjs';
 import { createGame, restartGame, enter, undo, fullUnits, complete, emptyProgress, emptyScores, progressValue, ACHIEVEMENTS, validGame } from './sudoku/model.mjs';
 import { load, save, STORAGE_KEY } from './storage.mjs';
 import { setupMusic } from './music.mjs';
+import { RELEASE } from './release.mjs';
 
 const $ = id => document.getElementById(id);
 const text = {
   de: {
+    appVersion:'Version', releaseNotes:'Neu in dieser Version',
     numberDone:'alle gesetzt', noted:'notiert', helpTour:'Tutorial starten', updateCopy:'Eine neue Version von MarensSudoku ist bereit. Dein Spielstand bleibt erhalten.', updateNow:'Jetzt aktualisieren',
     welcomeEyebrow:'WILLKOMMEN IM RIFF', welcomeTitle:'Schön, dass du da bist.', welcomeCopy:'Mach es dir gemütlich. Das Tutorial erklärt Sudoku, alle Schaltflächen und wie du dein eigenes Riff gestaltest.', welcomeStart:'Los geht’s', welcomeTour:'Tutorial',
     welcomeTutorialHint:'Bitte mach zuerst das Tutorial. Es erklärt dir die Farben im Sudoku und alle Funktionen deines Riff-Editors.',
@@ -86,6 +88,7 @@ const text = {
     helpContent:'<h3>So tauchst du ein</h3><p>Fülle jede Reihe, jede Spalte und jeden 3×3-Block mit den Zahlen 1–9. Jede Zahl kommt darin genau einmal vor. Die vorgegebenen Zahlen bleiben unverändert.</p><p>Tippe auf ein Feld und dann auf eine Zahl. Im Notizmodus sammelst du mögliche Zahlen. Zurück nimmt deinen letzten Zug einschließlich seiner Notizen zurück. Neustart leert nach Bestätigung deine Eingaben und Notizen im selben Rätsel; bereits gesammelte Punkte bleiben erhalten. Doppelte Zahlen werden auf Wunsch markiert.</p><h3>Dein eigenes Aquarium</h3><p>Mit dem Fischknopf oben blendest du das Sudoku aus und genießt dein Riff. Ein erneuter Tipp auf den Fischknopf bringt dich zurück. Die Rätselzeit pausiert; Fische und Musik laufen weiter, sofern Bewegung und Musik eingeschaltet sind.</p><p>Unter Einstellungen → Mein Riff einrichten kannst du Fische, Pflanzen und Korallen platzieren, verschieben, drehen und vergrößern. Per Touch legst du den Finger auf die Riff-Fläche und fährst ohne Abheben über die Objekte. Das anvisierte Objekt wird vollständig golden markiert. Erst beim Loslassen öffnet sich seine Bearbeitung. Danach ziehst du zum Bearbeiten. Das grüne Häkchen im Ringmenü löst die Auswahl. Für Fische wählst du Schwimmverhalten, Tempo und Radius. Die Auswahl und Regler funktionieren auch ohne Ziehen. Speichern merkt sich dein Riff lokal; Verwerfen kehrt zur bisherigen Einrichtung zurück. Dein Sudoku pausiert währenddessen.</p><h3>Ungestört spielen</h3><p>Auf der Spielfläche werden versehentliche Textmarkierungen, Ziehen von Bildern und Browsermenüs unterdrückt. Infotexte kannst du weiterhin kopieren. Beim aktiven Rätseln bleibt der Bildschirm wach, soweit Browser und Energiespareinstellungen das erlauben. In Menüs und im Hintergrund wird das Wachhalten pausiert.</p><h3>Dein Spiel bleibt bei dir</h3><p>Spielstand, Gesamtpunkte und Einstellungen werden lokal in diesem Browser gespeichert. Erfolge werden erst nach Aktivierung gespeichert. Beim Löschen der Websitedaten, auf einem anderen Gerät oder unter einer anderen Adresse steht dieser Fortschritt nicht zur Verfügung.</p><p>Die App lädt ihre Offline-Dateien im Hintergrund. Nach vollständigem Download kannst du dieselbe Adresse ohne Internet öffnen und neue Rätsel erzeugen. Updates werden erst nach deiner Bestätigung aktiviert.</p><h3>Offenes Projekt</h3><p>MarensSudoku · Babylon.js 9.32.1. Eigener Code und Dokumentation unter MIT. Generierte Grafiken werden weitergegeben, soweit die Rechte dafür bestehen; eine exklusive Schutzfähigkeit wird nicht zugesichert.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Quellcode auf GitHub</a></p>',
   },
   en: {
+    appVersion:'Version', releaseNotes:'New in this version',
     numberDone:'all placed', noted:'noted', helpTour:'Start tutorial', updateCopy:'A new version of MarensSudoku is ready. Your game stays saved.', updateNow:'Update now',
     welcomeEyebrow:'WELCOME TO THE REEF', welcomeTitle:'Lovely to see you.', welcomeCopy:'Make yourself comfortable. The tutorial explains Sudoku, every button and how to arrange your own reef.', welcomeStart:'Let’s dive in', welcomeTour:'Tutorial',
     welcomeTutorialHint:'Please start with the tutorial. It explains Sudoku colours and every feature of your reef editor.',
@@ -238,6 +241,9 @@ function renderText() {
   document.body.dataset.theme = settings.theme; document.body.dataset.reduced = reduced();
   updateBackground();
   $('help-content').className = 'help-copy'; $('help-content').innerHTML = t('helpContent');
+  $('app-release-date').dateTime=RELEASE.date;
+  $('app-release-date').textContent=new Intl.DateTimeFormat(settings.language,{dateStyle:'medium',timeZone:'UTC'}).format(new Date(RELEASE.date));
+  $('release-notes').replaceChildren(...RELEASE.notes[settings.language].map(note=>{const item=document.createElement('li');item.textContent=note;return item;}));
   reefEditor?.renderText();
   $('reef-editor-status').textContent=reefEditor?'':t(['unavailable','awaiting-models'].includes($('reef-aquarium').dataset.status)?'reefUnavailable':'reefLoading');
   if (storageBlocked) { showNotice('storageInvalid'); $('storage-reset').hidden = false; }

@@ -189,3 +189,5 @@ body[data-reduced=true] .tour-spotlight,body[data-reduced=true] .tour-bubble{tra
 
 #welcome-tutorial-hint{padding:10px 12px;border:2px solid var(--gold);border-radius:12px;font-weight:600}#welcome-dialog.first-visit #welcome-tour{border:3px solid #d18a13;background:#fff0b5;color:#153e4d;font-weight:700;animation:tutorial-invite 1.6s ease-in-out infinite}@keyframes tutorial-invite{0%,100%{background:#fff0b5;box-shadow:0 0 0 0 #f2b83b00}50%{background:#ffd16b;box-shadow:0 0 0 6px #f2b83b99}}
 .tour-bubble{display:flex;flex-direction:column;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}#tour-copy{min-height:0;overflow-y:auto}.tour-bubble>h2,.tour-bubble>.dialog-eyebrow,.tour-bubble>.dialog-actions{flex-shrink:0}
+
+.app-version strong{font-size:18px;color:var(--ink)}.app-version time{white-space:nowrap}.release-notes{margin:14px 0 22px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--foam)}.release-notes h3{margin:0 0 8px;font-size:15px}.release-notes ul{margin:0;padding-left:18px;font-size:13px;line-height:1.6}.release-notes li+li{margin-top:6px}

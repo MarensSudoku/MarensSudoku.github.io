@@ -37,7 +37,7 @@ The clock pauses in dialogs and background tabs. Total points, personal best and
 
 ## Implementation
 
-The game view fits the available viewport width and height without page scrolling, with controls beside the board in short landscape windows. Music and difficulty controls are in Settings; legal documents and updates are in Help & info. Full licence texts, legal notice and privacy information are embedded from their original files into expandable sections, including offline, without leaving the dialog. Long dialog contents remain scrollable with the close button always visible. Help & info displays the running build identifier, identical to the version in the offline update cache.
+The game view fits the available viewport width and height without page scrolling, with controls beside the board in short landscape windows. Music and difficulty controls are in Settings; legal documents and updates are in Help & info. Full licence texts, legal notice and privacy information are embedded from their original files into expandable sections, including offline, without leaving the dialog. Long dialog contents remain scrollable with the close button always visible. Help & info shows a readable release number, date and release notes in German or English. The separate build identifier combines that number with a content fingerprint, so offline updates also distinguish builds of the same release.
 
 The game surface suppresses accidental selection, context menus, image/link dragging and mobile long-press menus. Native touch rules avoid double-tap zoom on game buttons while preserving pinch zoom, form controls, keyboard access and copyable info text. Dialogs scroll vertically only. During active, visible play the native Screen Wake Lock API requests an awake screen; menus, completed rounds, read-only tabs and backgrounding release it. Returning to active play reacquires it; unsupported or denied requests never block play. Browser and system power policies can override the request.
 
@@ -58,3 +58,9 @@ All engine code and 17 uncompressed GLB models are served locally and included i
 Original code and documentation: MIT. See LICENSE and THIRD_PARTY_NOTICES.md.
 
 The first release was published on 28 October 2026. Operator and privacy information are included in the app. Real-device testing remains outstanding.
+
+## Releases
+
+Public releases use consecutive numbers: v1, v2, v3. Update `web/release.mjs` for every publication: increase the version, set the release date and describe the changes in German and English. This file is the single source for the app, build and GitHub release notes. The private Node package version is independent of the public release number.
+
+The build keeps a separate content fingerprint for safe offline updates. After all checks and Pages deployment succeed, GitHub Actions creates the matching version tag and GitHub release. Re-running the same commit reuses its release; a version tagged to another commit is rejected before deployment. Pushes still require a current locally tested preview and explicit approval.

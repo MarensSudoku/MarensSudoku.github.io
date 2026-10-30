@@ -3,6 +3,12 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, relative, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
+import assert from 'node:assert/strict';
+import { RELEASE } from '../web/release.mjs';
+assert.match(RELEASE.version,/^v[1-9]\d*$/,'Release version must be v1, v2, ...');
+assert.match(RELEASE.date,/^\d{4}-\d{2}-\d{2}$/);
+assert.equal(new Date(RELEASE.date).toISOString().slice(0,10),RELEASE.date);
+for(const language of ['de','en'])assert.ok(RELEASE.notes[language]?.length&&RELEASE.notes[language].every(note=>typeof note==='string'&&note.trim()),'Release notes are required in both languages');
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const output = resolve(root, 'dist');
 if (relative(root, output) !== 'dist') throw new Error('Unexpected build output path');
@@ -23,7 +29,7 @@ for (const [name, path] of [['Babylon.js 9.32.1','node_modules/@babylonjs/core/l
   notices += `\n\n${name}\n\n${await readFile(join(root, path), 'utf8')}`;
 }
 await writeFile(join(output, 'THIRD_PARTY_NOTICES.txt'), notices);
-let index = await readFile(join(output, 'index.html'), 'utf8');
+let index = (await readFile(join(output, 'index.html'), 'utf8')).replace('<!-- release-version -->',RELEASE.version);
 const legalSources = {
   imprint:'impressum.html', privacy:'datenschutz.html', code:'LICENSE.txt', notices:'THIRD_PARTY_NOTICES.txt',
   music:'assets/music/LICENSE.txt', sounds:'assets/sounds/LICENSE.txt', commons:'assets/licenses/CC-BY-4.0.txt',
@@ -52,7 +58,7 @@ const assets = [];
 for (const path of (await files(output)).sort()) {
   assets.push({ path: relative(output, path).replaceAll('\\', '/'), hash: createHash('sha256').update(await readFile(path)).digest('hex') });
 }
-const version = createHash('sha256').update(JSON.stringify(assets)).digest('hex').slice(0, 12);
+const version = RELEASE.version+'-'+createHash('sha256').update(JSON.stringify(assets)).digest('hex').slice(0, 12);
 const versionedIndex=index.replace('<!-- build-version -->',version);
 if(versionedIndex===index)throw new Error('Build version marker missing');
 await writeFile(join(output,'index.html'),versionedIndex);
@@ -81,4 +87,4 @@ self.addEventListener('fetch', event => {
   })());
 });`;
 await writeFile(join(output, 'sw.js'), source);
-console.log(`Built ${assets.length} files. Version ${version}. Babylon.js 9.32.1 bundled locally.`);
+console.log(`Built ${assets.length} files. Release ${RELEASE.version}, build ${version}. Babylon.js 9.32.1 bundled locally.`);
