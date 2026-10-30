@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 export async function checkWaiting(browser,name,base) {
-  const context=await browser.newContext({viewport:{width:375,height:559},reducedMotion:'no-preference',serviceWorkers:'block'});
+  const context=await browser.newContext({viewport:{width:375,height:559},locale:'de-DE',reducedMotion:'no-preference',serviceWorkers:'block'});
   let releasePuzzle,releaseReef;
   const puzzle=new Promise(resolve=>releasePuzzle=resolve);
   let reef=new Promise(resolve=>releaseReef=resolve);
