@@ -21,7 +21,9 @@ Open http://127.0.0.1:4175/. Run `npm run test:browser` and `npm run test:aquari
 
 Select a square and enter a number with the on-screen pad or keyboard. Arrow keys navigate; N toggles notes. Undo restores a complete move. Restart clears the current attempt after confirmation, keeping the same puzzle and banked points. Choose Easy, Medium or Hard in Settings to generate a new uniquely solvable puzzle locally. Time and total points appear in the header; New Sudoku sits beside undo, notes, erase and restart.
 
-Games and preferences stay in this browser. Achievement saving is enabled by default for new players and can be disabled or deleted. Existing saved choices are preserved. Clearing site data removes progress. The app downloads its offline files in the background; after the complete download, the same address also works offline. A second tab is read-only in browsers supporting Web Locks.
+Games and preferences stay in this browser. Achievement saving is enabled by default for new players and can be disabled or deleted. Existing saved choices are preserved. Clearing site data removes progress. The app downloads its offline files in the background; after the complete download, the same address also works offline. A ready update is offered before play with an Update button and a close cross. Closing keeps the current version selected, including after reopening the app; Settings and Help & info retain their update controls. An update that finishes downloading during play is offered there without interrupting the round. The game is saved before an update is activated. A second tab is read-only in browsers supporting Web Locks.
+
+An existing v1 installation first needs its regular update to v2; subsequent updates use the new startup dialog.
 
 ## Instrumental music
 

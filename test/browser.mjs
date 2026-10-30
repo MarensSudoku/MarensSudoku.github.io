@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { checkTutorial } from './tutorial.mjs';
 import { RELEASE } from '../web/release.mjs';
+import { checkUpdates } from './updates.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
 for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].filter(([name]) => !process.env.BROWSER || process.env.BROWSER === name)) {
@@ -418,6 +419,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await touch.setViewportSize({width:375,height:559});
   assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'2','rotating must preserve the game');
   await touchContext.close();
+  await checkUpdates(browser,name);
   console.log(`${name}: guarded browser actions, native touch input and active-play screen-lock lifecycle passed.`);
   } finally { await browser.close(); }
 }

@@ -72,15 +72,23 @@ const CACHE = PREFIX + '${version}';
 const ASSETS = ${JSON.stringify(assets)};
 self.addEventListener('install', event => event.waitUntil(installAssets(caches, PREFIX, CACHE, ASSETS, self.registration.scope, url => fetch(url, { cache: 'reload' }))));
 self.addEventListener('activate', event => event.waitUntil((async () => {
+  const selected=await selectedCache(caches,PREFIX,self.registration.scope,CACHE);
+  await selectCache(caches,PREFIX,self.registration.scope,selected);
   await self.clients.claim();
   const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(client => client.url.startsWith(self.registration.scope));
-  if (windows.length <= 1) await Promise.all((await caches.keys()).filter(key => key.startsWith(PREFIX) && key !== CACHE).map(key => caches.delete(key)));
+  if (windows.length <= 1) await Promise.all((await caches.keys()).filter(key => key.startsWith(PREFIX) && ![CACHE,selected,PREFIX+'selection'].includes(key)).map(key => caches.delete(key)));
 })()));
-self.addEventListener('message', event => { if (event.data === 'ACTIVATE') self.skipWaiting(); });
+self.addEventListener('message', event => {
+  if(event.data?.type==='CHECK_UPDATE')event.ports[0]?.postMessage({available:typeof event.data.build==='string'&&PREFIX+event.data.build!==CACHE});
+  if(event.data==='ACTIVATE'||event.data==='APPLY_UPDATE')event.waitUntil((async()=>{
+    try{await selectCache(caches,PREFIX,self.registration.scope,CACHE);await self.skipWaiting();event.ports[0]?.postMessage({ok:true});}
+    catch{event.ports[0]?.postMessage({ok:false});}
+  })());
+});
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.registration.scope)) return;
   event.respondWith((async () => {
-    const cache = await caches.open(CACHE);
+    const cache = await caches.open(await selectedCache(caches,PREFIX,self.registration.scope,CACHE));
     const key = event.request.mode === 'navigate' && new URL(event.request.url).pathname === new URL(self.registration.scope).pathname ? new URL('index.html', self.registration.scope).href : event.request;
     const response = await cache.match(key) || await fetch(event.request);
     return event.request.headers.has('Range') && !event.request.headers.has('If-Range') ? rangeResponse(response, event.request.headers.get('Range')) : response;

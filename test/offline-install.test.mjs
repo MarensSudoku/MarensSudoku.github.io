@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { installAssets, sha256 } from '../web/offline-install.mjs';
+import { installAssets, sha256,selectedCache,selectCache } from '../web/offline-install.mjs';
 
 function cacheStorage() {
   const caches = new Map();
@@ -40,4 +40,16 @@ test('offline updates download only changed files and resume after a failed down
 
   const expected = await assets({ ...third, 'e.txt':'foam' });
   await assert.rejects(installAssets(storage, 'p:', 'p:4', expected, scope, load({ ...third, 'e.txt':'tampered' })), /integrity/);
+});
+
+test('the approved offline version survives a worker restart until an explicit update',async()=>{
+  const storage=cacheStorage(),scope='https://reef.test/',prefix='reef:';
+  await storage.open(prefix+'v2');await storage.open(prefix+'v3');
+  assert.equal(await selectedCache(storage,prefix,scope,prefix+'v2'),prefix+'v2');
+  await selectCache(storage,prefix,scope,prefix+'v2');
+  assert.equal(await selectedCache(storage,prefix,scope,prefix+'v3'),prefix+'v2');
+  await selectCache(storage,prefix,scope,prefix+'v3');
+  assert.equal(await selectedCache(storage,prefix,scope,prefix+'v2'),prefix+'v3');
+  await assert.rejects(selectCache(storage,prefix,scope,'other:v4'),/unavailable/);
+  await assert.rejects(selectCache(storage,prefix,scope,prefix+'missing'),/unavailable/);
 });

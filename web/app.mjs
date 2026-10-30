@@ -11,6 +11,7 @@ const $ = id => document.getElementById(id);
 const text = {
   de: {
     appVersion:'Version', releaseNotes:'Neu in dieser Version',
+    updateAction:'Update', updatePrompt:'Eine neue Version ist bereit. Dein Spielstand bleibt beim Update erhalten.', updateSaveFailed:'Dein Spielstand konnte gerade nicht gespeichert werden. Schließe dieses Fenster, um in der bisherigen Version weiterzuspielen.', updateFailed:'Das Update konnte gerade nicht gestartet werden. Schließe dieses Fenster und versuche es später in den Einstellungen erneut.',
     numberDone:'alle gesetzt', noted:'notiert', helpTour:'Tutorial starten', updateCopy:'Eine neue Version von MarensSudoku ist bereit. Dein Spielstand bleibt erhalten.', updateNow:'Jetzt aktualisieren',
     welcomeEyebrow:'WILLKOMMEN IM RIFF', welcomeTitle:'Schön, dass du da bist.', welcomeCopy:'Mach es dir gemütlich. Das Tutorial erklärt Sudoku, alle Schaltflächen und wie du dein eigenes Riff gestaltest.', welcomeStart:'Los geht’s', welcomeTour:'Tutorial',
     welcomeTutorialHint:'Bitte mach zuerst das Tutorial. Es erklärt dir die Farben im Sudoku und alle Funktionen deines Riff-Editors.',
@@ -89,6 +90,7 @@ const text = {
   },
   en: {
     appVersion:'Version', releaseNotes:'New in this version',
+    updateAction:'Update', updatePrompt:'A new version is ready. Updating keeps your saved game.', updateSaveFailed:'Your game could not be saved right now. Close this window to keep playing the current version.', updateFailed:'The update could not be started right now. Close this window and try again later in Settings.',
     numberDone:'all placed', noted:'noted', helpTour:'Start tutorial', updateCopy:'A new version of MarensSudoku is ready. Your game stays saved.', updateNow:'Update now',
     welcomeEyebrow:'WELCOME TO THE REEF', welcomeTitle:'Lovely to see you.', welcomeCopy:'Make yourself comfortable. The tutorial explains Sudoku, every button and how to arrange your own reef.', welcomeStart:'Let’s dive in', welcomeTour:'Tutorial',
     welcomeTutorialHint:'Please start with the tutorial. It explains Sudoku colours and every feature of your reef editor.',
@@ -166,7 +168,8 @@ const state = load();
 let game = state.game, progress = state.progress, scores = state.scores, settings = state.settings;
 let storageBlocked = state.problem, readOnly = false, busy = false, noteMode = false;
 let selection = game ? Math.max(0, game.values.findIndex(v => !v)) : 0;
-let workerJob = null, generation = 0, waitingRegistration = null;
+let workerJob = null, generation = 0, updateWorker = null, updatePrompted = false;
+let startupUpdateCheck=Promise.resolve();
 let clockAt = performance.now(), clockGame = null, clockActive = false, clockTicks = 0;
 const screenWake = createScreenWakeLock();
 const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -228,7 +231,7 @@ function renderText() {
   document.querySelectorAll('.dialog-close').forEach(node => { node.setAttribute('aria-label', t('close')); });
   $('settings-open').setAttribute('aria-label', t('settings'));
   $('settings-open').title = t('settings');
-  $('help-open').setAttribute('aria-label', waitingRegistration ? `${t('help')} · ${t('update')}` : t('help'));
+  $('help-open').setAttribute('aria-label', updateWorker ? `${t('help')} · ${t('update')}` : t('help'));
   $('help-open').title = t('help');
   $('reef-view-toggle').title=t(reefViewing?'reefReturn':'reefView');
   $('reef-view-toggle').setAttribute('aria-label',$('reef-view-toggle').title);
@@ -258,6 +261,7 @@ function renderBoard() {
   $('notes').setAttribute('aria-pressed', String(noteMode));
   $('new-game').disabled = busy || readOnly; $('restart-game').disabled = !game || busy || readOnly; $('difficulty').disabled = busy || readOnly;
   $('generation-cancel').disabled = !game;
+  for(const id of ['update','settings-update','update-install'])$(id).disabled=busy||readOnly||storageBlocked||!updateWorker;
   document.querySelectorAll('#number-pad button').forEach(button => {
     const n = Number(button.dataset.number), done = Boolean(game && game.values.filter(value => value === n).length >= 9);
     const noted = Boolean(game && !game.values[selection] && game.notes[selection] & (1 << n));
@@ -526,8 +530,13 @@ function showTourStep() {
   if (!dialog.open) dialog.showModal();
   placeTour();requestAnimationFrame(placeTour);$('tour-next').focus();
 }
-$('welcome-start').addEventListener('click', () => { $('welcome-dialog').close(); cells[selection].focus(); });
-$('welcome-tour').addEventListener('click', () => { $('welcome-dialog').close(); startTour(); });
+async function enterApp(action) {
+  if(navigator.serviceWorker?.controller)await startupUpdateCheck;
+  if($('update-dialog').open)await new Promise(resolve=>$('update-dialog').addEventListener('close',resolve,{once:true}));
+  action();
+}
+$('welcome-start').addEventListener('click', () => enterApp(()=>{ $('welcome-dialog').close(); cells[selection].focus(); }));
+$('welcome-tour').addEventListener('click', () => enterApp(()=>{ $('welcome-dialog').close(); startTour(); }));
 $('help-tour').addEventListener('click', () => { $('help-dialog').close(); if (reefViewing) setReefView(false); startTour(); });
 $('tour-next').addEventListener('click', () => { tourStep++; showTourStep(); });
 $('tour-skip').addEventListener('click', () => { tourStep = tour.length; showTourStep(); });
@@ -588,16 +597,49 @@ async function acquireWriter() {
 async function offlineSetup() {
   if (!('serviceWorker' in navigator)) return;
   try {
-    const registration = await navigator.serviceWorker.register('./sw.js');
-    const offer = () => { if (registration.waiting && navigator.serviceWorker.controller) { waitingRegistration = registration; $('update-notice').hidden = false; $('update-badge').hidden = false; renderText(); } };
-    offer(); registration.addEventListener('updatefound', () => { registration.installing?.addEventListener('statechange', offer); });
+    const registration = await navigator.serviceWorker.getRegistration()||await navigator.serviceWorker.register('./sw.js');
+    const offer = async () => {
+      if(!navigator.serviceWorker.controller)return;
+      const worker=registration.waiting||registration.active;if(!worker)return;
+      const result=await workerMessage(worker,{type:'CHECK_UPDATE',build:$('app-version').dataset.build});if(!result.available)return;
+      if(worker!==(registration.waiting||registration.active))return offer();
+      updateWorker=worker;
+      for(const id of ['update-notice','update-badge','settings-update-notice'])$(id).hidden=false;
+      renderText();
+      if($('welcome-dialog').open&&!updatePrompted&&!readOnly&&!storageBlocked){
+        updatePrompted=true;$('update-dialog').showModal();
+      }
+    };
+    const watch=()=>registration.installing?.addEventListener('statechange',()=>{void offer().catch(()=>{});});
+    watch();registration.addEventListener('updatefound',watch);
+    void registration.update().catch(()=>{});
+    await offer();
   } catch {}
 }
-$('update').addEventListener('click', () => {
-  if (busy || readOnly || storageBlocked || !save(game, settings, progress, scores)) return;
-  navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
-  waitingRegistration?.waiting?.postMessage('ACTIVATE');
-});
+function workerMessage(worker,message) {
+  return new Promise((resolve,reject)=>{
+    const channel=new MessageChannel(),timer=setTimeout(()=>{channel.port1.close();reject(new Error('Update worker did not respond'));},5000);
+    channel.port1.onmessage=event=>{clearTimeout(timer);channel.port1.close();resolve(event.data);};
+    try{worker.postMessage(message,[channel.port2]);}catch(error){clearTimeout(timer);channel.port1.close();reject(error);}
+  });
+}
+function updateError(key) {
+  const node=$('update-dialog-error');node.dataset.t=key;node.textContent=t(key);node.hidden=false;
+  if(!$('update-dialog').open)$('update-dialog').showModal();
+}
+async function applyUpdate() {
+  const worker=updateWorker;
+  if(!worker||busy||readOnly||storageBlocked)return;
+  syncClock();
+  if(!save(game,settings,progress,scores)){
+    updateError('updateSaveFailed');
+    return;
+  }
+  try{if((await workerMessage(worker,'APPLY_UPDATE')).ok){location.reload();return;}}catch{}
+  updateError('updateFailed');
+}
+for(const id of ['update','settings-update','update-install'])$(id).addEventListener('click',applyUpdate);
+$('update-dialog').addEventListener('cancel',event=>{event.preventDefault();$('update-dialog').close();});
 renderText();
 const firstVisit=!state.game&&!state.problem;
 $('welcome-dialog').classList.toggle('first-visit',firstVisit);$('welcome-tutorial-hint').hidden=!firstVisit;
@@ -608,7 +650,7 @@ renderBoard();
 if (game) { $('loading').hidden = true; persist(); }
 else if (!readOnly) newPuzzle('easy', false);
 else $('loading').hidden = true;
-offlineSetup();
+startupUpdateCheck=offlineSetup();
 aquariumReady=import('./game/aquarium.mjs').then(module => module.createAquarium($('reef-aquarium'))).then(result => {
   aquarium=result;updateBackground();
   if(!result){$('reef-editor-status').textContent=t('reefUnavailable');return;}

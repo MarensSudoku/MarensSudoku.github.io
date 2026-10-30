@@ -122,14 +122,14 @@ body{isolation:isolate}#reef-aquarium{position:fixed;inset:0;width:100%;height:1
 .dialog-top .dialog-close{flex:0 0 auto;background:var(--foam);border:1px solid var(--line);border-radius:14px;color:var(--teal-deep)}
 .dialog-body{min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;overscroll-behavior-x:none;padding:20px 24px 24px;scrollbar-width:thin;scrollbar-color:#287c8c80 transparent}
 .dialog-body::-webkit-scrollbar{width:6px}.dialog-body::-webkit-scrollbar-track{background:transparent}.dialog-body::-webkit-scrollbar-thumb{background:#287c8c80;border-radius:20px}.dialog-body::-webkit-scrollbar-thumb:hover{background:#287c8cb3}.dialog-body::-webkit-scrollbar-button{display:none;width:0;height:0}
-.dialog-body.settings-list{margin:0}.settings-list label{padding:15px 0;gap:16px}.settings-list>label:first-child{padding-top:0}.settings-list label>span{min-width:0}
+.dialog-body.settings-list{margin:0}.settings-list label{padding:15px 0;gap:16px}.settings-list>label:first-of-type{padding-top:0}.settings-list label>span{min-width:0}
 .settings-list input[role=switch],.tracking-option input[role=switch]{appearance:none;-webkit-appearance:none;width:42px;height:24px;border:1px solid var(--line);border-radius:20px;padding:3px;background:var(--foam);position:relative}
 .settings-list input[role=switch]:before,.tracking-option input[role=switch]:before{content:'';display:block;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #134a6240;transition:transform .15s}
 .settings-list input[role=switch]:checked,.tracking-option input[role=switch]:checked{background:var(--teal);border-color:var(--teal)}
 .settings-list input[role=switch]:checked:before,.tracking-option input[role=switch]:checked:before{transform:translateX(18px)}
 .dialog-top-close-only{justify-content:flex-end;border:0;padding:12px 16px 0}.dialog-top-close-only .win-close{position:static}.win-dialog .dialog-body{padding-top:0}
-#confirm-dialog .dialog-actions{flex:0 0 auto;margin:0;padding:0 24px 24px}#confirm-dialog .dialog-body p{margin:0}
-@media(max-width:480px){.dialog-top{padding:16px 18px 14px}.dialog-top h2{font-size:23px}.dialog-body{padding:16px 18px 20px}.dialog-top-close-only{padding:10px 12px 0}#confirm-dialog .dialog-actions{padding:0 18px 18px}}
+#confirm-dialog .dialog-actions,#update-dialog .dialog-actions{flex:0 0 auto;margin:0;padding:0 24px 24px}#confirm-dialog .dialog-body p{margin:0}
+@media(max-width:480px){.dialog-top{padding:16px 18px 14px}.dialog-top h2{font-size:23px}.dialog-body{padding:16px 18px 20px}.dialog-top-close-only{padding:10px 12px 0}#confirm-dialog .dialog-actions,#update-dialog .dialog-actions{padding:0 18px 18px}}
 .unit-glow{position:absolute;width:calc(100% / 9);height:calc(100% / 9);background:#9ce4dd;pointer-events:none}
 .victory-bubble{position:absolute;width:22px;height:22px;border:1px solid #fff;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ffffffb3,transparent 60%);box-shadow:inset 2px 2px 4px #ffffff90;pointer-events:none}
 .game-page:before{background:linear-gradient(180deg,#eaffff44,transparent 52%)}
@@ -191,3 +191,5 @@ body[data-reduced=true] .tour-spotlight,body[data-reduced=true] .tour-bubble{tra
 .tour-bubble{display:flex;flex-direction:column;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}#tour-copy{min-height:0;overflow-y:auto}.tour-bubble>h2,.tour-bubble>.dialog-eyebrow,.tour-bubble>.dialog-actions{flex-shrink:0}
 
 .app-version strong{font-size:18px;color:var(--ink)}.app-version time{white-space:nowrap}.release-notes{margin:14px 0 22px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--foam)}.release-notes h3{margin:0 0 8px;font-size:15px}.release-notes ul{margin:0;padding-left:18px;font-size:13px;line-height:1.6}.release-notes li+li{margin-top:6px}
+
+#update-dialog{max-width:420px}#update-dialog .dialog-body p{margin:0}#update-dialog #update-dialog-error{margin-top:12px;color:var(--coral)}

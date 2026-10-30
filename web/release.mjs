@@ -1,18 +1,16 @@
 export const RELEASE = {
-  version:'v1',
+  version:'v2',
   date:'2026-10-30',
   notes:{
     de:[
-      'Geführtes Tutorial mit Farbbeispielen im Sudoku und allen Funktionen des Riff-Editors.',
-      'Touch-Auswahl, deutliche goldene Objektmarkierung und freies Querformat auf dem Handy.',
-      'Ausblendbare Editor-Hinweise und Korrekturen für die lokale Netzwerkvorschau.',
-      'Verständliche Versionsnummern mit Datum und Hinweisen zu Neuerungen.',
+      'Vor dem Spielstart weist ein Dialog mit Update-Knopf und Schließen-Kreuz auf eine bereitstehende neue Version hin.',
+      'Nach dem Schließen spielst du in der bisherigen Version weiter und kannst später in den Einstellungen aktualisieren.',
+      'Beim Update bleiben dein Sudoku, deine Punkte und dein persönliches Riff erhalten.',
     ],
     en:[
-      'Guided tutorial covering Sudoku colours and every reef editor feature.',
-      'Touch selection, clear golden object highlighting and landscape support on mobile.',
-      'Dismissible editor hints and fixes for local network previews.',
-      'Readable version numbers with a release date and notes about new features.',
+      'Before play, a dialog offers a ready update with an Update button and a close cross.',
+      'Closing the dialog keeps the current version running, with the update still available in Settings.',
+      'Updating preserves your Sudoku, points and personal reef.',
     ],
   },
 };
