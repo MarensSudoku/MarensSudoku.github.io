@@ -111,7 +111,7 @@ export async function createAquarium(canvas) {
     sand.isPickable = false;
     const water = createWater(scene,sandMaterial,mobile||software), scenery = [], swaying = [];
     const templates = new Map(), riggedTemplates = new Map(), pendingModels = new Map(), objects = new Map(), fish = [];
-    let framing = 1, editing = false, transformMode = 'move', selected = null, hovered = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {}, beforeChange = () => {};
+    let framing = 1, editing = false, transformMode = 'move', transformEnabled = true, selected = null, hovered = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {}, beforeChange = () => {};
 
     async function model(spec, size, bottom) {
       if(spec.rigged){
@@ -397,7 +397,7 @@ export async function createAquarium(canvas) {
       return distance===null||distance<0?null:ray.origin.add(ray.direction.scale(distance));
     }
     function pointerDown(event) {
-      if(!editing||event.button!==0||!event.isPrimary)return;
+      if(!editing||!transformEnabled||event.button!==0||!event.isPrimary)return;
       const [x,y]=pointerPosition(event);
       if(event.pointerType==='touch'&&!selected){
         dragging={pointer:event.pointerId,mode:'select'};setHovered(pickObject(x,y)?.record.id||null);
@@ -512,8 +512,9 @@ export async function createAquarium(canvas) {
       select,
       setColorPreview(active) {const entry=objects.get(selected);if(entry){entry.highlighted=!active;redraw();}},
       setTransformMode(mode) {if(!['move','height','rotate','rotate-x','rotate-z','scale'].includes(mode))return false;transformMode=mode;pointerUp();return true;},
+      setTransformEnabled(active) {transformEnabled=Boolean(active);pointerUp();},
       nudgeSelection(dx,dy) {
-        const object=objects.get(selected)?.record;if(!editing||!object)return false;
+        const object=objects.get(selected)?.record;if(!editing||!transformEnabled||!object)return false;
         if(transformMode.startsWith('rotate')){const axis=transformMode==='rotate-x'?'pitch':transformMode==='rotate-z'?'roll':'yaw';return dx!==0&&rotateObject(object,(object[axis]||0)+dx*Math.PI/36,axis);}
         if(transformMode==='height')return dy!==0&&updateObject(object.id,{y:Math.max(0,Math.min(16,object.y-dy*.2))});
         if(transformMode==='scale')return updateObject(object.id,{scale:Math.max(.25,Math.min(2.5,object.scale*Math.pow(1.05,dx||-dy)))});

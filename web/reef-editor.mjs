@@ -71,11 +71,11 @@ export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,r
       control.dataset.open=String(expanded);control.querySelector('button').setAttribute('aria-expanded',String(expanded));
       control.querySelector('.reef-ring-slider').hidden=!expanded;
     }
-    aquarium.setColorPreview(field==='hue');positionTools();
+    aquarium.setTransformEnabled(!field);aquarium.setColorPreview(field==='hue');positionTools();
     if(field&&focus)$('reef-ring-'+field).focus();
   }
   function showSelection(object) {
-    if((object?.id||null)!==selected)setSlider(null);
+    if((object?.id||null)!==selected){if(object)setMode('move');else setSlider(null);}
     selected=object?.id||null;root.dataset.selected=selected||'';tools.hidden=!object;
     top.hidden=Boolean(object);
     if(object&&$('reef-undo').parentElement!==ring)ring.insertBefore($('reef-undo'),$('reef-deselect'));

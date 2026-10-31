@@ -12,11 +12,32 @@ const $ = id => document.getElementById(id);
 const text = {
   de: {
     reefLoadFailed:'Dieses Objekt konnte nicht geladen werden. Bitte versuche es erneut.',reefRewards:'Für dein Riff',
-    appVersion:'Version', releaseNotes:'Neu in dieser Version', pleaseWait:'Einen Moment …',
+    appVersion:'Version', releaseNotes:'Neues', playGuide:'Spielanleitung', sourceCode:'Quellcode auf GitHub', pleaseWait:'Einen Moment …',
     updateAction:'Update', updating:'Dein Update wird gestartet …', updatePrompt:'Eine neue Version ist bereit. Dein Spielstand bleibt beim Update erhalten.', updateSaveFailed:'Dein Spielstand konnte gerade nicht gespeichert werden. Schließe dieses Fenster, um in der bisherigen Version weiterzuspielen.', updateFailed:'Das Update konnte gerade nicht gestartet werden. Schließe dieses Fenster und versuche es später in den Einstellungen erneut.',
     numberDone:'alle gesetzt', noted:'notiert', helpTour:'Tutorial starten', updateCopy:'Eine neue Version von MarensSudoku ist bereit. Dein Spielstand bleibt erhalten.', updateNow:'Jetzt aktualisieren',
-    welcomeEyebrow:'WILLKOMMEN IM RIFF', welcomeTitle:'Schön, dass du da bist.', welcomeCopy:'Mach es dir gemütlich. Das Tutorial erklärt Sudoku, alle Schaltflächen und wie du dein eigenes Riff gestaltest.', welcomeStart:'Los geht’s', welcomeTour:'Tutorial',
-    welcomeTutorialHint:'Bitte mach zuerst das Tutorial. Es erklärt dir die Farben im Sudoku und alle Funktionen deines Riff-Editors.',
+    welcomeEyebrow:'WILLKOMMEN IM RIFF', welcomeTitle:'Schön, dass du da bist.', welcomeCopy:'Mach es dir gemütlich. Dein Sudoku und dein eigenes Riff warten auf dich.', welcomeStart:'Los geht’s', welcomeTour:'Tutorial', welcomeInstall:'Als App installieren',
+    installTitle:'MarensSudoku als App installieren', installIntro:'Öffne dein Riff direkt über ein eigenes Symbol auf dem Desktop oder Startbildschirm. Die Installation ist freiwillig und braucht keinen App-Store.',
+    installDesktop:[
+      'Öffne MarensSudoku online in Chrome oder Edge. Klicke auf das Installieren-Symbol in der Adressleiste, falls angezeigt.',
+      'Alternativ im Browsermenü: Chrome → „Streamen, speichern und teilen“ → „Seite als App installieren“. Edge → „Weitere Tools“ → „Apps“ → „Diese Site als App installieren“.',
+      'Bestätige „Installieren“. Öffne MarensSudoku danach über das neue Symbol. In Edge kannst du die App auch an Start oder die Taskleiste anheften oder eine Desktopverknüpfung erstellen.',
+    ],
+    installMac:[
+      'Öffne MarensSudoku online in Safari auf einem Mac mit macOS Sonoma 14 oder neuer.',
+      'Wähle „Ablage“ → „Zum Dock hinzufügen“ oder nutze „Zum Dock hinzufügen“ im Teilen-Menü.',
+      'Bestätige den Namen MarensSudoku mit „Hinzufügen“. Starte dein Riff danach über das Symbol im Dock.',
+    ],
+    installAndroid:[
+      'Öffne MarensSudoku online in Chrome.',
+      'Tippe auf ⋮ neben der Adresse → „Installieren und Verknüpfung erstellen“ → „Installieren“. Je nach Version heißt es „Zum Startbildschirm hinzufügen“ oder „App installieren“.',
+      'Bestätige den Dialog und öffne MarensSudoku über das neue Symbol.',
+    ],
+    installIos:[
+      'Öffne MarensSudoku online in Safari und tippe auf „Teilen“ (Quadrat mit Pfeil nach oben), direkt oder im Seitenmenü.',
+      'Wähle „Zu Home-Bildschirm hinzufügen“. Falls die Aktion fehlt, ergänze sie über „Aktionen bearbeiten“.',
+      'Aktiviere „Als Web-App öffnen“, falls angeboten. Bestätige den Namen MarensSudoku mit „Hinzufügen“ und öffne die App über das neue Symbol.',
+    ],
+    installNote:'Menünamen können je nach Version abweichen. Öffne das neue App-Symbol zuerst online und lass alle Offline-Dateien vollständig laden. Browser und installierte App können getrennte Spielstände und Einstellungen haben; dein Fortschritt wird nicht automatisch übertragen.',
     tourFocusTitle:'Türkis und helle Felder', tourFocus:'Türkis mit dunklem Rand ist dein ausgewähltes Feld. Die hellere Zeile, Spalte und der Block gehören dazu: Ihre Zahlen musst du beim Eintragen beachten.',
     tourMatchingTitle:'Gelb: dieselbe Zahl', tourMatching:'Wenn du eine gesetzte Zahl auswählst, erscheinen alle gleichen Zahlen gelb. So findest du sie im ganzen Spielfeld wieder. Gelb ist kein Fehlerhinweis.',
     tourErrorsTitle:'Rot: doppelte Zahlen', tourErrors:'Rot zeigt doppelte Zahlen in einer Zeile, Spalte oder einem Block, wenn die Konfliktanzeige aktiv ist. Hier siehst du ein Beispiel; dein Rätsel bleibt unverändert.',
@@ -91,15 +112,36 @@ const text = {
     firstCondition:'Eine Runde lösen', flowCondition:'10 Runden lösen', magicCondition:'50 Runden lösen', starsCondition:'100 Runden lösen', varietyCondition:'Jede Schwierigkeit einmal lösen', crownCondition:'5 schwere Runden lösen', directCondition:'Eine Runde ohne Rückgängig lösen',
     starfinderCondition:'5 Runden lösen', reefkeeperCondition:'3 leichte Runden lösen', patienceCondition:'10 leichte Runden lösen', snapCondition:'3 Runden ohne Rückgängig lösen', trailsCondition:'5 mittlere Runden lösen', driftCondition:'15 Runden lösen',
     close:'Schließen', cell:'Reihe', column:'Spalte', given:'Vorgegeben', empty:'Leer', conflict:'Regelkonflikt', newAchievement:'Neuer Erfolg',
-    helpContent:'<h3>So tauchst du ein</h3><p>Fülle jede Reihe, jede Spalte und jeden 3×3-Block mit den Zahlen 1–9. Jede Zahl kommt darin genau einmal vor. Die vorgegebenen Zahlen bleiben unverändert.</p><p>Tippe auf ein Feld und dann auf eine Zahl. Im Notizmodus sammelst du mögliche Zahlen. Zurück nimmt deinen letzten Zug einschließlich seiner Notizen zurück. Neustart leert nach Bestätigung deine Eingaben und Notizen im selben Rätsel; bereits gesammelte Punkte bleiben erhalten. Doppelte Zahlen werden auf Wunsch markiert.</p><h3>Dein eigenes Aquarium</h3><p>Mit dem Fischknopf oben blendest du das Sudoku aus und genießt dein Riff. Ein erneuter Tipp auf den Fischknopf bringt dich zurück. Die Rätselzeit pausiert; Fische und Musik laufen weiter, sofern Bewegung und Musik eingeschaltet sind.</p><p>Über den Fischknopf und „Mein Riff einrichten“ kannst du Fische, Pflanzen und Korallen platzieren, verschieben, drehen und vergrößern. Per Touch legst du den Finger auf die Riff-Fläche und fährst ohne Abheben über die Objekte. Das anvisierte Objekt wird vollständig golden markiert. Erst beim Loslassen öffnet sich seine Bearbeitung. Danach ziehst du zum Bearbeiten. Das grüne Häkchen im Ringmenü löst die Auswahl. Für Fische wählst du Schwimmverhalten, Tempo und Radius. Die Auswahl und Regler funktionieren auch ohne Ziehen. Speichern merkt sich dein Riff lokal; Verwerfen kehrt zur bisherigen Einrichtung zurück. Dein Sudoku pausiert währenddessen.</p><h3>Ungestört spielen</h3><p>Auf der Spielfläche werden versehentliche Textmarkierungen, Ziehen von Bildern und Browsermenüs unterdrückt. Infotexte kannst du weiterhin kopieren. Beim aktiven Rätseln bleibt der Bildschirm wach, soweit Browser und Energiespareinstellungen das erlauben. In Menüs und im Hintergrund wird das Wachhalten pausiert.</p><h3>Dein Spiel bleibt bei dir</h3><p>Spielstand, Gesamtpunkte und Einstellungen werden lokal in diesem Browser gespeichert. Erfolge werden erst nach Aktivierung gespeichert. Beim Löschen der Websitedaten, auf einem anderen Gerät oder unter einer anderen Adresse steht dieser Fortschritt nicht zur Verfügung.</p><p>Die App lädt ihre Offline-Dateien im Hintergrund. Nach vollständigem Download kannst du dieselbe Adresse ohne Internet öffnen und neue Rätsel erzeugen. Updates werden erst nach deiner Bestätigung aktiviert.</p><h3>Offenes Projekt</h3><p>MarensSudoku · Babylon.js 9.32.1. Eigener Code und Dokumentation unter MIT. Generierte Grafiken werden weitergegeben, soweit die Rechte dafür bestehen; eine exklusive Schutzfähigkeit wird nicht zugesichert.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Quellcode auf GitHub</a></p>',
+    helpContent:'<h3>So tauchst du ein</h3><p>Fülle jede Reihe, jede Spalte und jeden 3×3-Block mit den Zahlen 1–9. Jede Zahl kommt darin genau einmal vor. Die vorgegebenen Zahlen bleiben unverändert.</p><p>Tippe auf ein Feld und dann auf eine Zahl. Im Notizmodus sammelst du mögliche Zahlen. Zurück nimmt deinen letzten Zug einschließlich seiner Notizen zurück. Neustart leert nach Bestätigung deine Eingaben und Notizen im selben Rätsel; bereits gesammelte Punkte bleiben erhalten. Doppelte Zahlen werden auf Wunsch markiert.</p><h3>Dein eigenes Aquarium</h3><p>Mit dem Fischknopf oben blendest du das Sudoku aus und genießt dein Riff. Ein erneuter Tipp auf den Fischknopf bringt dich zurück. Die Rätselzeit pausiert; Fische und Musik laufen weiter, sofern Bewegung und Musik eingeschaltet sind.</p><p>Über den Fischknopf und „Mein Riff einrichten“ kannst du Fische, Pflanzen und Korallen platzieren, verschieben, drehen und vergrößern. Per Touch legst du den Finger auf die Riff-Fläche und fährst ohne Abheben über die Objekte. Das anvisierte Objekt wird vollständig golden markiert. Erst beim Loslassen öffnet sich seine Bearbeitung. Danach ziehst du zum Bearbeiten. Das grüne Häkchen im Ringmenü löst die Auswahl. Für Fische wählst du Schwimmverhalten, Tempo und Radius. Die Auswahl und Regler funktionieren auch ohne Ziehen. Speichern merkt sich dein Riff lokal; Verwerfen kehrt zur bisherigen Einrichtung zurück. Dein Sudoku pausiert währenddessen.</p><h3>Ungestört spielen</h3><p>Auf der Spielfläche werden versehentliche Textmarkierungen, Ziehen von Bildern und Browsermenüs unterdrückt. Infotexte kannst du weiterhin kopieren. Beim aktiven Rätseln bleibt der Bildschirm wach, soweit Browser und Energiespareinstellungen das erlauben. In Menüs und im Hintergrund wird das Wachhalten pausiert.</p><h3>Dein Spiel bleibt bei dir</h3><p>Spielstand, Gesamtpunkte und Einstellungen werden lokal in diesem Browser gespeichert. Erfolge werden erst nach Aktivierung gespeichert. Beim Löschen der Websitedaten, auf einem anderen Gerät oder unter einer anderen Adresse steht dieser Fortschritt nicht zur Verfügung.</p><p>Die App lädt ihre Offline-Dateien im Hintergrund. Nach vollständigem Download kannst du dieselbe Adresse ohne Internet öffnen und neue Rätsel erzeugen. Updates werden erst nach deiner Bestätigung aktiviert.</p><h3>Offenes Projekt</h3><p>MarensSudoku · Babylon.js 9.32.1. Eigener Code und Dokumentation unter MIT. Generierte Grafiken werden weitergegeben, soweit die Rechte dafür bestehen; eine exklusive Schutzfähigkeit wird nicht zugesichert.</p>',
   },
   en: {
     reefLoadFailed:'This object could not be loaded. Please try again.',reefRewards:'For your reef',
-    appVersion:'Version', releaseNotes:'New in this version', pleaseWait:'Just a moment …',
+    appVersion:'Version', releaseNotes:'What’s new', playGuide:'How to play', sourceCode:'Source on GitHub', pleaseWait:'Just a moment …',
     updateAction:'Update', updating:'Starting your update …', updatePrompt:'A new version is ready. Updating keeps your saved game.', updateSaveFailed:'Your game could not be saved right now. Close this window to keep playing the current version.', updateFailed:'The update could not be started right now. Close this window and try again later in Settings.',
     numberDone:'all placed', noted:'noted', helpTour:'Start tutorial', updateCopy:'A new version of MarensSudoku is ready. Your game stays saved.', updateNow:'Update now',
-    welcomeEyebrow:'WELCOME TO THE REEF', welcomeTitle:'Lovely to see you.', welcomeCopy:'Make yourself comfortable. The tutorial explains Sudoku, every button and how to arrange your own reef.', welcomeStart:'Let’s dive in', welcomeTour:'Tutorial',
-    welcomeTutorialHint:'Please start with the tutorial. It explains Sudoku colours and every feature of your reef editor.',
+    welcomeEyebrow:'WELCOME TO THE REEF', welcomeTitle:'Lovely to see you.', welcomeCopy:'Make yourself comfortable. Your Sudoku and your own reef are waiting for you.', welcomeStart:'Let’s dive in', welcomeTour:'Tutorial', welcomeInstall:'Install as an app',
+    installTitle:'Install MarensSudoku as an app', installIntro:'Open your reef from its own icon on your desktop or home screen. Installation is optional and needs no app store.',
+    installDesktop:[
+      'Open MarensSudoku online in Chrome or Edge. Click the install icon in the address bar if shown.',
+      'Alternatively, use the browser menu: Chrome → “Cast, save and share” → “Install page as app”. Edge → “More tools” → “Apps” → “Install this site as an app”.',
+      'Confirm “Install”, then open MarensSudoku from its new icon. Edge also lets you pin the app to Start or the taskbar, or create a desktop shortcut.',
+    ],
+    installMac:[
+      'Open MarensSudoku online in Safari on a Mac with macOS Sonoma 14 or later.',
+      'Choose File → Add to Dock, or use Add to Dock in the Share menu.',
+      'Keep the name MarensSudoku and click Add. Open your reef from its Dock icon.',
+    ],
+    installAndroid:[
+      'Open MarensSudoku online in Chrome.',
+      'Tap ⋮ beside the address → “Install and create shortcut” → “Install”. Some versions call this “Add to home screen” or “Install app”.',
+      'Confirm the dialog, then open MarensSudoku from its new icon.',
+    ],
+    installIos:[
+      'Open MarensSudoku online in Safari and tap Share (the square with an upward arrow), directly or in the page menu.',
+      'Choose Add to Home Screen. If the action is missing, add it through Edit Actions.',
+      'Enable Open as Web App if offered. Keep the name MarensSudoku, tap Add and open the app from its new icon.',
+    ],
+    installNote:'Menu names vary by version. Open the new app icon online first and let all offline files finish downloading. The browser and installed app may keep separate games and settings; your progress is not transferred automatically.',
     tourFocusTitle:'Turquoise and pale cells', tourFocus:'Turquoise with a dark border marks your selected cell. Its paler row, column and box are related cells: Check their numbers before entering your own.',
     tourMatchingTitle:'Yellow: the same number', tourMatching:'Select a filled cell to highlight every matching number in yellow. This helps you find them across the board. Yellow does not indicate a mistake.',
     tourErrorsTitle:'Red: duplicate numbers', tourErrors:'Red marks duplicate numbers in a row, column or box when conflict highlighting is enabled. This is only an example; your puzzle stays unchanged.',
@@ -170,7 +212,7 @@ const text = {
     firstCondition:'Solve one round', flowCondition:'Solve 10 rounds', magicCondition:'Solve 50 rounds', starsCondition:'Solve 100 rounds', varietyCondition:'Solve every difficulty once', crownCondition:'Solve 5 hard rounds', directCondition:'Solve a round without undo',
     starfinderCondition:'Solve 5 rounds', reefkeeperCondition:'Solve 3 easy rounds', patienceCondition:'Solve 10 easy rounds', snapCondition:'Solve 3 rounds without undo', trailsCondition:'Solve 5 medium rounds', driftCondition:'Solve 15 rounds',
     close:'Close', cell:'Row', column:'column', given:'Given', empty:'Empty', conflict:'Rule conflict', newAchievement:'New achievement',
-    helpContent:'<h3>Take a little dive</h3><p>Fill each row, column and 3×3 box with the numbers 1–9, using each number exactly once. Given numbers cannot be changed.</p><p>Select a square and then a number. Use notes to collect candidates. Undo restores your previous move and its notes. Restart clears entries and notes after confirmation, keeping the same puzzle and points already collected. Duplicate numbers can be highlighted.</p><h3>Your own aquarium</h3><p>The fish button in the header hides Sudoku so you can enjoy your reef. Tap the fish button again to return. Puzzle time pauses; fish and music continue when motion and music are enabled.</p><p>Use the fish button, then Arrange my reef, to place, move, rotate and resize fish, plants and corals. With touch, place your finger on the reef and slide over objects without lifting it. The current target is tinted gold across its whole surface. Release to open its editing controls. Then drag to edit. The green checkmark in the ring menu releases the selection. Choose swimming behaviour, speed and radius for fish. Selection and sliders also work without dragging. Save keeps your reef locally; Discard restores your previous arrangement. Your Sudoku pauses while you edit.</p><h3>Play without distractions</h3><p>Accidental text selection, image dragging and browser menus are suppressed on the game surface. Info text remains copyable. During active play, the screen stays awake where the browser and power settings allow it. This pauses in menus and in the background.</p><h3>Your game stays with you</h3><p>Your game, banked points and preferences are saved locally in this browser. Achievement saving is optional. Clearing site data, changing devices or changing the address can remove access to your progress.</p><p>The app downloads its offline files in the background. After the complete download, reopen the same address without internet and generate new puzzles. Updates are activated only after your confirmation.</p><h3>Open project</h3><p>MarensSudoku · Babylon.js 9.32.1. Original code and documentation are MIT licensed. Generated graphics are shared to the extent the necessary rights exist; exclusive copyright protection is not guaranteed.</p><p><a href="https://github.com/MarensSudoku/MarensSudoku.github.io" target="_blank" rel="noopener noreferrer">Source on GitHub</a></p>',
+    helpContent:'<h3>Take a little dive</h3><p>Fill each row, column and 3×3 box with the numbers 1–9, using each number exactly once. Given numbers cannot be changed.</p><p>Select a square and then a number. Use notes to collect candidates. Undo restores your previous move and its notes. Restart clears entries and notes after confirmation, keeping the same puzzle and points already collected. Duplicate numbers can be highlighted.</p><h3>Your own aquarium</h3><p>The fish button in the header hides Sudoku so you can enjoy your reef. Tap the fish button again to return. Puzzle time pauses; fish and music continue when motion and music are enabled.</p><p>Use the fish button, then Arrange my reef, to place, move, rotate and resize fish, plants and corals. With touch, place your finger on the reef and slide over objects without lifting it. The current target is tinted gold across its whole surface. Release to open its editing controls. Then drag to edit. The green checkmark in the ring menu releases the selection. Choose swimming behaviour, speed and radius for fish. Selection and sliders also work without dragging. Save keeps your reef locally; Discard restores your previous arrangement. Your Sudoku pauses while you edit.</p><h3>Play without distractions</h3><p>Accidental text selection, image dragging and browser menus are suppressed on the game surface. Info text remains copyable. During active play, the screen stays awake where the browser and power settings allow it. This pauses in menus and in the background.</p><h3>Your game stays with you</h3><p>Your game, banked points and preferences are saved locally in this browser. Achievement saving is optional. Clearing site data, changing devices or changing the address can remove access to your progress.</p><p>The app downloads its offline files in the background. After the complete download, reopen the same address without internet and generate new puzzles. Updates are activated only after your confirmation.</p><h3>Open project</h3><p>MarensSudoku · Babylon.js 9.32.1. Original code and documentation are MIT licensed. Generated graphics are shared to the extent the necessary rights exist; exclusive copyright protection is not guaranteed.</p>',
   },
 };
 const state = load();
@@ -253,6 +295,7 @@ function renderText() {
   document.body.dataset.theme = settings.theme; document.body.dataset.reduced = reduced();
   updateBackground();
   $('help-content').className = 'help-copy'; $('help-content').innerHTML = t('helpContent');
+  document.querySelectorAll('[data-install-steps]').forEach(node=>node.replaceChildren(...t(node.dataset.installSteps).map(step=>{const item=document.createElement('li');item.textContent=step;return item;})));
   $('app-release-date').dateTime=RELEASE.date;
   $('app-release-date').textContent=new Intl.DateTimeFormat(settings.language,{dateStyle:'medium',timeZone:'UTC'}).format(new Date(RELEASE.date));
   $('release-notes').replaceChildren(...RELEASE.notes[settings.language].map(note=>{const item=document.createElement('li');item.textContent=note;return item;}));
@@ -559,6 +602,21 @@ $('welcome-start').addEventListener('click', () => enterApp(async()=>{
   cells[selection].focus();
 }));
 $('welcome-tour').addEventListener('click', () => enterApp(()=>{ $('welcome-dialog').close(); startTour(); }));
+const appWindow=matchMedia('(display-mode: standalone)');
+let appInstalled=false,installPrompt=null;
+const updateInstallButton=()=>{ $('welcome-install').hidden=appInstalled||appWindow.matches||navigator.standalone===true; };
+appWindow.addEventListener('change',updateInstallButton);
+// Chromium offers its own install dialog; other browsers keep the written guide.
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;});
+window.addEventListener('appinstalled',()=>{appInstalled=true;installPrompt=null;updateInstallButton();});
+updateInstallButton();
+const openInstallGuide=()=>enterApp(()=>{ $('welcome-dialog').close(); $('install-guide').open=true; $('help-dialog').showModal(); $('install-title').focus(); $('install-guide').scrollIntoView({block:'start'}); });
+$('welcome-install').addEventListener('click', () => {
+  // The prompt must start within the click, before enterApp waits for updates.
+  const prompt=installPrompt;installPrompt=null;
+  if(prompt)prompt.prompt().catch(openInstallGuide);
+  else void openInstallGuide();
+});
 $('help-tour').addEventListener('click', () => { $('help-dialog').close(); if (reefViewing) setReefView(false); startTour(); });
 $('tour-next').addEventListener('click', () => { tourStep++; showTourStep(); });
 $('tour-skip').addEventListener('click', () => { tourStep = tour.length; showTourStep(); });
@@ -569,7 +627,7 @@ $('help-dialog').addEventListener('click', event => {
   if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
   const section = [...$('help-dialog').querySelectorAll('details[data-document]')].find(details => new URL(details.dataset.document, location.href).href === link.href);
   if (!section) return;
-  event.preventDefault(); section.open = true; section.querySelector('summary').focus();
+  event.preventDefault(); $('legal-guide').open = true; section.open = true; section.querySelector('summary').focus();
 });
 function changeSettings() {
   if (readOnly) { renderText(); return; }
@@ -666,8 +724,7 @@ for(const id of ['update','settings-update','update-install'])$(id).addEventList
 $('update-dialog').addEventListener('cancel',event=>{event.preventDefault();$('update-dialog').close();});
 renderText();
 const firstVisit=!state.game&&!state.problem;
-$('welcome-dialog').classList.toggle('first-visit',firstVisit);$('welcome-tutorial-hint').hidden=!firstVisit;
-if(firstVisit)$('welcome-tour').setAttribute('aria-describedby','welcome-tutorial-hint');
+$('welcome-dialog').classList.toggle('first-visit',firstVisit);
 await acquireWriter();
 $('welcome-dialog').showModal();
 renderBoard();

@@ -135,10 +135,11 @@ body{isolation:isolate}#reef-aquarium{position:fixed;inset:0;width:100%;height:1
 .game-page:before{background:linear-gradient(180deg,#eaffff44,transparent 52%)}
 .game-page .intro-copy,.game-page .eyebrow,.game-page .fish-caption{color:var(--ink)}
 .game-page:has(#reef-aquarium[data-status=ready]){background-image:none;background-color:#149ecc}
-.legal-sections{margin-top:24px}.legal-sections>h3{font-size:16px;margin:0 0 12px}.legal-section{margin:10px 0;border:1px solid var(--line);border-radius:15px;background:var(--foam);overflow-wrap:anywhere}
-.legal-section>summary{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:48px;padding:14px 16px;cursor:pointer;font-size:14px;font-weight:600;list-style:none;border-radius:14px}
-.legal-section>summary::-webkit-details-marker{display:none}.legal-section>summary::after{content:'+';flex:0 0 auto;font-size:22px;font-weight:400;line-height:1;color:var(--teal-deep)}.legal-section[open]>summary::after{content:'−'}
-.legal-section>summary:focus-visible{outline:3px solid var(--teal);outline-offset:2px}.legal-section[open]>summary{border-bottom:1px solid var(--line);border-radius:14px 14px 0 0}
+.legal-section{margin:10px 0;border:1px solid var(--line);border-radius:15px;background:var(--foam);overflow-wrap:anywhere}
+.legal-section .legal-section{background:var(--surface)}
+.legal-section>summary,.info-link{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:48px;padding:14px 16px;cursor:pointer;font-size:14px;font-weight:600;list-style:none;border-radius:14px}.info-link{width:100%;color:var(--ink);text-decoration:none;text-align:left}#source-link::after{content:'↗';color:var(--teal-deep)}
+.legal-section>summary::-webkit-details-marker{display:none}.legal-section>summary::after{content:'';flex:0 0 9px;height:9px;border-right:2px solid var(--teal-deep);border-bottom:2px solid var(--teal-deep);transform:rotate(45deg)}.legal-section[open]>summary::after{transform:rotate(225deg)}
+.legal-section>summary:focus-visible,.info-link:focus-visible{outline:3px solid var(--teal);outline-offset:2px}.legal-section[open]>summary{border-bottom:1px solid var(--line);border-radius:14px 14px 0 0}
 .legal-document{padding:16px;font-size:13px;line-height:1.7;min-width:0}.legal-document pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;margin:0}.legal-document h2{font:600 16px/1.4 'Segoe UI',system-ui,sans-serif;letter-spacing:normal;margin:20px 0 10px}.legal-document h2:first-child{margin-top:0}.legal-document p{font-size:inherit;line-height:inherit}.legal-document a,.legal-source a{color:var(--teal-deep)}.legal-source{font-size:12px;padding:0 16px 16px;margin:0}
 .game-page{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .game-page input,.game-page textarea,.game-page select,.game-page [contenteditable],#help-dialog .dialog-body{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
@@ -171,7 +172,7 @@ body[data-reduced=true] .tour-spotlight,body[data-reduced=true] .tour-bubble{tra
 .game-page .board-shell .cell[aria-invalid=true]{background:var(--cell-error);color:var(--cell-error-text)}
 .number-pad button.is-noted{background:#ffe9ad;border-color:#efcf72;border-bottom-color:#ddb54a}body[data-theme=dark] .number-pad button.is-noted{background:#6f5d27;border-color:#a88c3f;color:#fff3cf}
 .number-pad button.is-complete{opacity:.32;filter:grayscale(1)}
-.help-tour{width:100%;margin:0 0 16px}
+.help-tour{width:100%}
 .update-badge{position:absolute;top:2px;right:2px;width:13px;height:13px;border-radius:50%;background:var(--coral);border:2px solid #fff;box-shadow:0 1px 4px #0003}
 .update-notice{margin:0 0 14px;padding:14px 16px;border-radius:16px;background:var(--foam);border:1px solid var(--line)}.update-notice p{margin:4px 0 12px}.update-notice .primary-button{width:100%}
 
@@ -186,16 +187,17 @@ body[data-reduced=true] .tour-spotlight,body[data-reduced=true] .tour-bubble{tra
 
 .app-version{font-size:12px;color:var(--muted)}.app-version code{font-variant-numeric:tabular-nums}
 
-#welcome-tutorial-hint{padding:10px 12px;border:2px solid var(--gold);border-radius:12px;font-weight:600}#welcome-dialog.first-visit #welcome-tour{border:3px solid #d18a13;background:#fff0b5;color:#153e4d;font-weight:700;animation:tutorial-invite 1.6s ease-in-out infinite}@keyframes tutorial-invite{0%,100%{background:#fff0b5;box-shadow:0 0 0 0 #f2b83b00}50%{background:#ffd16b;box-shadow:0 0 0 6px #f2b83b99}}
+#welcome-dialog.first-visit #welcome-tour{border:3px solid #d18a13;background:#fff0b5;color:#153e4d;font-weight:700;animation:tutorial-invite 1.6s ease-in-out infinite}@keyframes tutorial-invite{0%,100%{background:#fff0b5;box-shadow:0 0 0 0 #f2b83b00}50%{background:#ffd16b;box-shadow:0 0 0 6px #f2b83b99}}
+.install-steps{margin:0;padding:16px 20px 16px 36px;font-size:13px;line-height:1.7}.install-steps li+li{margin-top:10px}
 .tour-bubble{display:flex;flex-direction:column;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}#tour-copy{min-height:0;overflow-y:auto}.tour-bubble>h2,.tour-bubble>.dialog-eyebrow,.tour-bubble>.dialog-actions{flex-shrink:0}
 
-.app-version strong{font-size:18px;color:var(--ink)}.app-version time{white-space:nowrap}.release-notes{margin:14px 0 22px;padding:12px 16px;border:1px solid var(--line);border-radius:14px;background:var(--foam)}.release-notes h3{margin:0 0 8px;font-size:15px}.release-notes ul{margin:0;padding-left:18px;font-size:13px;line-height:1.6}.release-notes li+li{margin-top:6px}
+.app-version time{white-space:nowrap}.release-notes ul{margin:0;padding-left:18px;font-size:13px;line-height:1.6}.release-notes li+li{margin-top:6px}
 
 #update-dialog{max-width:420px}#update-dialog .dialog-body p{margin:0}#update-dialog #update-dialog-error{margin-top:12px;color:var(--coral)}
 
 .reef-ring-control{position:absolute;left:50%;top:50%;display:flex;align-items:center;pointer-events:auto;width:var(--ring-button);height:var(--ring-button);border:1px solid #ffffffe6;border-radius:50%;background:var(--foam);color:var(--teal-deep);box-shadow:inset 0 1px 0 #ffffffc9,0 3px 10px #063f5c40;transform:translate(-50%,-50%)}
 .reef-tool-ring .reef-ring-control>button{position:static;left:auto;top:auto;transform:none;flex-shrink:0;width:calc(var(--ring-button) - 2px);height:calc(var(--ring-button) - 2px);border:0;box-shadow:none;background:transparent}.reef-ring-control:hover{background:var(--surface)}.reef-ring-control[data-open=true]{z-index:3;width:min(260px,calc(100vw - 16px));height:calc(var(--ring-button) + 2px);padding:1px 10px 1px 1px;gap:8px;border-radius:999px;background:var(--surface);box-shadow:0 6px 24px #063f5c59}.reef-tool-ring .reef-ring-control>button[aria-expanded=true]{background:var(--teal);color:#fff}
-.reef-ring-slider{flex:1;min-width:0}.reef-ring-slider input{display:block;width:100%;min-width:0;min-height:36px;margin:0;accent-color:var(--teal);touch-action:pan-y}
+.reef-ring-slider{flex:1;min-width:0}.reef-ring-slider input{display:block;width:100%;min-width:0;min-height:36px;margin:0;accent-color:var(--teal);touch-action:pinch-zoom}
 #reef-ring-hue{appearance:none;-webkit-appearance:none;min-height:20px;height:20px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(to right,#eee 0%,#eee 2%,#f33 3%,#ff0 19%,#0f0 35%,#0ff 51%,#33f 67%,#f0f 83%,#f33 100%)}#reef-ring-hue::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:28px;height:28px;border:3px solid #fff;border-radius:50%;background:var(--ink);box-shadow:0 1px 5px #063b5880}#reef-ring-hue::-moz-range-thumb{width:22px;height:22px;border:3px solid #fff;border-radius:50%;background:var(--ink)}
 .reef-tool-ring>#reef-undo span{display:none}.reef-tool-ring>button{min-height:0}.reef-editor-bottom{margin-top:auto}
 .reef-view-status{font-size:12px;color:var(--muted);max-width:180px}.reef-view-status:empty{display:none}

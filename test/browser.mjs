@@ -5,6 +5,9 @@ import { checkTutorial } from './tutorial.mjs';
 import { RELEASE } from '../web/release.mjs';
 import { checkUpdates } from './updates.mjs';
 import { checkWaiting } from './waiting.mjs';
+import { checkInstallGuide } from './install-guide.mjs';
+import { checkInstalledApp } from './installed-app.mjs';
+import { checkMusicLifecycle } from './music-lifecycle.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
 for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].filter(([name]) => !process.env.BROWSER || process.env.BROWSER === name)) {
@@ -47,7 +50,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.locator('#loading').waitFor({ state: 'hidden' });
   await page.locator('.board-shell.ready').waitFor();
   assert.equal(await page.locator('#welcome-dialog').evaluate(el => el.open), true);
-  assert.equal(await page.locator('#welcome-tutorial-hint').isVisible(),true,'the first launch must recommend the tutorial');
+  assert.equal(await page.locator('#welcome-tutorial-hint').count(),0,'the welcome must not request the tutorial');
   assert.equal(await page.locator('#welcome-dialog').evaluate(node=>node.classList.contains('first-visit')),true);
   assert.equal(await page.locator('#reef-music').evaluate(audio => audio.paused), true, 'music must wait for the welcome dialog');
   const welcomeClock = await page.locator('#round-time').textContent();
@@ -163,13 +166,21 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   const buildVersion=await page.locator('#app-version').getAttribute('data-build');assert.match(buildVersion,new RegExp('^'+appVersion+'-[a-f0-9]{12}$'));
   assert.equal(await page.locator('#app-release-date').getAttribute('datetime'),RELEASE.date);
   assert.deepEqual(await page.locator('#release-notes li').allTextContents(),RELEASE.notes.de);
+  assert.equal(await page.locator('.release-notes').evaluate(node=>node.open),false);
+  assert.equal(await page.locator('#release-notes').isVisible(),false);
+  await page.locator('#release-notes-title').focus();await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#release-notes').isVisible(),true);
+  await page.keyboard.press('Enter');
   const versionWorker=await context.request.get(new URL('sw.js',base).href);
   assert.ok((await versionWorker.text()).includes(`const CACHE = PREFIX + '${buildVersion}';`),'the readable release and build must match the offline update cache');
+  assert.equal(await page.locator('#play-guide').evaluate(node=>node.open),false);
+  await page.locator('#play-guide summary').focus();await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#help-content').isVisible(),true);
   await page.locator('#help-content p').first().dblclick();
   assert.ok(await page.evaluate(()=>getSelection().toString().length>0),'info text must remain selectable for copying');
   assert.equal(await page.locator('#music-toggle-help, #offline-status').count(), 0);
-  assert.equal(await page.locator('#help-dialog .legal-section').count(), 7);
-  assert.equal(await page.locator('#help-dialog .legal-section[open]').count(), 0);
+  assert.equal(await page.locator('#help-dialog .legal-sections .legal-section').count(), 7);
+  assert.equal(await page.locator('#help-dialog .legal-sections .legal-section[open]').count(), 0);
   const infoURL = page.url();
   for (const id of ['code','notices','music','sounds','commons']) {
     const section=page.locator('#legal-'+id), path=await section.getAttribute('data-document');
@@ -177,6 +188,9 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
     assert.equal(original.status(),200);
     assert.equal(await section.locator('pre').textContent(),(await original.text()).replaceAll('\r\n','\n'));
   }
+  assert.equal(await page.locator('#legal-guide').evaluate(node=>node.open),false);
+  await page.locator('#legal-title').focus();await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#legal-guide').evaluate(node=>node.open),true);
   await page.locator('#legal-imprint summary').focus(); await page.keyboard.press('Enter');
   assert.equal(await page.locator('#legal-imprint').evaluate(el=>el.open),true);
   await page.locator('#legal-imprint a[href="./datenschutz.html"]').click();
@@ -202,21 +216,23 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.ok(await page.locator(`[data-index="${index}"] .cell-value`).evaluate(el => getComputedStyle(el).color !== 'rgba(0, 0, 0, 0)' && getComputedStyle(el).fontFamily === getComputedStyle(document.body).fontFamily));
   await page.waitForFunction(() => !document.getElementById('reef-music').paused);
   const backgroundMusic = await page.evaluate(() => {
+    const audio = document.getElementById('reef-music'),before={src:audio.currentSrc,time:audio.currentTime};
     Object.defineProperty(document,'hidden',{ configurable:true, value:true }); document.dispatchEvent(new Event('visibilitychange'));
-    const audio = document.getElementById('reef-music');
-    return { src:audio.currentSrc, time:audio.currentTime, paused:audio.paused };
+    return { ...before, source:audio.getAttribute('src'), paused:audio.paused };
   });
-  assert.equal(backgroundMusic.paused, true, 'backgrounding or locking the phone must pause music');
+  assert.equal(backgroundMusic.paused, true, 'backgrounding or locking the phone must stop music');
+  assert.equal(backgroundMusic.source,null,'backgrounding must release the audio source');
   const hiddenClock = await page.locator('#round-time').textContent();
   await page.waitForTimeout(1100);
   assert.equal(await page.locator('#round-time').textContent(), hiddenClock);
-  assert.equal(await page.locator('#reef-music').evaluate(audio => audio.currentTime), backgroundMusic.time, 'music must not advance in the background');
-  assert.equal((await read()).settings.musicEnabled, true, 'background pause must preserve the music preference');
+  assert.equal(await page.locator('#reef-music').evaluate(audio => audio.networkState), 0, 'the background player must be unloaded');
+  assert.equal((await read()).settings.musicEnabled, true, 'background stopping must preserve the music preference');
   assert.equal(await page.evaluate(()=>window.__wakeHeld),0);
   await page.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event('visibilitychange')); });
   assert.equal(await page.locator('#round-time').textContent(), hiddenClock, 'returning to the page must not add background time');
   await page.waitForFunction(() => !document.getElementById('reef-music').paused);
   assert.equal(await page.locator('#reef-music').evaluate(audio => audio.currentSrc), backgroundMusic.src, 'returning must resume the same track');
+  await page.waitForFunction(time=>document.getElementById('reef-music').currentTime>=time-.1,backgroundMusic.time);
   await page.waitForFunction(()=>window.__wakeHeld===1);
   await page.locator('#undo').click();
   assert.equal((await read()).game.values[index], 0);
@@ -385,7 +401,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal(await page.locator('#help-dialog').evaluate(el => el.open), false);
   assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), true, 'help must restart the tutorial');
   await page.keyboard.press('Escape'); assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), false);
-  await page.locator('#help-open').click(); await page.locator('#legal-commons summary').click();
+  await page.locator('#help-open').click(); await page.locator('#legal-title').click(); await page.locator('#legal-commons summary').click();
   assert.ok((await page.locator('#legal-commons pre').textContent()).includes('Section 8 -- Interpretation.'));
   await page.locator('#help-dialog .dialog-close').click();
   await page.locator('#settings-open').click();
@@ -422,6 +438,9 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await touch.setViewportSize({width:375,height:559});
   assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'2','rotating must preserve the game');
   await touchContext.close();
+  await checkInstallGuide(browser,name,base);
+  await checkInstalledApp(browser,name,base);
+  await checkMusicLifecycle(browser,name,base);
   await checkUpdates(browser,name);
   await checkWaiting(browser,name,base);
   console.log(`${name}: guarded browser actions, native touch input and active-play screen-lock lifecycle passed.`);

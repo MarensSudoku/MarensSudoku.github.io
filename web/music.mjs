@@ -26,7 +26,7 @@ export function setupMusic(settings, t, persist) {
   const select = document.getElementById('music-track');
   const volume = document.getElementById('music-volume');
   const button = document.getElementById('music-toggle');
-  let revision = 0, failed = false, awaitingGesture = false, tracks = [];
+  let revision = 0, failed = false, awaitingGesture = false, tracks = [], resumePosition = null;
   audio.volume = settings.musicVolume;
 
   function render() {
@@ -43,6 +43,11 @@ export function setupMusic(settings, t, persist) {
     document.getElementById('music-status').textContent = failed ? t('musicError') : awaitingGesture ? t('musicAwaiting') : !audio.paused ? `${t('musicPlaying')}: ${tracks.find(track => track.file === settings.musicTrack)?.[settings.language] || ''}` : t('musicHelp');
   }
   function pause() { revision++; audio.pause(); render(); }
+  function stop() {
+    if(audio.hasAttribute('src'))resumePosition={src:audio.src,time:audio.currentTime};
+    pause();audio.removeAttribute('src');audio.load();
+    if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null;}
+  }
   function nextTrack() {
     pause(); settings.musicTrack = pickMusicTrack(tracks, settings.musicTrack); persist();
     if (settings.musicEnabled) play(); else render();
@@ -76,6 +81,10 @@ export function setupMusic(settings, t, persist) {
     settings.musicVolume = Number(volume.value) / 100;
     audio.volume = settings.musicVolume; persist(); render();
   });
+  audio.addEventListener('loadedmetadata',()=>{
+    if(resumePosition?.src===audio.src)audio.currentTime=resumePosition.time;
+    resumePosition=null;
+  });
   audio.addEventListener('playing', () => { awaitingGesture = false; failed = false; render(); });
   audio.addEventListener('pause', render);
   audio.addEventListener('ended', () => { if (settings.musicEnabled) nextTrack(); });
@@ -87,10 +96,11 @@ export function setupMusic(settings, t, persist) {
   document.addEventListener('click', userGesture, true);
   document.addEventListener('keydown', userGesture, true);
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) pause();
+    if (document.hidden) stop();
     else if (settings.musicEnabled && !failed) play();
   });
-  window.addEventListener('pagehide', pause);
+  window.addEventListener('pagehide', stop);
+  window.addEventListener('pageshow',()=>{if(settings.musicEnabled&&!failed)play();});
   fetch(new URL('./assets/music/tracks.json', import.meta.url)).then(async response => {
     if (!response.ok) throw new Error('Music catalogue unavailable');
     const files = await response.json();
