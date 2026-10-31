@@ -14,6 +14,8 @@ export async function checkMusicLifecycle(browser,name,base) {
       Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));
       dispatchEvent(new Event('pagehide'));
     });
+    // Without a source the media element reaches NETWORK_EMPTY one task after load(); WebKit may still report NO_SOURCE before that.
+    await page.waitForFunction(()=>document.getElementById('reef-music').networkState===0,null,{timeout:2000}).catch(()=>{});
     const stopped=await page.locator('#reef-music').evaluate(audio=>({paused:audio.paused,src:audio.getAttribute('src'),networkState:audio.networkState,readyState:audio.readyState}));
     assert.deepEqual(stopped,{paused:true,src:null,networkState:0,readyState:0},'backgrounding must unload the player completely');
     assert.equal(await page.evaluate(()=>navigator.mediaSession?.playbackState??'none'),'none');

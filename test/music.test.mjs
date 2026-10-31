@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, stat } from 'node:fs/promises';
-import { makeMusicTracks, pickMusicTrack, DEFAULT_MUSIC_TRACK } from '../web/music.mjs';
+import { makeMusicTracks, pickMusicTrack, trackName, DEFAULT_MUSIC_TRACK } from '../web/music.mjs';
+import de from '../web/i18n/de.mjs';
+const name = track => trackName(track, key => de[key] ?? key);
 import { generate } from '../web/sudoku/engine.mjs';
 import { createGame, emptyProgress } from '../web/sudoku/model.mjs';
 import { defaults, load, save, STORAGE_KEY } from '../web/storage.mjs';
@@ -14,15 +16,15 @@ test('dropped music files and numbered variants have distinct translated names',
   assert.equal(tracks[0].file, DEFAULT_MUSIC_TRACK);
   assert.equal(new Set(tracks.map(track => track.file)).size, tracks.length);
   for (const track of tracks) {
-    assert.ok(track.de && track.en);
+    assert.ok(de[track.key], track.key);
     assert.ok((await stat(new URL('../web/assets/music/' + track.file, import.meta.url))).size > 0);
   }
   const variants = makeMusicTracks(['01-sonnenlicht-ueber-dem-riff_1.mp3','01-sonnenlicht-ueber-dem-riff_2.mp3','README.md','../private.mp3']);
-  assert.equal(variants.length, 2); assert.notEqual(variants[0].de, variants[1].de);
-  assert.ok(variants[0].de.includes('Variante 1'));
+  assert.equal(variants.length, 2); assert.notEqual(name(variants[0]), name(variants[1]));
+  assert.ok(name(variants[0]).includes('Variante 1'));
   const nested = makeMusicTracks(['04-kristallklares-wasser_1.mp3','04-kristallklares-wasser_1_2.mp3']);
-  assert.equal(nested.find(track => track.file === '04-kristallklares-wasser_1.mp3').de, 'Kristallklares Wasser · Variante 1');
-  assert.equal(nested.find(track => track.file === '04-kristallklares-wasser_1_2.mp3').de, 'Kristallklares Wasser · Variante 2');
+  assert.equal(name(nested.find(track => track.file === '04-kristallklares-wasser_1.mp3')), 'Kristallklares Wasser · Variante 1');
+  assert.equal(name(nested.find(track => track.file === '04-kristallklares-wasser_1_2.mp3')), 'Kristallklares Wasser · Variante 2');
 });
 test('random music stays in the catalogue and never repeats the previous track when alternatives exist', () => {
   const tracks = makeMusicTracks(['a.mp3','b.mp3','c.mp3']);

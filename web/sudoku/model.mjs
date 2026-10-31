@@ -38,19 +38,19 @@ export function undo(game) {
 }
 export const fullUnits = game => UNITS.map((unit, n) => unit.every(i => game.values[i]) && new Set(unit.map(i => game.values[i])).size === 9 ? n : -1).filter(n => n >= 0);
 export const ACHIEVEMENTS = [
-  { id: 'first', name: 'Seepferdchen entdeckt', en: 'Seahorse discovery', target: 1, kind: 'total', icon: 'fish' },
-  { id: 'flow', name: 'Mit dem Manta gleiten', en: 'Gliding with the manta', target: 10, kind: 'total', icon: 'fish' },
-  { id: 'magic', name: 'Wracktaucherin', en: 'Wreck diver', target: 50, kind: 'total', icon: 'coral' },
-  { id: 'stars', name: 'Schatzjägerin', en: 'Treasure hunter', target: 100, kind: 'total', icon: 'pearl' },
-  { id: 'variety', name: 'Farben der Nacktschnecke', en: 'Nudibranch colours', target: 3, kind: 'variety', icon: 'fish' },
-  { id: 'crown', name: 'Freundin der Schildkröten', en: 'Turtle friend', target: 5, kind: 'hard', icon: 'crown' },
-  { id: 'direct', name: 'Acht Arme, klarer Kopf', en: 'Eight arms, clear mind', target: 1, kind: 'direct', icon: 'star' },
-  { id: 'starfinder', name: 'Sternstunde', en: 'Star moment', target: 5, kind: 'total', icon: 'star' },
-  { id: 'reefkeeper', name: 'Riffpflegerin', en: 'Reef keeper', target: 3, kind: 'easy', icon: 'fish' },
-  { id: 'patience', name: 'Geduld wie eine Schnecke', en: 'Snail-paced patience', target: 10, kind: 'easy', icon: 'shell' },
-  { id: 'snap', name: 'Ein Knall im Riff', en: 'A snap in the reef', target: 3, kind: 'direct', icon: 'star' },
-  { id: 'trails', name: 'Auf den Spuren der Languste', en: 'Following the spiny lobster', target: 5, kind: 'medium', icon: 'coral' },
-  { id: 'drift', name: 'Tanz der Quallen', en: 'Dance of the jellyfish', target: 15, kind: 'total', icon: 'pearl' },
+  { id: 'first', target: 1, kind: 'total', icon: 'fish' },
+  { id: 'flow', target: 10, kind: 'total', icon: 'fish' },
+  { id: 'magic', target: 50, kind: 'total', icon: 'coral' },
+  { id: 'stars', target: 100, kind: 'total', icon: 'pearl' },
+  { id: 'variety', target: 3, kind: 'variety', icon: 'fish' },
+  { id: 'crown', target: 5, kind: 'hard', icon: 'crown' },
+  { id: 'direct', target: 1, kind: 'direct', icon: 'star' },
+  { id: 'starfinder', target: 5, kind: 'total', icon: 'star' },
+  { id: 'reefkeeper', target: 3, kind: 'easy', icon: 'fish' },
+  { id: 'patience', target: 10, kind: 'easy', icon: 'shell' },
+  { id: 'snap', target: 3, kind: 'direct', icon: 'star' },
+  { id: 'trails', target: 5, kind: 'medium', icon: 'coral' },
+  { id: 'drift', target: 15, kind: 'total', icon: 'pearl' },
 ];
 export const emptyProgress = () => ({ total: 0, easy: 0, medium: 0, hard: 0, direct: 0, unlocked: [] });
 export const emptyScores = () => ({ points:0, best:0, solved:0 });

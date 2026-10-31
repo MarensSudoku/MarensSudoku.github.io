@@ -1,18 +1,12 @@
 import { FISH_TYPES, WALKING_TYPES, REEF_TYPES, saveReefLayout } from './reef-layout.mjs';
 import {REEF_ADDITIONS,canAddReefType} from './reef-additions.mjs';
 
-const names={
-  clownfish:['Anemonenfisch','Clownfish'],'blue-tang':['Blauer Doktorfisch','Blue tang'],butterflyfish:['Falterfisch','Butterflyfish'],wrasse:['Lippfisch','Wrasse'],anthias:['Fahnenbarsch','Anthias'],chromis:['Grüner Riffbarsch','Green chromis'],
-  reef:['Bunter Korallengarten','Mixed coral garden'],'reef-ledge':['Riffgestein','Reef rock'],'ribbon-grass':['Grüne Wasserpflanze','Ribbon grass'],'sea-fern':['Meeresfarn','Sea fern'],anemone:['Lila Anemone','Purple anemone'],'reef-crab':['Riffkrebs','Reef crab'],
-  'coral-fan':['Fächerkoralle','Sea fan'],'coral-staghorn':['Geweihkoralle','Staghorn coral'],'coral-plates':['Tellerkoralle','Plate coral'],'coral-brain':['Hirnkoralle','Brain coral'],'coral-tubes':['Röhrenkoralle','Tube coral'],
-};
-Object.assign(names,Object.fromEntries(REEF_ADDITIONS.map(item=>[item.id,item.name])));
-export function setupReefEditor(aquarium,{t,language,onModeChange,confirmReset,readOnly,unlocked=()=>[],prepareObject=type=>aquarium.prepareObject(type)}) {
+export function setupReefEditor(aquarium,{t,onModeChange,confirmReset,readOnly,unlocked=()=>[],prepareObject=type=>aquarium.prepareObject(type)}) {
   const $=id=>document.getElementById(id), root=$('reef-editor');
   let selected=null, original=null, addType=REEF_TYPES[0],mode='move',hintsHidden=false,sliderField=null;
   const history=[];
   let restoring=false,pointerAction=null,pointerSaved=false;
-  const label=type=>names[type][language()==='de'?0:1], tools=$('reef-object-tools'), picker=$('reef-picker-dialog'),hintPanel=$('reef-hint'),top=document.querySelector('.reef-editor-top'),ring=tools.querySelector('.reef-tool-ring'),actions=document.querySelector('.reef-editor-actions');
+  const label=type=>t('obj.'+type), tools=$('reef-object-tools'), picker=$('reef-picker-dialog'),hintPanel=$('reef-hint'),top=document.querySelector('.reef-editor-top'),ring=tools.querySelector('.reef-tool-ring'),actions=document.querySelector('.reef-editor-actions');
   const preview=type=>`./assets/models/previews/${type}.png`;
   const hints={move:'reefMoveHint',height:'reefHeightHint',rotate:'reefRotateHint','rotate-x':'reefRotateXHint','rotate-z':'reefRotateZHint',scale:'reefScaleHint'};
   function message(key,warning=false) {

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40">
+  <defs>
+    <g id="sphere" fill="none">
+      <circle cx="24" cy="20" r="10"/>
+      <ellipse cx="24" cy="20" rx="3.3" ry="10"/>
+      <ellipse cx="24" cy="20" rx="10" ry="3.3"/>
+      <ellipse cx="24" cy="20" rx="10" ry="2.5" transform="rotate(-30 24 20)"/>
+      <path d="M15.65 14.5Q24 17.3 32.35 14.5M15.65 25.5Q24 22.7 32.35 25.5"/>
+    </g>
+    <g id="castle">
+      <path fill="#e8a34b" stroke="#20221e" stroke-width=".12" d="M-.85.8V-.35h.2v-.5h.35v.5h.15v-.7h.3v.7H.3v-.5h.35v.5h.2V.8z"/>
+      <path fill="#b9503f" d="M-.18.8V.35a.18.18 0 0 1 .36 0V.8z"/>
+    </g>
+    <g id="quina">
+      <path fill="#2e3b5e" d="M-.75-1.05h1.5v1.3a.75.75 0 0 1-1.5 0z"/>
+      <g fill="#f8f2e5">
+        <circle cx="-.32" cy="-.5" r=".12"/><circle cx=".32" cy="-.5" r=".12"/>
+        <circle r=".12"/>
+        <circle cx="-.32" cy=".5" r=".12"/><circle cx=".32" cy=".5" r=".12"/>
+      </g>
+    </g>
+  </defs>
+  <path fill="#b9503f" d="M0 0h60v40H0z"/>
+  <path fill="#4b795d" d="M0 0h24v40H0z"/>
+  <use href="#sphere" stroke="#20221e" stroke-width="1.5"/>
+  <use href="#sphere" stroke="#e8a34b" stroke-width="1"/>
+  <path fill="#b9503f" stroke="#f8f2e5" stroke-width=".55" d="M18 13h12v8a6 6 0 0 1-12 0z"/>
+  <path fill="#f8f2e5" d="M20.2 15.5h7.6V21a3.8 3.8 0 0 1-7.6 0z"/>
+  <use href="#castle" transform="translate(19.3 14.6)"/>
+  <use href="#castle" transform="translate(24 14.6)"/>
+  <use href="#castle" transform="translate(28.7 14.6)"/>
+  <use href="#castle" transform="translate(19.2 20.2)"/>
+  <use href="#castle" transform="translate(28.8 20.2)"/>
+  <use href="#castle" transform="translate(21.3 24.6) rotate(45)"/>
+  <use href="#castle" transform="translate(26.7 24.6) rotate(-45)"/>
+  <use href="#quina" transform="translate(24 17.1)"/>
+  <use href="#quina" transform="translate(22 19.8)"/>
+  <use href="#quina" transform="translate(24 19.8)"/>
+  <use href="#quina" transform="translate(26 19.8)"/>
+  <use href="#quina" transform="translate(24 22.5)"/>
+</svg>

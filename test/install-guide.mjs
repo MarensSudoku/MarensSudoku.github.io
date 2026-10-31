@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {RELEASE} from '../web/release.mjs';
+import {chooseLanguage} from './language.mjs';
 
 export async function checkInstallGuide(browser,name,base) {
   const context=await browser.newContext({viewport:{width:1280,height:900},locale:'de-DE',serviceWorkers:'block',reducedMotion:'no-preference'});
@@ -51,7 +52,7 @@ export async function checkInstallGuide(browser,name,base) {
     assert.equal(await page.locator('#help-dialog .dialog-body > .app-version').count(),0);
     await page.screenshot({path:`output/${name}-info-overview-v5.png`});
     await page.locator('#help-dialog .dialog-close').click();
-    await page.locator('#settings-open').click();await page.locator('#language').selectOption('en');
+    await chooseLanguage(page,'en');
     await page.locator('#settings-dialog .dialog-close').click();await page.locator('#help-open').click();
     assert.equal(await page.locator('#install-title').textContent(),'Install MarensSudoku as an app');
     assert.equal(await page.locator('#release-notes-title').innerText(),`Version ${RELEASE.version} · What’s new`);

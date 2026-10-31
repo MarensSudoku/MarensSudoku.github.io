@@ -1,20 +1,16 @@
-const TITLES = {
-  '01-sonnenlicht-ueber-dem-riff': ['Sonnenlicht über dem Riff', 'Sunlight over the reef'],
-  '02-zwischen-bunten-korallen': ['Zwischen bunten Korallen', 'Among colourful corals'],
-  '03-schwebende-perlen': ['Schwebende Perlen', 'Floating pearls'],
-  '04-kristallklares-wasser': ['Kristallklares Wasser', 'Crystal-clear water'],
-  '05-abend-im-riff': ['Abend im Riff', 'Evening at the reef'],
-  '06-stille-lagune': ['Stille Lagune', 'Quiet lagoon'],
-};
 export const DEFAULT_MUSIC_TRACK = '02-zwischen-bunten-korallen_1.mp3';
 export function makeMusicTracks(files) {
   return files.filter(file => typeof file === 'string' && !/[\\/]/.test(file) && /\.(mp3|ogg|wav|m4a)$/i.test(file)).sort((a, b) => a === b ? 0 : a === DEFAULT_MUSIC_TRACK ? -1 : b === DEFAULT_MUSIC_TRACK ? 1 : a.localeCompare(b)).map(file => {
     const stem = file.replace(/\.[^.]+$/, ''), suffix = /(?:_\d+)+$/.exec(stem);
     const variant = suffix ? suffix[0].split('_').at(-1) : '';
     const base = stem.replace(/(?:_\d+)+$/, ''), fallback = base.replace(/^\d+[-_ ]*/, '').replaceAll('-', ' ').replaceAll('_', ' ');
-    const names = TITLES[base] || [fallback, fallback];
-    return { file, de: names[0] + (variant ? ` · Variante ${variant}` : ''), en: names[1] + (variant ? ` · Version ${variant}` : '') };
+    return { file, key: 'track.' + base, fallback, variant };
   });
+}
+// Titles come from the language files; unknown dropped-in files keep a readable file name.
+export function trackName(track, t) {
+  const name = t(track.key) === track.key ? track.fallback : t(track.key);
+  return track.variant ? `${name} · ${t('musicVariant').replace('{n}', track.variant)}` : name;
 }
 export function pickMusicTrack(tracks, current, order = 'shuffle') {
   if (order === 'sequential') return tracks[(tracks.findIndex(track => track.file === current) + 1) % tracks.length]?.file || '';
@@ -47,7 +43,7 @@ export function setupMusic(settings, t, persist) {
   }
   function render() {
     select.replaceChildren(...tracks.map(track => {
-      const option = document.createElement('option'); option.value = track.file; option.textContent = track[settings.language]; return option;
+      const option = document.createElement('option'); option.value = track.file; option.textContent = trackName(track, t); return option;
     }));
     select.value = settings.musicTrack;
     volume.value = Math.round(settings.musicVolume * 100); volume.style.setProperty('--p', `${volume.value}%`);

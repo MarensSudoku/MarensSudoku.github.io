@@ -1,7 +1,8 @@
 import { emptyProgress, emptyScores, validGame, ACHIEVEMENTS } from './sudoku/model.mjs';
 import { DEFAULT_MUSIC_TRACK } from './music.mjs';
+import { LOCALES, resolveLanguage } from './locales.mjs';
 export const STORAGE_KEY = 'marenssudoku:state:v1';
-export const defaults = () => ({ language: navigator.language.startsWith('de') ? 'de' : 'en', theme: 'light', reducedMotion: false, showConflicts: true, tracking: true, musicVolume: 0.25, musicTrack: DEFAULT_MUSIC_TRACK, musicOrder:'shuffle', musicEnabled: true, sfxEnabled: true, sfxVolume: 0.3 });
+export const defaults = () => ({ language: resolveLanguage(navigator.languages || [navigator.language]), theme: 'light', reducedMotion: false, showConflicts: true, tracking: true, musicVolume: 0.25, musicTrack: DEFAULT_MUSIC_TRACK, musicOrder:'shuffle', musicEnabled: true, sfxEnabled: true, sfxVolume: 0.3 });
 function validProgress(p) {
   return p && ['total','easy','medium','hard','direct'].every(k => Number.isSafeInteger(p[k]) && p[k] >= 0) &&
     p.total === p.easy + p.medium + p.hard && p.direct <= p.total && Array.isArray(p.unlocked) &&
@@ -15,7 +16,7 @@ export function load() {
     const text = localStorage.getItem(STORAGE_KEY);
     if (!text) return fallback;
     const data = JSON.parse(text), settings = data.settings;
-    if (data.schema !== 1 || !settings || !['de','en'].includes(settings.language) || !['light','dark'].includes(settings.theme) ||
+    if (data.schema !== 1 || !settings || !Object.hasOwn(LOCALES, settings.language) || !['light','dark'].includes(settings.theme) ||
       !['reducedMotion','showConflicts','tracking'].every(k => typeof settings[k] === 'boolean') ||
       (data.game !== null && !validGame(data.game)) || (settings.tracking && !validProgress(data.progress)) ||
       (data.scores !== undefined && !validScores(data.scores))) {

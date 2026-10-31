@@ -8,6 +8,7 @@ import { checkWaiting } from './waiting.mjs';
 import { checkInstallGuide } from './install-guide.mjs';
 import { checkInstalledApp } from './installed-app.mjs';
 import { checkMusicLifecycle } from './music-lifecycle.mjs';
+import { checkLanguages, chooseLanguage } from './language.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
 for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].filter(([name]) => !process.env.BROWSER || process.env.BROWSER === name)) {
@@ -353,7 +354,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal(await page.locator('#settings-dialog').isVisible(), false);
   await page.locator('#settings-open').click();
   await page.locator('#reduced-motion').check();
-  await page.locator('#language').selectOption('en');
+  await chooseLanguage(page, 'en');
   assert.deepEqual(await page.locator('#release-notes li').allTextContents(),RELEASE.notes.en);
   assert.equal(await page.locator('html').getAttribute('lang'), 'en');
   assert.equal(await page.locator('#notes span').textContent(), 'Notes');
@@ -362,7 +363,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.locator('#settings-dialog .dialog-close').click();
   await page.screenshot({ path: `output/${name}-dark.png`, fullPage: true });
   await page.locator('#settings-open').click();
-  await page.locator('#dark-theme').uncheck(); await page.locator('#language').selectOption('de');
+  await page.locator('#dark-theme').uncheck(); await chooseLanguage(page, 'de');
   await page.locator('#settings-dialog .dialog-close').click();
   for (const [width, height] of [[240,320],[320,240],[320,480],[320,568],[375,559],[390,664],[768,1024],[800,800],[1024,600],[1024,768],[1280,500],[1366,768],[1440,900],[1920,1080],[1600,300],[2560,1440],[3840,2160],[568,320],[667,375],[844,390]]) {
     console.log(`${name}: checking viewport ${width}x${height}.`);
@@ -451,6 +452,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await touch.setViewportSize({width:375,height:559});
   assert.equal(await touch.locator(`[data-index="${blank}"] .cell-value`).textContent(),'2','rotating must preserve the game');
   await touchContext.close();
+  await checkLanguages(browser,name,base);
   await checkInstallGuide(browser,name,base);
   await checkInstalledApp(browser,name,base);
   await checkMusicLifecycle(browser,name,base);
