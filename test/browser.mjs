@@ -121,6 +121,19 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.ok(Math.abs(await page.locator('#reef-music').evaluate(audio => audio.volume) - 0.37) < 1e-6);
   assert.equal((await read()).settings.musicVolume, 0.37);
   assert.equal(await page.locator('#reef-music').evaluate(audio => audio.loop), false);
+  const playingTrack = await page.locator('#music-track').inputValue();
+  await page.locator('#music-shuffle').click();
+  assert.equal((await read()).settings.musicOrder, 'sequential');
+  await page.locator('#music-next').click();
+  assert.equal(await page.locator('#music-track').inputValue(), tracks[(tracks.findIndex(track => track.value === playingTrack) + 1) % tracks.length].value, 'next must follow the list order');
+  await page.locator('#music-previous').click();
+  assert.equal(await page.locator('#music-track').inputValue(), playingTrack, 'previous must return to the last track');
+  await page.waitForFunction(() => !document.getElementById('music-seek').disabled && !document.getElementById('reef-music').paused);
+  await page.locator('#music-seek').evaluate(input => { input.value = '20'; input.dispatchEvent(new Event('input', { bubbles:true })); });
+  await page.waitForFunction(() => document.getElementById('reef-music').currentTime >= 20 && document.getElementById('music-elapsed').textContent.startsWith('0:2'));
+  await page.waitForFunction(() => document.getElementById('music-player').classList.contains('is-playing') === !document.getElementById('reef-music').paused, null, { timeout:2000 });
+  await page.locator('#music-shuffle').click();
+  assert.equal((await read()).settings.musicOrder, 'shuffle');
   const endingTrack = await page.locator('#music-track').inputValue();
   await page.locator('#reef-music').evaluate(audio => { audio.currentTime = audio.duration - 0.15; });
   await page.waitForFunction(file => {

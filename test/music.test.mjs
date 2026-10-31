@@ -36,6 +36,14 @@ test('random music stays in the catalogue and never repeats the previous track w
   }
 });
 
+test('ordered music follows the catalogue and wraps around', () => {
+  const tracks = makeMusicTracks(['a.mp3','b.mp3','c.mp3']);
+  assert.equal(pickMusicTrack(tracks, 'a.mp3', 'sequential'), 'b.mp3');
+  assert.equal(pickMusicTrack(tracks, 'c.mp3', 'sequential'), 'a.mp3');
+  assert.equal(pickMusicTrack(tracks, 'missing.mp3', 'sequential'), 'a.mp3');
+  assert.equal(pickMusicTrack([], '', 'sequential'), '');
+});
+
 test('older game saves acquire music defaults without losing game or progress', () => {
   let stored;
   globalThis.localStorage = { getItem: key => key === STORAGE_KEY ? stored : null, setItem: (key, value) => { stored = value; } };

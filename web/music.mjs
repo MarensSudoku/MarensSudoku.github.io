@@ -16,7 +16,8 @@ export function makeMusicTracks(files) {
     return { file, de: names[0] + (variant ? ` · Variante ${variant}` : ''), en: names[1] + (variant ? ` · Version ${variant}` : '') };
   });
 }
-export function pickMusicTrack(tracks, current) {
+export function pickMusicTrack(tracks, current, order = 'shuffle') {
+  if (order === 'sequential') return tracks[(tracks.findIndex(track => track.file === current) + 1) % tracks.length]?.file || '';
   const choices = tracks.length > 1 ? tracks.filter(track => track.file !== current) : tracks;
   return choices[Math.floor(Math.random() * choices.length)]?.file || '';
 }
@@ -26,21 +27,45 @@ export function setupMusic(settings, t, persist) {
   const select = document.getElementById('music-track');
   const volume = document.getElementById('music-volume');
   const button = document.getElementById('music-toggle');
+  const seek = document.getElementById('music-seek');
+  const previous = document.getElementById('music-previous');
+  const next = document.getElementById('music-next');
+  const shuffle = document.getElementById('music-shuffle');
+  const mute = document.getElementById('music-mute');
   let revision = 0, failed = false, awaitingGesture = false, tracks = [], resumePosition = null;
+  const history = [];
   audio.volume = settings.musicVolume;
 
+  const clock = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+  function renderTime() {
+    const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+    seek.max = duration; seek.value = audio.currentTime; seek.disabled = !duration;
+    seek.style.setProperty('--p', `${duration ? audio.currentTime / duration * 100 : 0}%`);
+    document.getElementById('music-elapsed').textContent = clock(audio.currentTime);
+    document.getElementById('music-duration').textContent = clock(duration);
+    seek.setAttribute('aria-valuetext', `${clock(audio.currentTime)} / ${clock(duration)}`);
+  }
   function render() {
     select.replaceChildren(...tracks.map(track => {
       const option = document.createElement('option'); option.value = track.file; option.textContent = track[settings.language]; return option;
     }));
     select.value = settings.musicTrack;
-    volume.value = Math.round(settings.musicVolume * 100);
+    volume.value = Math.round(settings.musicVolume * 100); volume.style.setProperty('--p', `${volume.value}%`);
     document.getElementById('music-volume-value').textContent = `${volume.value} %`;
-    button.disabled = !tracks.length;
-    button.textContent = t(audio.paused ? 'musicStart' : 'musicPause');
-    button.setAttribute('aria-pressed', String(!audio.paused));
-    select.disabled = !tracks.length; volume.disabled = !tracks.length;
-    document.getElementById('music-status').textContent = failed ? t('musicError') : awaitingGesture ? t('musicAwaiting') : !audio.paused ? `${t('musicPlaying')}: ${tracks.find(track => track.file === settings.musicTrack)?.[settings.language] || ''}` : t('musicHelp');
+    const playing = !audio.paused;
+    document.getElementById('music-player').classList.toggle('is-playing', playing);
+    document.getElementById('music-toggle-icon').setAttribute('href', playing ? '#i-pause' : '#i-play');
+    button.title = t(playing ? 'musicPause' : 'musicStart'); previous.title = t('musicPrevious'); next.title = t('musicNext');
+    shuffle.title = t('musicShuffle'); mute.title = t('musicMute');
+    for (const node of [button, previous, next, shuffle, mute]) node.setAttribute('aria-label', node.title);
+    seek.setAttribute('aria-label', t('musicSeek'));
+    shuffle.setAttribute('aria-pressed', String(settings.musicOrder === 'shuffle'));
+    mute.setAttribute('aria-pressed', String(audio.muted));
+    document.getElementById('music-mute-icon').setAttribute('href', audio.muted ? '#i-mute' : '#i-volume');
+    for (const node of [button, previous, next, shuffle, mute, select, volume]) node.disabled = !tracks.length;
+    document.getElementById('music-state').textContent = t(playing ? 'musicPlaying' : 'musicPaused');
+    document.getElementById('music-status').textContent = failed ? t('musicError') : awaitingGesture ? t('musicAwaiting') : '';
+    renderTime();
   }
   function pause() { revision++; audio.pause(); render(); }
   function stop() {
@@ -48,9 +73,17 @@ export function setupMusic(settings, t, persist) {
     pause();audio.removeAttribute('src');audio.load();
     if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null;}
   }
-  function nextTrack() {
-    pause(); settings.musicTrack = pickMusicTrack(tracks, settings.musicTrack); persist();
-    if (settings.musicEnabled) play(); else render();
+  function changeTrack(file, remember = true) {
+    if (remember) history.push(settings.musicTrack);
+    pause(); settings.musicTrack = file; failed = false; persist(); render();
+    if (settings.musicEnabled) play();
+  }
+  function nextTrack() { changeTrack(pickMusicTrack(tracks, settings.musicTrack, settings.musicOrder)); }
+  function previousTrack() {
+    // Like common players: after a few seconds, "previous" restarts the current track first.
+    if (audio.currentTime > 3 || (!history.length && settings.musicOrder === 'shuffle')) { audio.currentTime = 0; renderTime(); return; }
+    const index = tracks.findIndex(track => track.file === settings.musicTrack);
+    changeTrack(history.pop() ?? tracks.at(index - 1).file, false);
   }
   async function play() {
     if (document.hidden || !settings.musicEnabled) return;
@@ -72,11 +105,14 @@ export function setupMusic(settings, t, persist) {
     awaitingGesture = false; persist();
     if (settings.musicEnabled) play(); else pause();
   });
-  select.addEventListener('change', () => {
-    const resume = settings.musicEnabled, selected = select.value;
-    pause(); settings.musicTrack = selected; failed = false; persist(); render();
-    if (resume) play();
-  });
+  select.addEventListener('change', () => changeTrack(select.value));
+  next.addEventListener('click', nextTrack);
+  previous.addEventListener('click', previousTrack);
+  shuffle.addEventListener('click', () => { settings.musicOrder = settings.musicOrder === 'shuffle' ? 'sequential' : 'shuffle'; persist(); render(); });
+  // ponytail: mute lasts for this visit only; the saved volume stays the lasting setting.
+  mute.addEventListener('click', () => { audio.muted = !audio.muted; render(); });
+  seek.addEventListener('input', () => { audio.currentTime = Number(seek.value); renderTime(); });
+  for (const type of ['timeupdate', 'durationchange', 'emptied']) audio.addEventListener(type, renderTime);
   volume.addEventListener('input', () => {
     settings.musicVolume = Number(volume.value) / 100;
     audio.volume = settings.musicVolume; persist(); render();

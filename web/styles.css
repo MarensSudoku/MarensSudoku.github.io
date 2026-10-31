@@ -7,7 +7,7 @@ body{isolation:isolate}#reef-aquarium{position:fixed;inset:0;width:100%;height:1
 .game-page{position:fixed;inset:0;width:100%;height:100vh;height:100dvh;min-height:0;overflow:hidden;overscroll-behavior:none;display:grid;grid-template-rows:auto minmax(0,1fr);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);--control-size:clamp(26px,7dvh,44px);--header-control:clamp(32px,8dvh,50px)}
 .game-page .site-header{width:100%;margin:0 auto;padding:clamp(4px,1.5dvh,14px) 24px;gap:8px}
 .game-page nav{gap:6px}.game-page nav .nav-icon{width:var(--header-control);min-width:var(--header-control);height:var(--header-control);min-height:var(--header-control);padding:1px}.game-page .nav-icon img{width:100%;height:100%}
-.game-page .reef-layout{display:grid;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);width:100%;height:100%;max-width:1150px;max-height:900px;min-height:0;padding:8px 24px 16px;margin:0 auto;gap:clamp(16px,4vw,60px);align-items:center;align-self:center}
+.game-page .reef-layout{display:grid;grid-template-columns:minmax(0,600px);justify-content:center;width:100%;height:100%;max-width:1150px;max-height:900px;min-height:0;padding:8px 24px 16px;margin:0 auto;gap:clamp(16px,4vw,60px);align-items:center;align-self:center}
 .game-page .intro{padding:0;max-height:100%;overflow:hidden}
 .game-page .game-card{display:flex;flex-direction:column;gap:clamp(3px,1dvh,8px);width:100%;height:auto;max-height:100%;min-height:0;padding:18px;border-radius:23px}
 .game-page .game-card>div{flex-shrink:0}
@@ -205,3 +205,26 @@ body[data-reduced=true] .tour-spotlight,body[data-reduced=true] .tour-bubble{tra
 
 .reef-ring-slider select{width:100%;min-width:0;min-height:calc(var(--ring-button) - 2px);padding:3px 24px 3px 6px;border:0;background:transparent;font-size:12px}.reef-ring-slider select:focus-visible{outline-offset:-2px;border-radius:999px}
 .reef-picker .reef-reward{order:1;font-size:10px;line-height:1.45;color:var(--muted)}.reef-picker button:disabled{opacity:.65;cursor:default}.achievement .achievement-rewards{font-size:11px;color:var(--teal);line-height:1.6}
+.music-player{margin-top:14px;padding:14px 16px 12px;border-radius:16px;background:linear-gradient(160deg,var(--surface),var(--foam));border:1px solid var(--line);box-shadow:0 8px 24px #0e667d14}
+.music-now{display:flex;align-items:center;gap:12px}.music-art{width:42px;height:42px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;color:#fff;background:linear-gradient(140deg,var(--coral),#f2b36b 45%,var(--teal))}.music-art svg{width:22px;height:22px;stroke-width:2}
+.music-track-info{flex:1;min-width:0;display:grid}.music-state{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal)}
+.music-bars{display:none;align-items:flex-end;gap:2px;height:9px}.music-player.is-playing .music-bars{display:inline-flex}.music-bars i{width:3px;height:100%;border-radius:2px;background:var(--coral);transform-origin:bottom;animation:music-bar .9s ease-in-out infinite alternate}.music-bars i:nth-child(2){animation-delay:-.3s}.music-bars i:nth-child(3){animation-delay:-.6s}[data-reduced=true] .music-bars i{animation:none;transform:scaleY(.7)}
+@keyframes music-bar{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
+.settings-list .music-player select{width:100%;max-width:100%;min-height:30px;padding-left:0;border-color:transparent;background:transparent;color:var(--ink);font-size:14px;font-weight:700}
+.music-timeline{margin-top:12px}.settings-list .music-player input[type=range]{--p:0%;width:100%;max-width:none;height:16px;min-height:16px;margin:0;background:none;-webkit-appearance:none;appearance:none;cursor:pointer}
+.music-player input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:3px;background:linear-gradient(90deg,var(--teal) var(--p),var(--line) var(--p))}.music-player input[type=range]::-moz-range-track{height:3px;border-radius:3px;background:linear-gradient(90deg,var(--teal) var(--p),var(--line) var(--p))}
+.music-player input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;margin-top:-4.5px;border:0;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px #117f8b2e}.music-player input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px #117f8b2e}
+.music-player input[type=range]:disabled{cursor:default;opacity:.5}.music-player input[type=range]:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:4px}
+.music-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.music-transport{display:flex;justify-content:space-between;align-items:center;margin-top:4px}.music-transport .icon-button{color:var(--teal-deep)}.music-transport .icon-button svg{width:20px;height:20px}#music-previous svg,#music-next svg{fill:currentColor}.music-back{transform:scaleX(-1)}
+.music-shuffle[aria-pressed=false]{color:var(--muted)}.music-shuffle[aria-pressed=true],.music-mute[aria-pressed=true]{color:var(--coral)}
+.music-play{width:46px;height:46px;display:grid;place-items:center;border-radius:50%;background:var(--teal);color:#fff;box-shadow:0 6px 16px #117f8b40;transition:transform .15s}.music-play:hover{transform:scale(1.06)}.music-play:active{transform:scale(.95)}.music-play svg{width:20px;height:20px;fill:currentColor;stroke:none}.music-player:not(.is-playing) .music-play svg{transform:translateX(1px)}.music-player button:disabled{opacity:.5;cursor:default;transform:none}
+.settings-list .music-player .music-volume-row{display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 0 0;border:0;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}.settings-list .music-player .music-volume-row input{flex:1;min-width:0}.music-player output{min-width:34px;margin:0;text-align:right;font-variant-numeric:tabular-nums}.music-player #music-status{margin-top:8px}
+.settings-list .music-player .sfx-now{justify-content:flex-start;gap:12px;padding:0;border:0;font-size:14px;color:var(--ink)}.music-player #music-status:empty{display:none}
+@media(orientation:landscape) and (max-height:620px){
+ .game-page .game-card{--card-h:min(100cqh,calc((100cqw - 40px)*5/9 + 18px));height:var(--card-h);grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+ .game-page .game-card>.board-space{grid-column:2;grid-row:1;width:calc(var(--card-h) - 16px);height:calc(var(--card-h) - 16px)}
+ .game-page .game-tools{grid-column:1;grid-row:1;grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(5,minmax(0,1fr));gap:4px}.game-page .game-tools button{height:100%;flex-direction:row;gap:6px}.game-page .game-tools button span{font-size:11px}
+ .game-page .number-pad{grid-column:3;grid-row:1}
+}
+.reef-editor-bottom{align-self:center}#reef-message{text-align:center}

@@ -78,9 +78,7 @@ const text = {
     tourHelpTitle:'Hilfe & Infos', tourHelp:'Regeln und Tipps zum Nachlesen, wann immer du willst. Viel Spaß beim Abtauchen!',
     reefView:'Riff ansehen', reefReturn:'Sudoku einblenden', reefSaveShort:'Speichern', reefObjectSettings:'Objekt & Verhalten', reefMoveMode:'Verschieben', reefHeightMode:'Hoch / runter bewegen', reefRotateMode:'Um Y drehen', reefRotateXMode:'Um X drehen', reefRotateZMode:'Um Z drehen', reefRotateXHint:'X-Achse: Ziehe irgendwo nach links oder rechts, um das Objekt zu kippen.', reefRotateZHint:'Z-Achse: Ziehe irgendwo nach links oder rechts, um das Objekt seitlich zu neigen.', reefScaleMode:'Skalieren', reefMoveHint:'Verschieben: Ziehe irgendwo, um das Objekt über den Boden zu bewegen. Das grüne Häkchen im Ringmenü löst die Auswahl.', reefHeightHint:'Höhe: Ziehe irgendwo nach oben oder unten. Das grüne Häkchen im Ringmenü löst die Auswahl.', reefRotateHint:'Rotieren: Ziehe irgendwo nach links oder rechts. Das grüne Häkchen im Ringmenü löst die Auswahl.', reefScaleHint:'Skalieren: Ziehe irgendwo nach oben zum Vergrößern, nach unten zum Verkleinern. Das grüne Häkchen im Ringmenü löst die Auswahl.',
     brandSub:'DEINE KLEINE RIFFPAUSE', achievements:'Erfolge', settings:'Deine Einstellungen',
-    eyebrow:'EIN KLEINER MOMENT FÜR DICH', heroFirst:'Tauch kurz ab.', heroSecond:'Blüh wieder auf.',
-    heroCopy:'Kristallklares Wasser. Bunte Gedanken. Und immer ein neues Sudoku, das auf dich wartet.',
-    fishCaption:'Eine Perle nach der anderen.', treasureTitle:'Dein kleiner Perlenschatz', treasureCopy:'Entdecke deine Erfolge im Riff.',
+    treasureTitle:'Dein kleiner Perlenschatz',
     gameOverline:'DEIN MOMENT. DEIN TEMPO.', autosave:'Automatisch gespeichert', gameTitle:'Eine kleine Riffpause', puzzleDescription:'81 Felder. Meer Möglichkeiten.',
     difficulty:'Schwierigkeit', difficultyHelp:'Beim Wechsel beginnt ein neues Rätsel.', easy:'Leicht', medium:'Mittel', hard:'Schwer', loading:'Dein nächstes Rätsel taucht auf …', cancel:'Abbrechen', confirm:'Bestätigen',
     undo:'Zurück', notes:'Notizen', erase:'Löschen', newGame:'Neues Sudoku', keyboardHint:'Mit Pfeiltasten navigieren · Zahlen 1–9 · N für Notizen',
@@ -88,9 +86,9 @@ const text = {
     legalTitle:'Rechtliches & Lizenzen', legalImprint:'Impressum', legalPrivacy:'Datenschutz', legalCode:'Projektlizenz · MIT', legalNotices:'Fremdlizenzen · Babylon.js', legalMusic:'Musiklizenz', legalSounds:'Soundeffektlizenz', legalCommons:'CC BY 4.0 · vollständiger Originaltext', legalSource:'Originalquelle · Englisch',
     reefEdit:'Mein Riff einrichten', reefEditHelp:'Platziere Fische, Pflanzen und Korallen in deinem eigenen Aquarium.', reefLoading:'Riff wird vorbereitet', reefUnavailable:'Das Einrichten benötigt die 3D-Ansicht.', reefAddType:'Objekt hinzufügen', reefAdd:'Hinzufügen', reefSelection:'Meine Objekte', reefSelectAll:'Alle auswählen', reefEditSelected:'Bearbeiten', reefDeleteSelected:'Auswahl löschen', reefNoObjects:'Keine Objekte im Riff.', reefSelect:'Objekt auswählen', reefPositionX:'Links / rechts', reefPositionZ:'Vorne / hinten', reefHeight:'Höhe', reefSize:'Größe', reefRotation:'Drehung', reefMotion:'Schwimmverhalten', reefCircle:'Runden schwimmen', reefPatrol:'Hin und her', reefEight:'Eine Acht schwimmen', reefStill:'Am Platz bleiben', reefSchool:'Im Schwarm', reefSchoolHint:'Fische derselben Art bilden einen Schwarm. Position, Drehung, Tempo und Radius gelten für die ganze Gruppe.', reefWalkMotion:'Bewegungsverhalten', reefCrabWander:'Natürlich laufen', reefCrabCircle:'Runden laufen', reefCrabEight:'Eine Acht laufen', reefWalkSpeed:'Lauftempo', reefWalkRadius:'Bewegungsradius', reefSpeed:'Schwimmtempo', reefRadius:'Schwimmradius', reefColor:'Farbe', reefOriginalColor:'Original', reefColorHelp:'Ganz links: Originalfarbe.', reefUndo:'Rückgängig', reefDone:'Fertig', reefDuplicate:'Duplizieren', reefRemove:'Entfernen', reefReset:'Standardriff', reefSave:'Speichern', reefCancel:'Verwerfen', reefHideHints:'Hinweise ausblenden', reefHint:'Objekt anklicken oder per Touch: Finger auflegen und ohne Abheben über die Objekte fahren. Loslassen öffnet die Bearbeitung. Das grüne Häkchen im Ringmenü löst die Auswahl.', reefFull:'Dein Riff ist voll. Entferne zuerst ein Objekt.', reefSaveFailed:'Dein Riff konnte nicht gespeichert werden. Deine Änderungen bleiben hier geöffnet.', reefInvalid:'Dein gespeichertes Riff konnte nicht geladen werden. Speichern ersetzt es durch die hier gezeigte Einrichtung.', reefResetTitle:'Standardriff wiederherstellen?', reefResetCopy:'Die Einrichtung wird durch das Standardriff ersetzt. Erst „Speichern“ übernimmt sie dauerhaft. Dein Sudoku und deine Punkte bleiben erhalten.',
     darkTheme:'Abend im Riff', darkThemeHelp:'Dunkle Farben für eine ruhige Abendrunde.', reduceMotion:'Bewegung reduzieren',
-    musicTitle:'Riffmusik', musicTrack:'Titel', musicVolume:'Lautstärke', musicStart:'Musik starten', musicPause:'Musik pausieren', musicPlaying:'Es spielt',
-    musicHelp:'Zufällige Riffmusik ohne direkte Wiederholung. Pause gilt bis zum Neuladen; die Lautstärke bleibt gespeichert.', musicAwaiting:'Musik ist aktiv. Tippe ins Spiel, damit dein Browser die Wiedergabe startet.', musicError:'Die Musik konnte nicht gestartet werden. Bitte erneut versuchen oder einen anderen Titel wählen.',
-    sfxTitle:'Riffklänge', sfxEnabled:'Soundeffekte', sfxHelp:'Sanfte Klänge für Eingaben und kleine Erfolge. Beim Ändern der Lautstärke hörst du eine Klangprobe.',
+    musicTitle:'Riffmusik', musicTrack:'Titel', musicVolume:'Lautstärke', musicStart:'Musik starten', musicPause:'Musik pausieren', musicPlaying:'Es spielt', musicPaused:'Pausiert', musicPrevious:'Vorheriger Titel', musicNext:'Nächster Titel', musicSeek:'Abspielposition', musicShuffle:'Zufällig', musicMute:'Stumm',
+    musicAwaiting:'Musik ist aktiv. Tippe ins Spiel, damit dein Browser die Wiedergabe startet.', musicError:'Die Musik konnte nicht gestartet werden. Bitte erneut versuchen oder einen anderen Titel wählen.',
+    sfxTitle:'Riffklänge', sfxEnabled:'Soundeffekte',
     reduceMotionHelp:'Ruhige Markierungen statt bewegter Effekte.', showConflicts:'Konflikte markieren', showConflictsHelp:'Zeigt doppelte Zahlen in Reihe, Spalte oder Block.',
     collection:'DEINE SAMMLUNG', achievementsCopy:'Jedes Rätsel ist ein kleiner Tauchgang. Sammle deine schönsten Entdeckungen.',
     trackAchievements:'Erfolge auf diesem Gerät speichern', trackingHelp:'Erfolge und Abzeichen werden standardmäßig gespeichert. Du kannst dies jederzeit ausschalten. Punkte, Bestwert und die Zahl gelöster Rätsel werden unabhängig davon lokal gespeichert.',
@@ -182,8 +180,7 @@ const text = {
     tourHelpTitle:'Help & info', tourHelp:'Rules and tips to read again whenever you like. Enjoy your dive!',
     reefView:'Watch my reef', reefReturn:'Show Sudoku', reefSaveShort:'Save', reefObjectSettings:'Object & behaviour', reefMoveMode:'Move', reefHeightMode:'Move up / down', reefRotateMode:'Rotate Y', reefRotateXMode:'Rotate X', reefRotateZMode:'Rotate Z', reefRotateXHint:'X axis: Drag anywhere left or right to tilt the object.', reefRotateZHint:'Z axis: Drag anywhere left or right to roll the object.', reefScaleMode:'Scale', reefMoveHint:'Move: Drag anywhere to move the object along the ground. The green checkmark in the ring menu releases the selection.', reefHeightHint:'Height: Drag anywhere up or down. The green checkmark in the ring menu releases the selection.', reefRotateHint:'Rotate: Drag anywhere left or right. The green checkmark in the ring menu releases the selection.', reefScaleHint:'Scale: Drag anywhere up to enlarge, down to shrink. The green checkmark in the ring menu releases the selection.',
     brandSub:'YOUR LITTLE REEF BREAK', achievements:'Achievements', settings:'Your preferences',
-    eyebrow:'A LITTLE MOMENT FOR YOU', heroFirst:'Dive into calm.', heroSecond:'Come up smiling.', heroCopy:'Crystal-clear water. Colourful thoughts. And a new Sudoku whenever you fancy one.',
-    fishCaption:'One little pearl at a time.', treasureTitle:'Your little pearl collection', treasureCopy:'Discover your achievements in the reef.',
+    treasureTitle:'Your little pearl collection',
     gameOverline:'YOUR MOMENT. YOUR PACE.', autosave:'Saved automatically', gameTitle:'A little reef break', puzzleDescription:'81 squares. An ocean of possibilities.',
     difficulty:'Difficulty', difficultyHelp:'Changing this starts a new puzzle.', easy:'Easy', medium:'Medium', hard:'Hard', loading:'Your next puzzle is surfacing …', cancel:'Cancel', confirm:'Confirm',
     undo:'Undo', notes:'Notes', erase:'Erase', newGame:'New Sudoku', keyboardHint:'Arrow keys to move · Numbers 1–9 · N for notes', footer:'A little ocean of possibilities.',
@@ -191,9 +188,9 @@ const text = {
     legalTitle:'Legal & licences', legalImprint:'Legal notice', legalPrivacy:'Privacy', legalCode:'Project licence · MIT', legalNotices:'Third-party licences · Babylon.js', legalMusic:'Music licence', legalSounds:'Sound-effect licence', legalCommons:'CC BY 4.0 · full original text', legalSource:'Original source · English',
     reefEdit:'Arrange my reef', reefEditHelp:'Place fish, plants and corals in your own aquarium.', reefLoading:'The reef is getting ready.', reefUnavailable:'Arranging your reef requires the 3D view.', reefAddType:'Add an object', reefAdd:'Add', reefSelection:'My objects', reefSelectAll:'Select all', reefEditSelected:'Edit', reefDeleteSelected:'Delete selected', reefNoObjects:'No objects in the reef.', reefSelect:'Select an object', reefPositionX:'Left / right', reefPositionZ:'Near / far', reefHeight:'Height', reefSize:'Size', reefRotation:'Rotation', reefMotion:'Swimming behaviour', reefCircle:'Swim in circles', reefPatrol:'Back and forth', reefEight:'Figure of eight', reefStill:'Stay in place', reefSchool:'Swim in a school', reefSchoolHint:'Fish of the same species form a school. Position, rotation, speed and radius apply to the whole group.', reefWalkMotion:'Movement behaviour', reefCrabWander:'Natural walk', reefCrabCircle:'Walk in circles', reefCrabEight:'Walk a figure of eight', reefWalkSpeed:'Walking speed', reefWalkRadius:'Movement radius', reefSpeed:'Swimming speed', reefRadius:'Swimming radius', reefColor:'Colour', reefOriginalColor:'Original', reefColorHelp:'Far left: original colour.', reefUndo:'Undo', reefDone:'Done', reefDuplicate:'Duplicate', reefRemove:'Remove', reefReset:'Default reef', reefSave:'Save', reefCancel:'Discard', reefHideHints:'Hide hints', reefHint:'Click an object, or touch and slide over objects without lifting your finger. Release to start editing. The green checkmark in the ring menu releases the selection.', reefFull:'Your reef is full. Remove an object first.', reefSaveFailed:'Your reef could not be saved. Your changes remain open here.', reefInvalid:'Your saved reef could not be loaded. Saving replaces it with the arrangement shown here.', reefResetTitle:'Restore the default reef?', reefResetCopy:'This replaces the arrangement with the default reef. It is only kept permanently after “Save”. Your Sudoku and points stay intact.',
     reduceMotion:'Reduce motion', reduceMotionHelp:'Quiet highlights instead of moving effects.', showConflicts:'Highlight conflicts', showConflictsHelp:'Marks duplicate numbers in rows, columns or boxes.',
-    musicTitle:'Reef music', musicTrack:'Track', musicVolume:'Volume', musicStart:'Start music', musicPause:'Pause music', musicPlaying:'Now playing',
-    musicHelp:'Random reef music without consecutive repeats. Pause lasts until reload; your volume is saved.', musicAwaiting:'Music is enabled. Tap the game to let your browser start playback.', musicError:'Music could not start. Please try again or choose another track.',
-    sfxTitle:'Reef sounds', sfxEnabled:'Sound effects', sfxHelp:'Gentle sounds for moves and little achievements. Changing the volume plays a sound preview.',
+    musicTitle:'Reef music', musicTrack:'Track', musicVolume:'Volume', musicStart:'Start music', musicPause:'Pause music', musicPlaying:'Now playing', musicPaused:'Paused', musicPrevious:'Previous track', musicNext:'Next track', musicSeek:'Playback position', musicShuffle:'Shuffle', musicMute:'Mute',
+    musicAwaiting:'Music is enabled. Tap the game to let your browser start playback.', musicError:'Music could not start. Please try again or choose another track.',
+    sfxTitle:'Reef sounds', sfxEnabled:'Sound effects',
     collection:'YOUR COLLECTION', achievementsCopy:'Every puzzle is a little dive. Collect your favourite discoveries.', trackAchievements:'Save achievements on this device',
     trackingHelp:'Achievement saving is enabled by default and can be switched off. Points, personal best and solved-puzzle totals are saved locally independently.', deleteProgress:'Delete collection and points',
     restart:'Restart', restartTitle:'Restart this puzzle?', restartCopy:'Entries, notes and round time will reset. The puzzle and points already collected will stay.', restartDone:'Current puzzle reset.', replayScore:'This puzzle has already been scored. Solving it again adds no further total points.',
@@ -276,6 +273,7 @@ function persist() {
   const ok = save(game, settings, progress, scores);
   if (!ok) showNotice('storageFailed');
 }
+function renderSfxVolume() { $('sfx-volume').style.setProperty('--p', `${$('sfx-volume').value}%`); $('sfx-volume-value').textContent = `${$('sfx-volume').value} %`; }
 function renderText() {
   document.documentElement.lang = settings.language;
   document.querySelectorAll('[data-t]').forEach(node => { node.textContent = t(node.dataset.t); });
@@ -291,7 +289,7 @@ function renderText() {
   $('number-pad').setAttribute('aria-label', settings.language === 'de' ? 'Zahlen' : 'Numbers');
   $('language').value = settings.language; $('dark-theme').checked = settings.theme === 'dark';
   $('reduced-motion').checked = settings.reducedMotion; $('show-conflicts').checked = settings.showConflicts; $('tracking').checked = settings.tracking;
-  $('sfx-enabled').checked = settings.sfxEnabled; $('sfx-volume').value = Math.round(settings.sfxVolume * 100); $('sfx-volume-value').textContent = `${$('sfx-volume').value} %`;
+  $('sfx-enabled').checked = settings.sfxEnabled; $('sfx-volume').value = Math.round(settings.sfxVolume * 100); renderSfxVolume();
   document.body.dataset.theme = settings.theme; document.body.dataset.reduced = reduced();
   updateBackground();
   $('help-content').className = 'help-copy'; $('help-content').innerHTML = t('helpContent');
@@ -348,8 +346,6 @@ function renderBoard() {
 function renderAchievements() {
   for (const [id,value] of [['collection-points',scores.points],['collection-best',scores.best],['collection-solved',scores.solved]]) $(id).textContent = value.toLocaleString(settings.language);
   $('achievement-count').textContent = progress.unlocked.length;
-  if (settings.tracking) $('treasure-caption').textContent = `${progress.unlocked.length} / ${ACHIEVEMENTS.length} ${t('achievements')}`;
-  else $('treasure-caption').textContent = t('treasureCopy');
   $('progress-delete').disabled = readOnly || (!scores.solved && !progress.total); $('tracking').disabled = readOnly || storageBlocked;
   $('achievement-grid').replaceChildren();
   for (const a of ACHIEVEMENTS) {
@@ -472,7 +468,7 @@ document.querySelectorAll('.dialog-close').forEach(button => button.addEventList
   const dialog = button.closest('dialog');
   if (dialog.id === 'confirm-dialog') $('confirm-no').click(); else dialog.close();
 }));
-for (const id of ['achievements-nav','treasure-open']) $(id).addEventListener('click', () => { renderAchievements(); $('achievements-dialog').showModal(); });
+$('achievements-nav').addEventListener('click', () => { renderAchievements(); $('achievements-dialog').showModal(); });
 $('settings-open').addEventListener('click', () => $('settings-dialog').showModal());
 function setReefView(active) {
   syncClock();reefViewing=active;document.body.dataset.reefView=String(active);
@@ -637,7 +633,7 @@ function changeSettings() {
 }
 for (const id of ['language','dark-theme','reduced-motion','show-conflicts']) $(id).addEventListener('change', changeSettings);
 $('sfx-enabled').addEventListener('change', () => { settings.sfxEnabled = $('sfx-enabled').checked; renderBoard(); persist(); });
-$('sfx-volume').addEventListener('input', () => { settings.sfxVolume = Number($('sfx-volume').value) / 100; $('sfx-volume-value').textContent = `${$('sfx-volume').value} %`; renderBoard(); persist(); });
+$('sfx-volume').addEventListener('input', () => { settings.sfxVolume = Number($('sfx-volume').value) / 100; renderSfxVolume(); renderBoard(); persist(); });
 $('sfx-volume').addEventListener('change', () => scene.playSfx('achievement'));
 document.addEventListener('click', event => { if (event.target.closest('button') && !event.target.closest('.cell, #number-pad, #undo, #erase, #new-game, #win-next')) scene.playSfx('menu'); });
 $('tracking').addEventListener('change', async () => {

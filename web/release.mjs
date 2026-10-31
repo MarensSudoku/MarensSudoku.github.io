@@ -7,6 +7,8 @@ export const RELEASE = {
       '„Hilfe & Infos“ zeigt dir eine kompakte Übersicht: Versionsneuigkeiten, Spielanleitung, Installationshilfe und Rechtstexte lassen sich einzeln aufklappen. Pfeile zeigen geöffnete Abschnitte. Version und Datum stehen bei den Versionsneuigkeiten; der Quellcode hat eine eigene Kachel.',
       'Starte entspannt: Im Willkommen entfällt die Bitte, zuerst das Tutorial zu spielen. Der leuchtende Tutorial-Button bleibt für deinen freiwilligen Rundgang.',
       'In der installierten App verschwindet der Installationsbutton im Willkommen. Im Riff-Editor startet jedes neu geöffnete Ringmenü mit „Bewegen“. Bei geöffneten Reglern bleibt dein Objekt beim Wischen an seinem Platz.',
+      'Die Riffmusik hat jetzt einen richtigen Player: Titelkachel, Fortschrittsleiste zum Spulen, Zeitanzeige, Tasten für vorherigen und nächsten Titel, Stummschalter sowie einen Schalter für zufällige Reihenfolge oder der Reihe nach. Die Soundeffekte haben eine passende Karte im gleichen Stil.',
+      'Am Computer und im Querformat steht dein Sudoku jetzt mittig im Riff. Im Querformat liegen die Werkzeuge links und die Zahlen rechts daneben.',
       'Beim Minimieren oder Sperren wird die Riffmusik vollständig beendet. Wenn du zurückkehrst, läuft derselbe Titel an der bisherigen Stelle weiter. Eine bewusst gewählte Musikpause bleibt erhalten.',
     ],
     en:[
@@ -14,6 +16,8 @@ export const RELEASE = {
       'Help & info now has a compact overview: expand version news, the playing guide, installation help and legal information separately. Arrows show open sections. The version and date appear with the version news; source code has its own tile.',
       'Enjoy a quieter welcome without a request to play the tutorial first. The glowing tutorial button remains for an optional tour.',
       'The welcome screen hides the install button in the installed app. Each newly opened reef ring menu starts in Move mode. While a slider is open, swiping keeps your object in place.',
+      'Reef music now has a proper player: a cover tile, a progress bar you can drag, elapsed and total time, previous and next buttons, a mute button and a switch between shuffle and playing in order. Sound effects get a matching card in the same style.',
+      'On computers and in landscape, your Sudoku now sits in the middle of the reef. In landscape, the tools sit on the left and the numbers on the right.',
       'Minimizing or locking fully stops reef music. When you return, the same track continues from its previous position. Music you paused yourself stays paused.',
     ],
   },
