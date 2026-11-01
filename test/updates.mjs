@@ -18,13 +18,16 @@ export async function checkUpdates(browser,name) {
   ]);
   const assets=JSON.parse(/^const ASSETS = (.+);$/m.exec(worker)[1]).map(asset=>changed.has(asset.path)?{...asset,hash:createHash('sha256').update(changed.get(asset.path)).digest('hex')}:asset);
   const nextWorker=worker.replaceAll(build,nextBuild).replace(/^const ASSETS = .+;$/m,'const ASSETS = '+JSON.stringify(assets)+';');
-  let next=false;
+  // A busy previous worker can delay activation beyond the message response deadline.
+  const delayedWorker=nextWorker.replace('await self.skipWaiting()','await new Promise(resolve=>setTimeout(resolve,7000));await self.skipWaiting()');
+  assert.notEqual(delayedWorker,nextWorker);
+  let next=false,delayActivation=false;
   const mime={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.json':'application/json','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.mp3':'audio/mpeg','.wav':'audio/wav','.glb':'model/gltf-binary','.webmanifest':'application/manifest+json','.txt':'text/plain'};
   const server=createServer(async(req,res)=>{
     try{
       const url=new URL(req.url,'http://localhost'),file=resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname)),path=relative(root,file).replaceAll('\\','/');
       if(path==='..'||path.startsWith('../')||path.includes(':')){res.writeHead(403).end();return;}
-      const body=Buffer.from(path==='sw.js'?(next?nextWorker:worker):next&&changed.has(path)?changed.get(path):await readFile(file));
+      const body=Buffer.from(path==='sw.js'?(next?(delayActivation?delayedWorker:nextWorker):worker):next&&changed.has(path)?changed.get(path):await readFile(file));
       const headers={'Content-Type':mime[extname(file)]||'application/octet-stream','Cache-Control':'no-cache','Content-Length':body.length};
       const range=parseByteRange(req.headers.range,body.length);
       if(range===null){res.writeHead(416).end();return;}
@@ -36,7 +39,8 @@ export async function checkUpdates(browser,name) {
   const base=`http://127.0.0.1:${server.address().port}/`,errors=[];
   try{
     for(const route of ['playing','welcome','save-failure','editor']){
-      next=false;
+      console.log(`${name}: checking automatic update during ${route}.`);
+      next=false;delayActivation=route==='welcome';
       const context=await browser.newContext({viewport:{width:375,height:559},hasTouch:true,locale:'de-DE',reducedMotion:'reduce'});
       const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
       const snapshot=()=>page.evaluate(({gameKey,reefKey})=>{
@@ -90,8 +94,17 @@ export async function checkUpdates(browser,name) {
           assert.equal(await page.locator('#loading').isHidden(),true);
           await page.evaluate(()=>{window.__denyUpdateSave=false;dispatchEvent(new Event('online'));});
         }
-        await page.waitForFunction(version=>document.getElementById('app-version')?.textContent===version,nextVersion);
+        await page.waitForFunction(version=>document.getElementById('app-version')?.textContent===version,nextVersion,{timeout:60000}).catch(async error=>{
+          const state=await page.evaluate(()=>{
+            return {version:document.getElementById('app-version')?.textContent,hidden:document.hidden,online:navigator.onLine,
+              controller:navigator.serviceWorker.controller?.state,
+              notice:document.getElementById('notice-text')?.textContent,loading:document.getElementById('loading')?.open,
+              updateDisabled:document.getElementById('settings-update')?.disabled};
+          });
+          throw new Error(`${name}: ${route} update did not finish: ${JSON.stringify(state)}`,{cause:error});
+        });
         await page.locator('.board-shell.ready').waitFor();
+        assert.equal(await page.locator('#app-version').getAttribute('data-build'),nextBuild);
         assert.deepEqual(await snapshot(),before,'updates must preserve the Sudoku, notes, points and reef');
         assert.equal(await page.locator('#update-dialog').count(),0);
         assert.equal(await page.locator('#settings-update-notice').getAttribute('hidden')!==null,true);
@@ -99,6 +112,6 @@ export async function checkUpdates(browser,name) {
       }finally{await context.close();}
     }
     assert.deepEqual(errors,[]);
-    console.log(`${name}: automatic service-worker updates, online recovery, reader tabs, save failure, deferred editor updates and saved game preservation passed without an update dialog.`);
+    console.log(`${name}: automatic service-worker updates, delayed activation, online recovery, reader tabs, save failure, deferred editor updates and saved game preservation passed without an update dialog.`);
   }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
 }

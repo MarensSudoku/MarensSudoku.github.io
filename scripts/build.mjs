@@ -85,7 +85,8 @@ self.addEventListener('message', event => {
     event.ports[0]?.postMessage({available:typeof event.data.build==='string'&&PREFIX+event.data.build!==CACHE,selected:selected===CACHE});
   })());
   if(event.data==='ACTIVATE'||event.data==='APPLY_UPDATE')event.waitUntil((async()=>{
-    try{await selectCache(caches,PREFIX,self.registration.scope,CACHE);await self.skipWaiting();event.ports[0]?.postMessage({ok:true});}
+    // Both workers serve the selected cache; activation can wait for the previous worker's events.
+    try{await selectCache(caches,PREFIX,self.registration.scope,CACHE);event.ports[0]?.postMessage({ok:true});await self.skipWaiting();}
     catch{event.ports[0]?.postMessage({ok:false});}
   })());
 });

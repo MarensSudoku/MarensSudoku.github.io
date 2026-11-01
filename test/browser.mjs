@@ -337,6 +337,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.screenshot({ path: `output/${name}-desktop.png`, fullPage: true });
   const second = await context.newPage();
   await second.goto(base); await second.locator('#loading').waitFor({ state: 'hidden' });
+  await second.locator('#welcome-dialog').waitFor({state:'visible'});
   assert.equal(await second.locator('#new-game').isDisabled(), true);
   await second.waitForFunction(()=>window.__wakeHeld===0);
   await second.close();

@@ -567,7 +567,7 @@ async function applyUpdate() {
       if(worker.state!=='activated')await new Promise((resolve,reject)=>{
         const finish=error=>{clearTimeout(timer);worker.removeEventListener('statechange',changed);error?reject(error):resolve();};
         const changed=()=>{if(worker.state==='activated')finish();else if(worker.state==='redundant')finish(new Error('Update worker was replaced'));};
-        const timer=setTimeout(()=>finish(new Error('Update activation timed out')),5000);
+        const timer=setTimeout(()=>finish(new Error('Update activation timed out')),60000);
         worker.addEventListener('statechange',changed);changed();
       });
       location.reload();return;
