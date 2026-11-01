@@ -45,7 +45,14 @@ No caso de um e-mail, os dados comunicados voluntariamente são usados para trat
 6. Direitos
 Verificados os respetivos requisitos, existem direitos de acesso, retificação, apagamento, limitação e portabilidade dos dados, bem como de oposição a tratamentos baseados em interesses legítimos. Os consentimentos podem ser retirados para o futuro. É possível apresentar reclamação a uma autoridade de controlo da proteção de dados, em especial ao Comissário para a Proteção de Dados do estado federado da Baixa Saxónia. Para informações sobre dados que existem apenas no teu próprio navegador, o responsável não pode fornecer uma cópia do lado do servidor.
 
-O original contém ainda um resumo em inglês.`,
+O original contém ainda um resumo em inglês.
+
+GitHub Discussions · 01.11.2026
+Usamos GitHub Discussions (https://github.com/MarensSudoku/MarensSudoku.github.io/discussions) para perguntas, comentários e trocas voluntárias sobre o projeto. Ao abri-lo sais da aplicação; publicar requer uma conta GitHub. Nomes de utilizador, dados públicos do perfil, publicações, comentários, reações e datas ficam visíveis no repositório público e podem ser indexados por motores de pesquisa. Não publiques informações confidenciais nem dados pessoais de terceiros.
+
+Tratamos as informações fornecidas para responder a questões e moderar as conversas. A base é o nosso interesse legítimo no diálogo sobre o projeto, na melhoria da aplicação e num fórum organizado (artigo 6.º, n.º 1, alínea f do RGPD). As publicações permanecem enquanto necessárias para esta troca; envia pedidos de apagamento para o contacto acima. Aplicam-se também os restantes direitos indicados.
+
+O GitHub trata dados de conta e ligação para operar a plataforma segundo as suas próprias condições: https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. Também se aplicam as informações anteriores sobre o GitHub e possíveis transferências internacionais. A aplicação não incorpora Discussions nem envia para lá jogos ou ficheiros de áudio locais.`,
 code: `Licença MIT
 
 Copyright (c) 2026 MarensSudoku contributors

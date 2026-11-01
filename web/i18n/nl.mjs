@@ -1,4 +1,7 @@
 export default {
+  "forumTitle": "Discussieforum",
+  "forumOpen": "Forum op GitHub openen",
+  "forumHint": "Vragen, ideeën en feedback zijn welkom. Het forum is openbaar en opent buiten de app. Om te schrijven heb je een GitHub-account nodig. Plaats geen vertrouwelijke informatie of persoonsgegevens van anderen.",
   "reefLoadFailed": "Dit object kon niet worden geladen. Probeer het opnieuw.",
   "reefRewards": "Voor jouw rif",
   "appVersion": "Versie",

@@ -1,4 +1,7 @@
 export default {
+  "forumTitle": "Foro de discusión",
+  "forumOpen": "Abrir el foro en GitHub",
+  "forumHint": "Tus preguntas, ideas y comentarios son bienvenidos. El foro es público y se abre fuera de la aplicación. Para publicar necesitas una cuenta de GitHub. No publiques información confidencial ni datos personales de otras personas.",
   "reefLoadFailed": "No se pudo cargar este objeto. Inténtalo de nuevo.",
   "reefRewards": "Para tu arrecife",
   "appVersion": "Versión",

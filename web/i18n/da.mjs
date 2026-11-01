@@ -1,4 +1,7 @@
 export default {
+  "forumTitle": "Diskussionsforum",
+  "forumOpen": "Åbn forummet på GitHub",
+  "forumHint": "Spørgsmål, idéer og feedback er velkomne. Forummet er offentligt og åbner uden for appen. Det kræver en GitHub-konto at skrive. Del ikke fortrolige oplysninger eller andres personoplysninger.",
   "reefLoadFailed": "Objektet kunne ikke indlæses. Prøv igen.",
   "reefRewards": "Til dit rev",
   "appVersion": "Version",

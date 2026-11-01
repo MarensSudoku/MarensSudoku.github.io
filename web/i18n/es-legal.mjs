@@ -45,7 +45,14 @@ Si envías un correo electrónico, los datos que facilites voluntariamente se us
 6. Derechos
 Si se cumplen los requisitos correspondientes, tienes derecho de acceso, rectificación, supresión, limitación y portabilidad de los datos, así como derecho de oposición a tratamientos basados en intereses legítimos. Los consentimientos pueden revocarse con efecto para el futuro. Puedes presentar reclamaciones ante una autoridad de control de protección de datos, en particular ante el Comisionado de Protección de Datos del Estado federado de Baja Sajonia. Para información sobre datos que solo están en tu propio navegador, el responsable no puede proporcionar una copia del servidor.
 
-El original contiene además un resumen en inglés.`,
+El original contiene además un resumen en inglés.
+
+GitHub Discussions · 01.11.2026
+Usamos GitHub Discussions (https://github.com/MarensSudoku/MarensSudoku.github.io/discussions) de forma voluntaria para preguntas, comentarios e intercambio sobre el proyecto. Al abrirlo sales de la aplicación; publicar requiere una cuenta de GitHub. Los nombres de usuario, datos públicos del perfil, publicaciones, comentarios, reacciones y fechas son visibles en el repositorio público y pueden ser indexados por buscadores. No publiques información confidencial ni datos personales de otras personas.
+
+Tratamos los datos facilitados allí para responder consultas y moderar. La base es nuestro interés legítimo en el intercambio sobre el proyecto, la mejora de la aplicación y un foro ordenado (artículo 6.1.f del RGPD). Conservamos las publicaciones mientras sean necesarias para este intercambio; puedes solicitar su supresión mediante el contacto anterior. También se aplican los demás derechos indicados.
+
+GitHub trata los datos de cuenta y conexión para operar su plataforma conforme a sus propias condiciones: https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. También se aplica la información anterior sobre GitHub y posibles transferencias internacionales. La aplicación no integra Discussions ni envía allí partidas guardadas o archivos de audio locales.`,
 code: `Licencia MIT
 
 Copyright (c) 2026 MarensSudoku contributors

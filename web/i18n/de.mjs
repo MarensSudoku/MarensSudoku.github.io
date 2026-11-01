@@ -1,4 +1,7 @@
 export default {
+  "forumTitle": "Diskussionsforum",
+  "forumOpen": "Forum auf GitHub öffnen",
+  "forumHint": "Fragen, Ideen und Feedback sind willkommen. Das Forum ist öffentlich und öffnet sich außerhalb der App. Zum Schreiben brauchst du ein GitHub-Konto. Bitte keine vertraulichen oder fremden personenbezogenen Daten veröffentlichen.",
   "reefLoadFailed": "Dieses Objekt konnte nicht geladen werden. Bitte versuche es erneut.",
   "reefRewards": "Für dein Riff",
   "appVersion": "Version",

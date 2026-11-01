@@ -45,7 +45,14 @@ Em caso de e-mail, os dados informados voluntariamente são usados para tratar a
 6. Direitos
 Se os requisitos correspondentes forem atendidos, existem direitos de acesso, retificação, exclusão, limitação e portabilidade dos dados, além do direito de se opor a tratamentos baseados em interesses legítimos. Consentimentos podem ser revogados para o futuro. É possível apresentar reclamação a uma autoridade de proteção de dados, em especial ao Comissário de Proteção de Dados do estado da Baixa Saxônia. Para informações sobre dados que existem apenas no seu próprio navegador, o responsável não pode fornecer uma cópia do servidor.
 
-O original contém também um resumo em inglês.`,
+O original contém também um resumo em inglês.
+
+GitHub Discussions · 01.11.2026
+Usamos GitHub Discussions (https://github.com/MarensSudoku/MarensSudoku.github.io/discussions) para perguntas, comentários e trocas voluntárias sobre o projeto. Ao abri-lo você sai do aplicativo; publicar requer uma conta GitHub. Nomes de usuário, dados públicos do perfil, publicações, comentários, reações e datas ficam visíveis no repositório público e podem ser indexados por mecanismos de busca. Não publique informações confidenciais nem dados pessoais de terceiros.
+
+Tratamos as informações fornecidas para responder a perguntas e moderar as conversas. A base é nosso interesse legítimo no diálogo sobre o projeto, na melhoria do aplicativo e em um fórum organizado (artigo 6º, item 1, alínea f do RGPD). As publicações permanecem enquanto necessárias para essa troca; envie pedidos de exclusão ao contato acima. Os demais direitos indicados também se aplicam.
+
+O GitHub trata dados de conta e conexão para operar a plataforma segundo suas próprias condições: https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. Também se aplicam as informações anteriores sobre o GitHub e possíveis transferências internacionais. O aplicativo não incorpora Discussions nem envia para lá jogos salvos ou arquivos de áudio locais.`,
 code: `Licença MIT
 
 Copyright (c) 2026 MarensSudoku contributors

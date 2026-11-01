@@ -1,4 +1,7 @@
 export default {
+  "forumTitle": "Keskustelufoorumi",
+  "forumOpen": "Avaa foorumi GitHubissa",
+  "forumHint": "Kysymykset, ideat ja palaute ovat tervetulleita. Foorumi on julkinen ja avautuu sovelluksen ulkopuolella. Kirjoittaminen vaatii GitHub-tilin. Älä julkaise luottamuksellisia tietoja tai muiden henkilötietoja.",
   "reefLoadFailed": "Tätä kohdetta ei voitu ladata. Yritä uudelleen.",
   "reefRewards": "Riutallesi",
   "appVersion": "Versio",

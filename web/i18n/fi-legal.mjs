@@ -45,7 +45,14 @@ Sähköpostin yhteydessä vapaaehtoisesti annettuja tietoja käytetään yhteyde
 6. Oikeudet
 Kun kulloisetkin edellytykset täyttyvät, sinulla on oikeus saada pääsy tietoihin, oikaista, poistaa ja rajoittaa niitä sekä siirtää ne järjestelmästä toiseen, sekä oikeus vastustaa oikeutettuun etuun perustuvaa käsittelyä. Suostumukset voi peruuttaa tulevaisuuden osalta. Valituksia voi tehdä tietosuojavalvontaviranomaiselle, erityisesti Ala-Saksin osavaltion tietosuojavaltuutetulle. Pelkästään omassa selaimessasi olevista tiedoista palveluntarjoaja ei voi toimittaa palvelinkopiota.
 
-Alkuperäinen teksti sisältää lisäksi englanninkielisen tiivistelmän.`,
+Alkuperäinen teksti sisältää lisäksi englanninkielisen tiivistelmän.
+
+GitHub Discussions · 01.11.2026
+Käytämme GitHub Discussions (https://github.com/MarensSudoku/MarensSudoku.github.io/discussions)-palvelua vapaaehtoisiin kysymyksiin, palautteeseen ja projektikeskusteluun. Sen avaaminen vie pois sovelluksesta; kirjoittaminen edellyttää GitHub-tiliä. Käyttäjänimet, julkiset profiilitiedot, viestit, kommentit, reaktiot ja aikaleimat näkyvät julkisessa repositoriossa, ja hakukoneet voivat indeksoida ne. Älä julkaise luottamuksellisia tietoja tai muiden henkilötietoja.
+
+Käsittelemme annettuja tietoja vastataksemme kysymyksiin ja moderoidaksamme keskustelua. Peruste on oikeutettu etumme projektikeskusteluun, sovelluksen parantamiseen ja asialliseen foorumiin (GDPR 6 artiklan 1 kohdan f alakohta). Viestejä säilytetään niin kauan kuin niitä tarvitaan tähän keskusteluun; poistopyynnöt voi lähettää yllä olevaan yhteysosoitteeseen. Myös muut mainitut oikeudet koskevat näitä tietoja.
+
+GitHub käsittelee tili- ja yhteystietoja alustansa toimintaa varten omien ehtojensa mukaisesti: https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. Edellä olevat tiedot GitHubista ja mahdollisista kansainvälisistä siirroista koskevat myös tätä. Sovellus ei upota Discussions-palvelua eikä lähetä sinne paikallisia pelitallennuksia tai äänitiedostoja.`,
 code: `MIT-lisenssi
 
 Copyright (c) 2026 MarensSudoku contributors

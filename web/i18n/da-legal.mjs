@@ -45,7 +45,14 @@ Ved en e-mail bruges de frivilligt oplyste data til at behandle henvendelsen. Af
 6. Rettigheder
 Når de respektive betingelser er opfyldt, har du ret til indsigt, berigtigelse, sletning, begrænsning og dataportabilitet samt ret til indsigelse mod behandling på grundlag af legitime interesser. Samtykker kan trækkes tilbage for fremtiden. Klager kan indgives til en datatilsynsmyndighed, især til databeskyttelsesmyndigheden i delstaten Niedersachsen. For oplysninger om data, der kun ligger i din egen browser, kan udbyderen ikke levere en kopi fra en server.
 
-Originalen indeholder desuden et engelsk resumé.`,
+Originalen indeholder desuden et engelsk resumé.
+
+GitHub Discussions · 01.11.2026
+Vi bruger GitHub Discussions (https://github.com/MarensSudoku/MarensSudoku.github.io/discussions) til frivillige spørgsmål, feedback og samtaler om projektet. Når du åbner det, forlader du appen; opslag kræver en GitHub-konto. Brugernavne, offentlige profiloplysninger, opslag, kommentarer, reaktioner og tidspunkter er synlige i det offentlige repository og kan indekseres af søgemaskiner. Del ikke fortrolige oplysninger eller andres personoplysninger.
+
+Vi behandler oplysningerne for at besvare henvendelser og moderere samtaler. Grundlaget er vores legitime interesse i projektudveksling, forbedring af appen og et velordnet forum (GDPR artikel 6, stk. 1, litra f). Opslag bevares, så længe de er nødvendige for denne udveksling; anmodninger om sletning kan sendes til kontaktadressen ovenfor. De øvrige rettigheder gælder også her.
+
+GitHub behandler konto- og forbindelsesdata til platformens drift efter egne vilkår: https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. Oplysningerne ovenfor om GitHub og mulige internationale overførsler gælder også. Appen indlejrer ikke Discussions og sender ikke lokale gemte spil eller lydfiler dertil.`,
 code: `MIT-licens
 
 Copyright (c) 2026 MarensSudoku contributors

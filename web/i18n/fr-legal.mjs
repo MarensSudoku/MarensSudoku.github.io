@@ -45,7 +45,14 @@ En cas d’e-mail, les informations communiquées volontairement sont utilisées
 6. Droits
 Si les conditions respectives sont remplies, il existe des droits d’accès, de rectification, d’effacement, de limitation et de portabilité des données, ainsi qu’un droit d’opposition aux traitements fondés sur des intérêts légitimes. Les consentements peuvent être retirés pour l’avenir. Des réclamations sont possibles auprès d’une autorité de contrôle de la protection des données, notamment auprès du délégué à la protection des données du Land de Basse-Saxe. Pour les informations sur des données qui se trouvent uniquement dans ton propre navigateur, le responsable ne peut pas fournir de copie côté serveur.
 
-L’original contient en outre un résumé en anglais.`,
+L’original contient en outre un résumé en anglais.
+
+GitHub Discussions · 01.11.2026
+Nous utilisons GitHub Discussions (https://github.com/MarensSudoku/MarensSudoku.github.io/discussions) pour les questions, retours et échanges facultatifs sur le projet. Son ouverture vous fait quitter l’application ; publier nécessite un compte GitHub. Les pseudonymes, informations publiques du profil, publications, commentaires, réactions et dates sont visibles dans le dépôt public et peuvent être indexés par les moteurs de recherche. Ne publiez pas d’informations confidentielles ni de données personnelles de tiers.
+
+Nous traitons les informations fournies pour répondre aux demandes et modérer les échanges. La base est notre intérêt légitime aux échanges sur le projet, à l’amélioration de l’application et au bon fonctionnement du forum (article 6, paragraphe 1, point f du RGPD). Les publications sont conservées tant qu’elles sont nécessaires à ces échanges ; adressez les demandes d’effacement au contact ci-dessus. Les autres droits indiqués s’appliquent également.
+
+GitHub traite les données de compte et de connexion pour exploiter sa plateforme selon ses propres conditions : https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. Les informations ci-dessus sur GitHub et les éventuels transferts internationaux s’appliquent aussi. L’application n’intègre pas Discussions et n’y envoie ni parties sauvegardées ni fichiers audio locaux.`,
 code: `Licence MIT
 
 Copyright (c) 2026 MarensSudoku contributors

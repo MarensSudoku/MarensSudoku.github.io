@@ -1,4 +1,7 @@
 export default {
+  "forumTitle": "Discussion forum",
+  "forumOpen": "Open forum on GitHub",
+  "forumHint": "Questions, ideas and feedback are welcome. The forum is public and opens outside the app. Posting requires a GitHub account. Please do not post confidential information or other people’s personal data.",
   "reefLoadFailed": "This object could not be loaded. Please try again.",
   "reefRewards": "For your reef",
   "appVersion": "Version",

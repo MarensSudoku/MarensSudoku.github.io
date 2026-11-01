@@ -45,7 +45,14 @@ When you send an email, the information you provide voluntarily is used to handl
 6. Rights
 Where the respective requirements are met, you have the right of access, rectification, erasure, restriction and data portability as well as the right to object to processing based on legitimate interests. Consent can be withdrawn for the future. Complaints can be lodged with a data protection supervisory authority, in particular the State Commissioner for Data Protection of Lower Saxony. For information about data that exists only in your own browser, the operator cannot provide a server-side copy.
 
-The original also contains an English summary.`,
+The original also contains an English summary.
+
+GitHub Discussions · 01.11.2026
+We use GitHub Discussions (https://github.com/MarensSudoku/MarensSudoku.github.io/discussions) for optional questions, feedback and project discussions. Opening it leaves the app; posting requires a GitHub account. Usernames, public profile details, posts, comments, reactions and timestamps are visible in the public repository and may be indexed by search engines. Please do not post confidential information or other people’s personal data.
+
+We process the information provided there to answer enquiries and moderate discussions. Our basis is our legitimate interest in project discussions, improving the app and an orderly forum (Article 6(1)(f) GDPR). Posts remain for as long as necessary for this exchange; send erasure requests to the contact address above. The other data subject rights also apply here.
+
+GitHub processes account and connection data to operate its platform under its own terms: https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. The information above about GitHub and possible international transfers also applies. The app does not embed Discussions or send local saved games or audio files there.`,
 music: `Music licence – CC BY 4.0
 
 Release status: 28 October 2026, first publication. This media release is based on the publication order of the project operator. It does not claim that the AI outputs are protected by copyright and does not confirm any third-party rights.

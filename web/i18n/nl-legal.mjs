@@ -45,7 +45,14 @@ Bij een e-mail worden de vrijwillig verstrekte gegevens gebruikt om de vraag af 
 6. Rechten
 Als aan de betreffende voorwaarden is voldaan, bestaan rechten op inzage, rectificatie, wissing, beperking en overdraagbaarheid van gegevens, en het recht van bezwaar tegen verwerking op grond van gerechtvaardigde belangen. Toestemmingen kunnen voor de toekomst worden ingetrokken. Klachten kunnen worden ingediend bij een toezichthoudende autoriteit voor gegevensbescherming, met name bij de functionaris voor gegevensbescherming van de deelstaat Nedersaksen. Voor informatie over gegevens die alleen in je eigen browser staan, kan de aanbieder geen kopie van een server leveren.
 
-Het origineel bevat daarnaast een Engelse samenvatting.`,
+Het origineel bevat daarnaast een Engelse samenvatting.
+
+GitHub Discussions · 01.11.2026
+We gebruiken GitHub Discussions (https://github.com/MarensSudoku/MarensSudoku.github.io/discussions) voor vrijwillige vragen, feedback en overleg over het project. Bij openen verlaat je de app; berichten plaatsen vereist een GitHub-account. Gebruikersnamen, openbare profielgegevens, berichten, reacties en tijdstippen zijn zichtbaar in de openbare repository en kunnen door zoekmachines worden geïndexeerd. Plaats geen vertrouwelijke informatie of persoonsgegevens van anderen.
+
+We verwerken deze informatie om vragen te beantwoorden en gesprekken te modereren. De grondslag is ons gerechtvaardigde belang bij projectoverleg, verbetering van de app en een ordelijk forum (artikel 6, lid 1, onder f AVG). Berichten blijven zolang ze nodig zijn voor dit overleg; verzoeken om verwijdering kun je naar bovenstaand contactadres sturen. De overige genoemde rechten gelden ook hier.
+
+GitHub verwerkt account- en verbindingsgegevens voor zijn platform volgens zijn eigen voorwaarden: https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement. Bovenstaande informatie over GitHub en mogelijke internationale doorgiften geldt ook. De app sluit Discussions niet in en stuurt er geen lokaal opgeslagen spellen of audiobestanden naartoe.`,
 code: `MIT-licentie
 
 Copyright (c) 2026 MarensSudoku contributors
