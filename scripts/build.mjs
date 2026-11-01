@@ -80,7 +80,10 @@ self.addEventListener('activate', event => event.waitUntil((async () => {
   if (windows.length <= 1) await Promise.all((await caches.keys()).filter(key => key.startsWith(PREFIX) && ![CACHE,selected,PREFIX+'selection'].includes(key)).map(key => caches.delete(key)));
 })()));
 self.addEventListener('message', event => {
-  if(event.data?.type==='CHECK_UPDATE')event.ports[0]?.postMessage({available:typeof event.data.build==='string'&&PREFIX+event.data.build!==CACHE});
+  if(event.data?.type==='CHECK_UPDATE')event.waitUntil((async()=>{
+    const selected=await selectedCache(caches,PREFIX,self.registration.scope,CACHE);
+    event.ports[0]?.postMessage({available:typeof event.data.build==='string'&&PREFIX+event.data.build!==CACHE,selected:selected===CACHE});
+  })());
   if(event.data==='ACTIVATE'||event.data==='APPLY_UPDATE')event.waitUntil((async()=>{
     try{await selectCache(caches,PREFIX,self.registration.scope,CACHE);await self.skipWaiting();event.ports[0]?.postMessage({ok:true});}
     catch{event.ports[0]?.postMessage({ok:false});}

@@ -14,7 +14,7 @@ const state = load();
 let game = state.game, progress = state.progress, scores = state.scores, settings = state.settings;
 let storageBlocked = state.problem, readOnly = false, busy = false, noteMode = false;
 let selection = game ? Math.max(0, game.values.findIndex(v => !v)) : 0;
-let workerJob = null, generation = 0, updateWorker = null, updatePrompted = false;
+let workerJob = null, generation = 0, updateWorker = null, updateApplying = false, nextUpdateAttempt = 0;
 let startupUpdateCheck=Promise.resolve();
 let clockAt = performance.now(), clockGame = null, clockActive = false, clockTicks = 0;
 const screenWake = createScreenWakeLock();
@@ -118,7 +118,7 @@ function renderBoard() {
   $('notes').disabled = !game || busy || readOnly; $('erase').disabled = !game || busy || readOnly;
   $('notes').setAttribute('aria-pressed', String(noteMode));
   $('new-game').disabled = busy || readOnly; $('restart-game').disabled = !game || busy || readOnly; $('difficulty').disabled = busy || readOnly;
-  for(const id of ['update','settings-update','update-install'])$(id).disabled=busy||readOnly||storageBlocked||!updateWorker;
+  for(const id of ['update','settings-update'])$(id).disabled=busy||readOnly||storageBlocked||updateApplying||!updateWorker;
   document.querySelectorAll('#number-pad button').forEach(button => {
     const n = Number(button.dataset.number), done = Boolean(game && game.values.filter(value => value === n).length >= 9);
     const noted = Boolean(game && !game.values[selection] && game.notes[selection] & (1 << n));
@@ -397,7 +397,6 @@ function showTourStep() {
 }
 async function enterApp(action) {
   if(navigator.serviceWorker?.controller)await startupUpdateCheck;
-  if($('update-dialog').open)await new Promise(resolve=>$('update-dialog').addEventListener('close',resolve,{once:true}));
   action();
 }
 $('welcome-start').addEventListener('click', () => enterApp(async()=>{
@@ -505,7 +504,7 @@ window.addEventListener('pageshow', event => { if (event.persisted) location.rel
 document.addEventListener('visibilitychange', () => { syncClock(); if (document.hidden) { persist(); scene.stopEffects(); } });
 const dialogClock = new MutationObserver(syncClock);
 document.querySelectorAll('dialog').forEach(dialog => dialogClock.observe(dialog, { attributes:true, attributeFilter:['open'] }));
-setInterval(() => { syncClock(); if (clockActive && ++clockTicks % 5 === 0) persist(); }, 1000);
+setInterval(() => { syncClock(); if (clockActive && ++clockTicks % 5 === 0) persist(); void applyUpdate(); }, 1000);
 async function acquireWriter() {
   if (!navigator.locks) return;
   readOnly = !await new Promise(resolve => {
@@ -525,16 +524,21 @@ async function offlineSetup() {
       const worker=registration.waiting||registration.active;if(!worker)return;
       const result=await workerMessage(worker,{type:'CHECK_UPDATE',build:$('app-version').dataset.build});if(!result.available)return;
       if(worker!==(registration.waiting||registration.active))return offer();
+      if(readOnly&&result.selected){location.reload();return;}
       updateWorker=worker;
       for(const id of ['update-notice','update-badge','settings-update-notice'])$(id).hidden=false;
       renderText();
-      if($('welcome-dialog').open&&!updatePrompted&&!readOnly&&!storageBlocked){
-        updatePrompted=true;$('update-dialog').showModal();
-      }
+      await applyUpdate();
     };
     const watch=()=>registration.installing?.addEventListener('statechange',()=>{void offer().catch(()=>{});});
     watch();registration.addEventListener('updatefound',watch);
-    void registration.update().catch(()=>{});
+    const check=async()=>{try{await registration.update();}catch{}await offer().catch(()=>{});};
+    let controlled=Boolean(navigator.serviceWorker.controller);
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{if(controlled)void offer().catch(()=>{});controlled=true;});
+    window.addEventListener('online',()=>{nextUpdateAttempt=0;void check();});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)void check();});
+    setInterval(()=>{if(!document.hidden)void check();},60000);
+    void check();
     await offer();
   } catch {}
 }
@@ -546,24 +550,34 @@ function workerMessage(worker,message) {
   });
 }
 function updateError(key) {
-  const node=$('update-dialog-error');node.dataset.t=key;node.textContent=t(key);node.hidden=false;
-  if(!$('update-dialog').open)$('update-dialog').showModal();
+  nextUpdateAttempt=Date.now()+60000;showNotice(key);renderBoard();
 }
 async function applyUpdate() {
   const worker=updateWorker;
-  if(!worker||busy||readOnly||storageBlocked)return;
+  if(!worker||busy||reefEditing||readOnly||storageBlocked||updateApplying||Date.now()<nextUpdateAttempt)return;
   syncClock();
   if(!save(game,settings,progress,scores)){
     updateError('updateSaveFailed');
     return;
   }
+  updateApplying=true;
   showWaiting('updating');
-  try{if((await workerMessage(worker,'APPLY_UPDATE')).ok){location.reload();return;}}catch{}
+  try{
+    if((await workerMessage(worker,'APPLY_UPDATE')).ok){
+      if(worker.state!=='activated')await new Promise((resolve,reject)=>{
+        const finish=error=>{clearTimeout(timer);worker.removeEventListener('statechange',changed);error?reject(error):resolve();};
+        const changed=()=>{if(worker.state==='activated')finish();else if(worker.state==='redundant')finish(new Error('Update worker was replaced'));};
+        const timer=setTimeout(()=>finish(new Error('Update activation timed out')),5000);
+        worker.addEventListener('statechange',changed);changed();
+      });
+      location.reload();return;
+    }
+  }catch{}
+  updateApplying=false;
   $('loading').close();
   updateError('updateFailed');
 }
-for(const id of ['update','settings-update','update-install'])$(id).addEventListener('click',applyUpdate);
-$('update-dialog').addEventListener('cancel',event=>{event.preventDefault();$('update-dialog').close();});
+for(const id of ['update','settings-update'])$(id).addEventListener('click',()=>{nextUpdateAttempt=0;void applyUpdate();});
 renderText();
 const firstVisit=!state.game&&!state.problem;
 $('welcome-dialog').classList.toggle('first-visit',firstVisit);

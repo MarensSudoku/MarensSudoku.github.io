@@ -28,6 +28,8 @@ export async function checkMobileRing(browser,name,base){
         const point=await page.evaluate(id=>{
           __ringTest.select(id);const point=__ringTest.getEditorAnchor();__ringTest.select(null);return point;
         },id);
+        // The raised claws put the ring anchor slightly above the shell.
+        if(id==='reef-crab')point.y+=3;
         await page.touchscreen.tap(point.x,point.y);
         await page.waitForFunction(id=>document.getElementById('reef-editor').dataset.selected===id,id);
         assert.equal(await page.locator('.reef-editor-top').isHidden(),true);
@@ -43,7 +45,9 @@ export async function checkMobileRing(browser,name,base){
         if(width===375)await page.screenshot({path:`output/${name}-mobile-ring-${id}.png`});
         if(width===375){
           const pose=()=>page.evaluate(id=>{const object=__ringTest.getLayout().objects.find(object=>object.id===id);return Object.fromEntries(['x','y','z','yaw','pitch','roll','scale'].map(key=>[key,object[key]]));},id);
-          for(const field of ['hue','speed','radius']){
+          const motion=await page.locator('#reef-ring-motion').inputValue();
+          assert.equal(await page.locator('#reef-ring-radius-open').isVisible(),motion!=='bounce');
+          for(const field of ['hue','speed','radius'].filter(field=>field!=='radius'||motion!=='bounce')){
             await page.locator('#reef-ring-'+field+'-open').tap();
             const before=await pose(),input=page.locator('#reef-ring-'+field),value=await input.inputValue(),box=await input.boundingBox();
             await swipe(box.x+box.width*.2,box.y+box.height/2,box.width*.6,0);

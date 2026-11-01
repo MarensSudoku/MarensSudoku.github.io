@@ -1,8 +1,38 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { Matrix, Vector3 } from '@babylonjs/core/Maths/math.vector.js';
-import { swimPose, schoolPose, tailWeight, swayWeight, jellyfishTargets, jellyfishInfluences, seahorseFinTargets, seahorseFinInfluences, shrimpLegTargets, shrimpLegInfluences } from '../web/game/swimming.mjs';
+import { Matrix, Quaternion, Vector3 } from '@babylonjs/core/Maths/math.vector.js';
+import { aquariumPose, crabGait, swimPose, schoolPose, tailWeight, swayWeight, jellyfishTargets, jellyfishInfluences, seahorseFinTargets, seahorseFinInfluences, shrimpLegTargets, shrimpLegInfluences } from '../web/game/swimming.mjs';
+import {reefObject} from '../web/reef-layout.mjs';
+
+test('crab steps follow its local walking direction with continuous phase through reversals',()=>{
+  for(const yaw of [0,Math.PI/2,Math.PI]){
+    const crab=reefObject('reef-crab','crab',{yaw,pitch:.2,roll:-.1});let gait,forwards=0,backwards=0;
+    for(let time=0;time<45;time+=.05){
+      const pose=aquariumPose(time,crab),next=crabGait(gait,pose,time,crab.speed,crab.phase);
+      if(gait){
+        const travel=new Vector3(pose.x-gait.pose.x,pose.y-gait.pose.y,pose.z-gait.pose.z);
+        travel.rotateByQuaternionToRef(Quaternion.RotationYawPitchRoll(pose.yaw,pose.pitch,pose.roll).conjugate(),travel);
+        const advance=next.seconds-gait.seconds;
+        assert.ok(advance*travel.x>=-1e-10,'The same clip must reverse when the crab walks the other way');
+        assert.ok(Math.abs(advance)<=.05+1e-10,'Changing direction must not jump to another pose');
+        if(advance>0)forwards++;if(advance<0)backwards++;
+      }
+      gait=next;
+    }
+    assert.ok(forwards>100&&backwards>100);
+  }
+});
+
+test('crab steps stay frozen while standing, editing or resizing and keep phase after speed changes',()=>{
+  const pose={x:0,y:0,z:0,yaw:0};
+  let gait=crabGait(null,pose,0,1,5);assert.equal(gait.seconds,1);
+  gait=crabGait(gait,{...pose,x:1},1,1,5);assert.equal(gait.seconds,2);
+  gait=crabGait(gait,{...pose,x:0},2,1,5);assert.equal(gait.seconds,1);
+  gait=crabGait(gait,{...pose,x:-10},2,2,5);assert.equal(gait.seconds,1,'Editor changes with a frozen clock do not step');
+  gait=crabGait(gait,{...pose,x:-10},3,2,5);assert.equal(gait.seconds,1,'Standing still does not step');
+  gait=crabGait(gait,{...pose,x:-9},3.25,2,5);assert.equal(gait.seconds,1.5,'Speed changes affect future steps without resetting the phase');
+});
 
 test('fish follow a bounded continuous route facing their direction of travel', () => {
   const animal = { phase:1.2, speed:0.1, radius:6, depth:4, height:2 };

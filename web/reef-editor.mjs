@@ -85,16 +85,16 @@ export function setupReefEditor(aquarium,{t,onModeChange,confirmReset,readOnly,u
     motionButton.querySelector('use').setAttribute('href',crab?'#i-crab':'#i-fish');
     const motionName=motionControl.querySelector('label');motionName.dataset.t=motionLabel;motionName.textContent=t(motionLabel);
     if(motion.dataset.animal!==(crab?'crab':'fish')){
-      const options=crab?[['still','reefCrabWander'],['circle','reefCrabCircle'],['patrol','reefPatrol'],['eight','reefCrabEight'],['rest','reefStill']]:[['circle','reefCircle'],['patrol','reefPatrol'],['eight','reefEight'],['still','reefStill'],['school','reefSchool']];
+      const options=crab?[['still','reefCrabWander'],['bounce','reefBounce'],['circle','reefCrabCircle'],['patrol','reefPatrol'],['eight','reefCrabEight'],['rest','reefStill']]:[['circle','reefCircle'],['bounce','reefBounce'],['patrol','reefPatrol'],['eight','reefEight'],['still','reefStill'],['school','reefSchool']];
       motion.replaceChildren(...options.map(([value,key])=>{const option=new Option(t(key),value);option.dataset.t=key;return option;}));
       motion.dataset.animal=crab?'crab':'fish';
     }
     for(const [field,fishLabel,crabLabel] of [['speed','reefSpeed','reefWalkSpeed'],['radius','reefRadius','reefWalkRadius']]){
       const control=ring.querySelector(`[data-reef-slider="${field}"]`),key=crab?crabLabel:fishLabel,button=control.querySelector('button'),text=control.querySelector('[data-t]');
-      control.hidden=!FISH_TYPES.includes(object.type)&&!crab;
+      control.hidden=(!FISH_TYPES.includes(object.type)&&!crab)||(field==='radius'&&object.motion==='bounce');
       button.dataset.reefLabel=key;button.title=t(key);button.setAttribute('aria-label',t(key));text.dataset.t=key;text.textContent=t(key);
     }
-    $('reef-ring-motion').title=object.motion==='school'?t('reefSchoolHint'):'';
+    $('reef-ring-motion').title=object.motion==='school'?t('reefSchoolHint'):object.motion==='bounce'?t('reefBounceHint'):'';
     for(const input of tools.querySelectorAll('[data-reef-field]')) {
       const key=input.dataset.reefField,value=object[key];
       input.value=String(value);

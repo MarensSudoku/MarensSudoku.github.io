@@ -7,6 +7,7 @@ import {aquariumPose} from '../web/game/swimming.mjs';
 import {ACHIEVEMENTS,complete,createGame,emptyProgress,emptyScores,progressValue} from '../web/sudoku/model.mjs';
 import {animateReefModel} from '../scripts/animate-reef.mjs';
 import {load} from '../web/storage.mjs';
+import {Matrix,Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
 
 function glb(bytes){
   assert.equal(bytes.readUInt32LE(0),0x46546c67);assert.equal(bytes.readUInt32LE(8),bytes.length);
@@ -90,7 +91,7 @@ test('all added models save; walking behaviours remain on the ground and can res
 });
 
 test('new models have embedded assets, thumbnails and portable looping skeletal clips',async()=>{
-  for(const spec of REEF_ADDITIONS){
+  for(const spec of [...REEF_ADDITIONS,{id:'reef-crab',rigged:true}]){
     const bytes=await readFile(new URL('../web/assets/models/'+spec.id+'.glb',import.meta.url)),{json,binary}=glb(bytes);
     assert.ok(bytes.length<8*1024*1024);assert.equal(json.asset.version,'2.0');
     assert.ok(json.buffers.every(item=>!item.uri));assert.ok(json.images.every(item=>!item.uri&&Number.isInteger(item.bufferView)));
@@ -111,6 +112,49 @@ test('new models have embedded assets, thumbnails and portable looping skeletal 
       for(let i=0;i<values.length;i+=4)assert.ok(Math.abs(Math.hypot(...values.slice(i,i+4))-1)<1e-6,spec.id+' normalized joint rotation');
     }
     assert.ok(json.meshes.flatMap(mesh=>mesh.primitives).every(primitive=>primitive.attributes.JOINTS_0!==undefined&&primitive.attributes.WEIGHTS_0!==undefined));
+  }
+});
+
+test('crab articulates all forty leg joints smoothly and keeps stance feet at ground height',async()=>{
+  const {json,binary}=glb(await readFile(new URL('../web/assets/models/reef-crab.glb',import.meta.url)));
+  const names=clip=>clip.channels.map(channel=>json.nodes[channel.target.node].name);
+  const idle=json.animations.find(clip=>clip.name==='idle'),move=json.animations.find(clip=>clip.name==='move');
+  const name=number=>'Bone_'+String(number).padStart(3,'0');
+  for(const clip of [idle,move])for(const body of [0,1])assert.equal(names(clip).includes(name(body)),false);
+  for(const joint of [3,5,10,15])assert.ok(names(idle).includes(name(joint)));
+  const parents=new Map(),channels=new Map(move.channels.map(channel=>[channel.target.node,floats(json,binary,move.samplers[channel.sampler].output)]));
+  json.nodes.forEach((node,id)=>(node.children||[]).forEach(child=>parents.set(child,id)));
+  function worlds(frame){
+    const result=new Map();
+    function world(id){
+      if(result.has(id))return result.get(id);
+      const node=json.nodes[id],values=frame===null?null:channels.get(id),rotation=values?.slice(frame*4,frame*4+4)||node.rotation||[0,0,0,1];
+      const local=node.matrix?Matrix.FromArray(node.matrix):Matrix.Compose(Vector3.FromArray(node.scale||[1,1,1]),Quaternion.FromArray(rotation),Vector3.FromArray(node.translation||[0,0,0]));
+      const matrix=parents.has(id)?local.multiply(world(parents.get(id))):local;result.set(id,matrix);return matrix;
+    }
+    json.nodes.forEach((node,id)=>world(id));return result;
+  }
+  const bind=worlds(null),times=floats(json,binary,move.samplers[0].input),frames=times.map((time,frame)=>worlds(frame));
+  for(const [row,pair] of [[20,25],[30,35],[40,55],[50,45]].entries())for(const [side,number] of pair.entries()){
+    const joints=Array.from({length:5},(_,i)=>json.nodes.findIndex(node=>node.name===name(number-i)));
+    for(const id of joints){
+      assert.equal(names(idle).includes(json.nodes[id].name),false);const values=channels.get(id);assert.ok(values);
+      assert.ok(values.some((value,i)=>Math.abs(value-values[i%4])>1e-4),'Every leg joint participates');
+      for(let i=4;i<values.length;i+=4){
+        const a=Quaternion.FromArray(values,i-4),b=Quaternion.FromArray(values,i);
+        const change=2*Math.acos(Math.min(1,Math.abs(Quaternion.Dot(a,b))));
+        assert.ok(change<.15,'Joint motion must not snap: '+json.nodes[id].name+' frame '+i/4+' angle '+change);
+      }
+    }
+    const positions=joints.map(id=>Vector3.TransformCoordinates(Vector3.Zero(),bind.get(id)));
+    const tip=positions.at(-1).add(positions.at(-1).subtract(positions.at(-2)).scale(.65));
+    const localTip=Vector3.TransformCoordinates(tip,bind.get(joints.at(-1)).clone().invert());let highest=0;
+    for(const [frame,time] of times.entries()){
+      const foot=Vector3.TransformCoordinates(localTip,frames[frame].get(joints.at(-1))),fraction=((time/2+row*.22+side*.5)%1+1)%1;
+      if(fraction<.7)assert.ok(Math.abs(foot.y-tip.y)<.005,'A supporting foot stays down: '+number+' at '+time);
+      assert.ok(foot.y>=tip.y-.005&&foot.y<=tip.y+.08,'Feet must clear the ground without kicking');highest=Math.max(highest,foot.y-tip.y);
+    }
+    assert.ok(highest>.03,'Each foot lifts for its next step');
   }
 });
 

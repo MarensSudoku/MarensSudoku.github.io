@@ -24,6 +24,6 @@ test('aquarium GLBs stay bounded, embedded and free of remote decoder requiremen
       const position = gltf.accessors[primitive.attributes.POSITION];
       assert.ok(position.count > 0 && position.min.every(Number.isFinite) && position.max.every(Number.isFinite));
     }
-    assert.ok(triangles > 0 && triangles < 10000);
+    assert.ok(triangles > 0 && triangles < (spec.rigged ? 20000 : 10000));
   }
 });

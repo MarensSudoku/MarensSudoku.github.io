@@ -1,8 +1,9 @@
 import { Engine } from '@babylonjs/core/Engines/engine.js';
 import { Scene } from '@babylonjs/core/scene.js';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera.js';
-import { Vector3, Matrix } from '@babylonjs/core/Maths/math.vector.js';
+import { Vector3, Matrix, Quaternion } from '@babylonjs/core/Maths/math.vector.js';
 import { Plane } from '@babylonjs/core/Maths/math.plane.js';
+import { Frustum } from '@babylonjs/core/Maths/math.frustum.js';
 import '@babylonjs/core/Culling/ray.js';
 import { CreateTorus } from '@babylonjs/core/Meshes/Builders/torusBuilder.js';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color.js';
@@ -22,11 +23,13 @@ import { ColorCurves } from '@babylonjs/core/Materials/colorCurves.js';
 import { ImportMeshAsync } from '@babylonjs/core/Loading/sceneLoader.js';
 import '@babylonjs/loaders/glTF/glTFFileLoader.js';
 import '@babylonjs/loaders/glTF/2.0/index.js';
-import { aquariumPose, tailWeight, swayWeight, jellyfishTargets, jellyfishInfluences, seahorseFinTargets, seahorseFinInfluences, shrimpLegTargets, shrimpLegInfluences } from './swimming.mjs';
+import { aquariumPose, crabGait, tailWeight, swayWeight, jellyfishTargets, jellyfishInfluences, seahorseFinTargets, seahorseFinInfluences, shrimpLegTargets, shrimpLegInfluences } from './swimming.mjs';
 import { createWater } from './water.mjs';
 import { FISH_TYPES, WALKING_TYPES, MAX_REEF_OBJECTS, reefObject, validReefObject, validReefLayout, readReefLayout } from '../reef-layout.mjs';
 import {REEF_ADDITIONS} from '../reef-additions.mjs';
 import {loadRiggedModel} from './rigged-model.mjs';
+import {bounceLimits,bounceStep,coarseContact} from './bounce.mjs';
+import {boxEntry,createSurface,updateSurface,surfaceContact} from './surface-collision.mjs';
 
 class GroundShadow extends MaterialPluginBase {
   constructor(material) {super(material,'GroundShadow',100);this._enable(true);}
@@ -111,6 +114,8 @@ export async function createAquarium(canvas) {
     sand.isPickable = false;
     const water = createWater(scene,sandMaterial,mobile||software), scenery = [], swaying = [];
     const templates = new Map(), riggedTemplates = new Map(), pendingModels = new Map(), objects = new Map(), fish = [];
+    let obstacleBounds=null;
+    const collisionSurfaces=new WeakMap();
     let framing = 1, editing = false, transformMode = 'move', transformEnabled = true, selected = null, hovered = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {}, beforeChange = () => {};
 
     async function model(spec, size, bottom) {
@@ -239,6 +244,7 @@ export async function createAquarium(canvas) {
       const sceneryItem={node,x}, entry={node,rig,managers,scenery:sceneryItem,record:reefObject(template.metadata.type,name,{x,y,z,scale:size,yaw:Math.atan2(Math.sin(yaw),Math.cos(yaw))})};
       node.metadata={...node.metadata,reefEntry:entry};
       scenery.push(sceneryItem); objects.set(name,entry);
+      obstacleBounds=null;
       if (moving) { entry.sway={managers,phase:scenery.length*.9}; swaying.push(entry.sway); }
       addShadows(node);
       return node;
@@ -286,8 +292,9 @@ export async function createAquarium(canvas) {
     const anemone=await model(models.anemone,models.anemone.size,true); bend(anemone,models.anemone.sway,'anemone'); anemone.setEnabled(false);
     [[-4.4,.02,1],[4.3,.02,4],[-6.5,2.4,10]].forEach(([x,y,z],i)=>place(anemone,'anemone-'+i,x,y,z,1,i,true));
     [[-3.3,.02,-5],[3.5,.02,-4.5]].forEach(([x,y,z],i)=>place(anemone,'foreground-anemone-'+i,x,y,z,1.1,i*1.7,true));
-    const crabTemplate = await model(models.crab,models.crab.size,true); bend(crabTemplate,.035,'crab'); crabTemplate.setEnabled(false);
+    const crabTemplate = await model(models.crab,models.crab.size,true); crabTemplate.setEnabled(false);
     place(crabTemplate,'reef-crab',-2,.025,-.5);
+    Object.assign(objects.get('reef-crab').record,{speed:.5,motion:'bounce'});
     for (let species = 0; species < models.fish.length; species++) {
       const spec=models.fish[species], school=Boolean(spec.school);
       const template = await model(spec,school ? (mobile ? .36 : .46) : .85 + species*.06,false);
@@ -310,9 +317,120 @@ export async function createAquarium(canvas) {
     if(!validReefLayout(defaultLayout))throw new Error('Invalid default reef layout');
     function redraw() {if(ready&&!replacing&&(reduced||editing)&&!document.hidden)drawOnce();}
     function placementPose(object) {
-      return FISH_TYPES.includes(object.type)||WALKING_TYPES.includes(object.type)?aquariumPose(time,object):object;
+      return FISH_TYPES.includes(object.type)||WALKING_TYPES.includes(object.type)?aquariumPose(time,object,objects.get(object.id)?.bounce):object;
+    }
+    function objectBounds(entry) {
+      return entry.node.getHierarchyBoundingVectors(true,mesh=>mesh.getTotalVertices?.()>0&&mesh.material!==shadowMaterial);
+    }
+    const collisionMeshes=entry=>entry.node.getChildMeshes().filter(mesh=>mesh.getTotalVertices()>0&&mesh.material!==shadowMaterial);
+    function surfaceFor(mesh) {
+      const matrix=mesh.computeWorldMatrix(true),cached=collisionSurfaces.get(mesh);
+      if(cached&&matrix.equals(cached.matrix)&&(!(mesh.skeleton||mesh.morphTargetManager)||cached.time===time))return cached.surface;
+      mesh.skeleton?.prepare(true);
+      const local=mesh.getPositionData(true,true);if(!local?.length)return null;
+      const positions=cached?.surface.positions||new Float32Array(local.length),m=matrix.m;
+      for(let i=0;i<local.length;i+=3){
+        const x=local[i],y=local[i+1],z=local[i+2];
+        positions[i]=x*m[0]+y*m[4]+z*m[8]+m[12];positions[i+1]=x*m[1]+y*m[5]+z*m[9]+m[13];positions[i+2]=x*m[2]+y*m[6]+z*m[10]+m[14];
+      }
+      const surface=cached?.surface||createSurface(positions,mesh.getIndices()||Array.from({length:local.length/3},(_,i)=>i));
+      if(cached)updateSurface(surface,positions);
+      collisionSurfaces.set(mesh,{surface,matrix:matrix.clone(),time});return surface;
+    }
+    function broadBounds(box) {
+      const margin=Math.max(box.max.x-box.min.x,box.max.y-box.min.y,box.max.z-box.min.z)*.25;
+      return {min:new Vector3(box.min.x-margin,box.min.y-margin,box.min.z-margin),max:new Vector3(box.max.x+margin,box.max.y+margin,box.max.z+margin)};
+    }
+    function turnBounds(box,from,to) {
+      const origin=new Vector3(from.x*framing,from.y,from.z),target=new Vector3(to.x*framing,to.y,to.z);
+      const rotation=pose=>Quaternion.RotationYawPitchRoll(pose.yaw,pose.pitch,pose.roll);
+      const delta=rotation(to).multiply(rotation(from).conjugate()),min=new Vector3(Infinity,Infinity,Infinity),max=new Vector3(-Infinity,-Infinity,-Infinity);
+      for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z]){
+        const point=new Vector3(x,y,z).subtract(origin);point.rotateByQuaternionToRef(delta,point);point.addInPlace(target);
+        min.minimizeInPlace(point);max.maximizeInPlace(point);
+      }
+      return {min,max};
+    }
+    function advanceBounces() {
+      const active=[];
+      for(const entry of objects.values())if(entry.record.motion==='bounce')active.push(entry);else entry.bounce=null;
+      if(!active.length||editing)return;
+      const obstacles=obstacleBounds??=[...objects.values()].filter(entry=>!FISH_TYPES.includes(entry.record.type)&&!WALKING_TYPES.includes(entry.record.type)).map(entry=>{const bounds=objectBounds(entry);return {id:entry.record.id,bounds,broad:broadBounds(bounds),meshes:collisionMeshes(entry)};});
+      scene.updateTransformMatrix(true);
+      const planes=[...Frustum.GetPlanes(scene.getTransformMatrix()),new Plane(0,1,0,.03)];
+      const cameraWorld=camera.getWorldMatrix(),forward=Vector3.TransformNormal(new Vector3(0,0,1),cameraWorld).normalize();
+      const right=Vector3.TransformNormal(new Vector3(1,0,0),cameraWorld).normalize(),up=Vector3.TransformNormal(new Vector3(0,1,0),cameraWorld).normalize();
+      const focal=canvas.clientHeight*camera.getProjectionMatrix().m[5]/2;
+      for(const entry of active){
+        const object=entry.record,state=entry.bounce??={offset:0,direction:1,time},fish=FISH_TYPES.includes(object.type);
+        const elapsed=Math.max(0,time-state.time),turning=Boolean(state.turn),paused=state.pause>0;state.time=time;
+        if(turning){
+          state.turn.progress=Math.min(1,state.turn.progress+elapsed/state.turn.duration);
+          if(state.turn.progress===1){state.lane=(state.lane||0)+state.turn.sign*state.turn.radius*2;state.direction=-state.direction;state.turn=null;}
+        }
+        if(paused)state.pause=Math.max(0,state.pause-elapsed);
+        const pose=placementPose(object);
+        entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.rotation.set(pose.pitch,pose.yaw,pose.roll);
+        const bounds=objectBounds(entry),extent=bounds.max.subtract(bounds.min);
+        const span=axis=>Math.abs(axis.x)*extent.x+Math.abs(axis.y)*extent.y+Math.abs(axis.z)*extent.z;
+        const viewport=canvas.clientWidth+':'+canvas.clientHeight+':'+object.scale;
+        if(state.viewport!==viewport){
+          const center=bounds.min.add(bounds.max).scale(.5),distance=Vector3.Dot(forward,center.subtract(camera.position))+span(forward)/2+.03;
+          state.minimumPixels=Math.min(12,Math.max(.5,Math.max(span(right),span(up))*focal/Math.max(1,distance*1.25)));state.viewport=viewport;
+        }
+        // Turn while the animal is still large enough to see and clear of distant fog.
+        const depth=Math.min(scene.fogStart+(scene.fogEnd-scene.fogStart)*.65,Math.max(span(right),span(up))*focal/state.minimumPixels);
+        const far=new Plane(-forward.x,-forward.y,-forward.z,Vector3.Dot(forward,camera.position)+depth);
+        const axis=new Vector3(1,0,0);axis.rotateByQuaternionToRef(Quaternion.RotationYawPitchRoll(object.yaw,object.pitch||0,object.roll||0),axis);axis.x*=framing;
+        const speed=object.speed*(fish?object.baseSpeed*3:.22),visible=[...planes,far],limits=bounceLimits(bounds,axis,visible);
+        if(limits.min>limits.max)continue;
+        const correction=Math.max(limits.min,Math.min(limits.max,0));
+        if(correction){
+          state.offset+=correction;const shift=axis.scale(correction);entry.node.position.addInPlace(shift);bounds.min.addInPlace(shift);bounds.max.addInPlace(shift);
+          limits.min-=correction;limits.max-=correction;
+        }
+        if(turning||paused)continue;
+        if(fish){
+          const body=Math.max(extent.x,extent.y,extent.z),radius=Math.max(.08,body*.35)/axis.length(),lead=radius+body*.22;
+          const travel=axis.scale(state.direction),edge=state.direction>0?limits.max:-limits.min;
+          const free=Math.max(0,Math.min(edge,coarseContact(bounds,travel,obstacles.map(obstacle=>obstacle.bounds))));
+          if(free>elapsed*speed+lead){state.offset+=state.direction*elapsed*speed;continue;}
+          state.offset+=state.direction*Math.max(0,Math.min(elapsed*speed,free-lead));
+          const preferred=state.lane?-Math.sign(state.lane):1;
+          const safeTurn=(radius,sign)=>{
+            const turn={radius,sign,progress:0,duration:Math.max(1.2,Math.PI*radius/speed)};
+            for(let i=0;i<=8;i++){
+              const candidate=aquariumPose(time,object,{...state,turn:{...turn,progress:i/8}}),box=turnBounds(bounds,pose,candidate),range=bounceLimits(box,axis,visible);
+              if(range.min>0||range.max<0||obstacles.some(obstacle=>boxEntry(box,Vector3.Zero(),obstacle.bounds)===0))return null;
+            }
+            return turn;
+          };
+          state.turn=safeTurn(radius,preferred)||safeTurn(radius,-preferred)||safeTurn(radius/2,preferred)||safeTurn(radius/2,-preferred)||{radius:0,sign:preferred,progress:0,duration:1.2};
+          continue;
+        }
+        let animalSurfaces,impact=null;
+        const contact=(box,travel,distance,offset)=>{
+          // Leave the last contact briefly so animated toes cannot bounce back into it.
+          const broad=broadBounds(box),candidates=obstacles.filter(obstacle=>!(state.leaveContact>0&&obstacle.id===state.contactId)&&boxEntry(broad,travel,obstacle.broad)<=distance);if(!candidates.length)return Infinity;
+          animalSurfaces??=collisionMeshes(entry).map(surfaceFor).filter(Boolean);
+          const shift=axis.scale(offset);let nearest=Infinity;
+          for(const obstacle of candidates)for(const mesh of obstacle.meshes){
+            const surface=surfaceFor(mesh);if(!surface)continue;
+            for(const animal of animalSurfaces){const hit=surfaceContact(animal,surface,travel,Math.min(distance,nearest),shift);if(hit<nearest){nearest=hit;impact=obstacle;}}
+          }
+          return nearest;
+        };
+        const edge=state.direction>0?limits.max:-limits.min,braking=Math.max(.025,speed*.5);
+        const clearance=Math.min(edge,edge>0?contact(bounds,axis.scale(state.direction),Math.min(edge,Math.max(braking,elapsed*speed)),0):0);
+        const fraction=Math.min(1,clearance/braking),targetRate=clearance<braking?.15+.85*fraction*fraction*(3-2*fraction):1;
+        state.strideRate=Math.min(targetRate,(state.strideRate??1)+elapsed/.35);
+        const step=bounceStep(bounds,axis,elapsed*speed*state.strideRate,state.direction,limits,contact);
+        state.offset+=step.offset;state.direction=step.direction;state.leaveContact=Math.max(0,(state.leaveContact||0)-Math.abs(step.offset)*axis.length());
+        if(step.turned){state.pause=.65;state.strideRate=0;state.contactId=impact?.id;state.leaveContact=.04;}
+      }
     }
     function updateRoot(entry) {
+      obstacleBounds=null;
       const object=entry.record,pose=editing?placementPose(object):object;
       entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.scaling.setAll(object.scale);entry.node.rotation.set(pose.pitch||0,pose.yaw,pose.roll||0);
       if(entry.scenery)entry.scenery.x=object.x;
@@ -328,6 +446,7 @@ export async function createAquarium(canvas) {
     }
     function removeObject(id) {
       const entry=objects.get(id);if(!entry)return false;
+      obstacleBounds=null;
       changing();
       if(hovered===id)setHovered(null);
       for(const list of [scenery,swaying,fish]) {const item=list===scenery?entry.scenery:list===swaying?entry.sway:entry.animal;const index=list.indexOf(item);if(index>=0)list.splice(index,1);}
@@ -451,9 +570,10 @@ export async function createAquarium(canvas) {
       if (!force && now - last < frameBudget) return; // The 2 ms slack keeps 60 Hz screens from skipping frames.
       const delta = Math.min((now - last) / 1000, 0.08); last = now;
       if (!reduced&&!editing) time += delta;
+      advanceBounces();
       for (const animal of fish) {
         const object=animal.record;
-        const pose = aquariumPose(time,object);
+        const pose = placementPose(object);
         animal.body.position.set(pose.x*framing, pose.y, pose.z); animal.body.rotation.set(pose.pitch,pose.yaw,pose.roll);
         const seconds=time*object.speed+object.phase*.2,wave=Math.sin(time*7*object.speed+object.phase+object.member*.65);
         const influences=object.type==='jellyfish'?jellyfishInfluences(seconds):object.type==='seahorse'?seahorseFinInfluences(seconds):[Math.max(0,-wave),Math.max(0,wave)];
@@ -466,13 +586,20 @@ export async function createAquarium(canvas) {
       for(const entry of objects.values())if(WALKING_TYPES.includes(entry.record.type)) {
         const object=entry.record;
         const pose=placementPose(object);entry.node.position.set(pose.x*framing,pose.y,pose.z);entry.node.rotation.set(pose.pitch,pose.yaw,pose.roll);
+        if(object.type==='reef-crab'){
+          const bounce=entry.bounce;
+          entry.gait=object.motion==='rest'?null:crabGait(entry.gait,pose,time,object.speed*(bounce?.strideRate??1),object.phase);
+          const blendTarget=bounce?.pause>0?0:1;
+          entry.walkBlend=(entry.walkBlend??1)+(blendTarget-(entry.walkBlend??1))*Math.min(1,delta/.12);
+          if(bounce?.pause>0){const reaction=Math.sin(Math.PI*(1-bounce.pause/.65));entry.node.rotation.z+=bounce.direction*.015*reaction;entry.node.position.y+=.002*reaction;}
+        }
         const wave=object.motion==='rest'?0:Math.sin(time*5*object.speed);
         const influences=object.type==='cleaner-shrimp'?(object.motion==='rest'?[0,0,0]:shrimpLegInfluences(time*object.speed+object.phase*.2)):[Math.max(0,-wave),Math.max(0,wave)];
         for(const manager of entry.managers)influences.forEach((value,i)=>manager.getTarget(i).influence=value);
       }
       for(const entry of objects.values())if(entry.rig){
         const object=entry.record,moving=WALKING_TYPES.includes(object.type)?object.motion!=='rest':FISH_TYPES.includes(object.type)&&object.motion!=='still';
-        entry.rig.pose(time*object.speed+object.phase*.2,moving);
+        entry.rig.pose(entry.gait?.seconds??time*object.speed+object.phase*.2,moving,entry.walkBlend??1,time+object.phase*.2);
       }
       updateSelectionRing();
       scene.metadata={reefTime:time};
@@ -487,6 +614,7 @@ export async function createAquarium(canvas) {
       if (!reduced&&!editing) engine.runRenderLoop(render);
     }
     function resize() {
+      obstacleBounds=null;
       engine.resize(); framing=Math.min(1,Math.max(.58,engine.getAspectRatio(camera)/1.6));
       for(const item of scenery) item.node.position.x=item.x*framing;
       if (!document.hidden) drawOnce();

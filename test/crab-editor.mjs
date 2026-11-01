@@ -14,10 +14,11 @@ export async function checkCrabEditor(browser,name,base){
       await page.locator('[data-reef-id="reef-crab"]').check();await page.locator('#reef-edit-selected').tap();
     };
     await enter();const expected={};
+    assert.equal(Number(await page.locator('#reef-ring-speed').inputValue()),.5,'The default reef crab starts at 50% speed');
     assert.equal(await page.locator('#reef-ring-motion-open').getAttribute('aria-label'),'Bewegungsverhalten');
-    assert.deepEqual(await page.locator('#reef-ring-motion option').evaluateAll(options=>options.map(option=>option.value)),['still','circle','patrol','eight','rest']);
+    assert.deepEqual(await page.locator('#reef-ring-motion option').evaluateAll(options=>options.map(option=>option.value)),['still','bounce','circle','patrol','eight','rest']);
     await page.locator('#reef-ring-motion-open').tap();await page.locator('#reef-ring-motion').selectOption('eight');await page.keyboard.press('Escape');
-    await page.locator('#reef-undo').tap();assert.equal(await page.locator('#reef-ring-motion').inputValue(),'still','undo must restore the original natural walk');
+    await page.locator('#reef-undo').tap();assert.equal(await page.locator('#reef-ring-motion').inputValue(),'bounce','undo must restore the default obstacle-turning walk');
     await page.locator('#reef-ring-motion-open').tap();await page.locator('#reef-ring-motion').selectOption('rest');await page.keyboard.press('Escape');
     for(const [field,label,step] of [['speed','Lauftempo',.1],['radius','Bewegungsradius',.25]]){
       const button=page.locator('#reef-ring-'+field+'-open'),input=page.locator('#reef-ring-'+field);

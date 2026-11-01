@@ -18,5 +18,5 @@
   "plants":[{"file":"ribbon-grass.glb","size":2.4,"sway":0.22},{"file":"sea-fern.glb","size":1.8,"sway":0.18}],
   "anemone":{"file":"anemone.glb","size":1.6,"sway":0.13},
   "rock":{"file":"reef-ledge.glb","size":5.8},
-  "crab":{"file":"reef-crab.glb","yaw":3.141592653589793,"size":0.95}
+  "crab":{"id":"reef-crab","file":"reef-crab.glb","rigged":true,"yaw":3.141592653589793,"size":0.95}
 }

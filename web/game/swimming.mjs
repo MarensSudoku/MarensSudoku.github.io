@@ -1,5 +1,5 @@
 import {Quaternion,Vector3} from '@babylonjs/core/Maths/math.vector.js';
-import {WALKING_TYPES} from '../reef-layout.mjs';
+import {FISH_TYPES,WALKING_TYPES} from '../reef-layout.mjs';
 
 export function tailWeight(x, min, max) {
   const tail = Math.max(0, Math.min(1, ((max - x) / (max - min || 1) - 0.35) / 0.65));
@@ -81,11 +81,27 @@ export function shrimpLegTargets(positions,minY,maxY,length) {
 
 export const shrimpLegInfluences=seconds=>[1,Math.sin(seconds*Math.PI*2/1.1),Math.cos(seconds*Math.PI*2/1.1)];
 
-export function aquariumPose(time, object) {
+export function crabGait(previous,pose,time,speed,phase) {
+  let seconds=previous?.seconds??time*speed+phase*.2;
+  if(previous){
+    const travel=new Vector3(pose.x-previous.pose.x,pose.y-previous.pose.y,pose.z-previous.pose.z);
+    travel.rotateByQuaternionToRef(Quaternion.RotationYawPitchRoll(pose.yaw,pose.pitch||0,pose.roll||0).conjugate(),travel);
+    if(Math.abs(travel.x)>1e-7)seconds+=Math.max(0,time-previous.time)*speed*Math.sign(travel.x);
+  }
+  return {seconds,time,pose};
+}
+
+export function aquariumPose(time, object, bounce) {
   if(object.motion==='rest'||object.motion==='still'&&!WALKING_TYPES.includes(object.type))return {x:object.x,y:object.y,z:object.z,yaw:object.yaw,pitch:object.pitch||0,roll:object.roll||0};
   const settings={phase:object.phase,speed:object.baseSpeed*object.speed,radius:object.radius,depth:object.z,height:object.y,member:object.member};
   let pose;
-  if(WALKING_TYPES.includes(object.type)&&object.motion==='still') {
+  if(object.motion==='bounce') {
+    const fish=FISH_TYPES.includes(object.type),turn=fish&&bounce?.turn,angle=turn?turn.progress*Math.PI:0;
+    const direction=bounce?.direction||1;
+    pose={x:(bounce?.offset||0)+(turn?direction*turn.radius*Math.sin(angle):0),y:object.y,
+      z:object.z+(bounce?.lane||0)+(turn?turn.sign*turn.radius*(1-Math.cos(angle)):0),
+      yaw:fish?(direction<0?Math.PI:0)-(turn?direction*turn.sign*angle:0):0};
+  } else if(WALKING_TYPES.includes(object.type)&&object.motion==='still') {
     const step=time*object.speed*(object.type==='reef-crab'?1:object.baseSpeed/.1),reach=object.radius/3;
     pose={x:Math.sin(step*.16)*1.4*reach,y:object.y,z:object.z+Math.cos(step*.11)*.5*reach,yaw:0};
   } else if(object.motion==='circle'||object.motion==='school') {

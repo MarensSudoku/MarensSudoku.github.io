@@ -58,8 +58,59 @@ export function animateReefModel(bytes,type) {
       sway(number,lift,amplitude*.65,{phase,falloff:.85,lag:.7,shape:'lift',idle:.12});
     });
   }
+  function steppingLeg(number,phase) {
+    const joints=chain(number),rest=joints.map(position);
+    const directions=rest.slice(1).map((point,i)=>point.subtract(rest[i])),lengths=directions.map(vector=>vector.length());
+    const parentWorld=world(parents.get(joints[0])),toeRotation=Quaternion.FromRotationMatrix(world(joints.at(-1)).getRotationMatrix());
+    const locals=joints.map(id=>gltf.nodes[id]);
+    const reach=lengths.reduce((sum,length)=>sum+length,0),stride=Math.min(.22,reach*.22),height=Math.min(.06,reach*.065);
+    const poses=new Map();
+    function pose(seconds) {
+      if(poses.has(seconds))return poses.get(seconds);
+      const fraction=((seconds/2+phase)%1+1)%1,stance=.7,swing=(fraction-stance)/(1-stance);
+      let travel=stride*(.5-fraction/stance),lift=0;
+      if(fraction>stance){
+        const smooth=swing*swing*(3-2*swing),tangent=-stride*(1-stance)/stance;
+        travel=-stride/2+(stride-tangent)*smooth+tangent*swing;lift=height*Math.sin(Math.PI*swing)**2;
+      }
+      const target=rest.at(-1).add(new Vector3(travel,lift,0));
+      const jointPose=locals.map(node=>Quaternion.FromArray(node.rotation||[0,0,0,1]));
+      function forwardPose(){
+        let parent=parentWorld;
+        return locals.map((node,i)=>parent=Matrix.Compose(Vector3.FromArray(node.scale||[1,1,1]),jointPose[i],Vector3.FromArray(node.translation||[0,0,0])).multiply(parent));
+      }
+      // Damped joint corrections share the step across the chain without folding the ankle.
+      for(let iteration=0;iteration<32;iteration++){
+        const matrices=forwardPose(),points=matrices.map(matrix=>Vector3.TransformCoordinates(Vector3.Zero(),matrix)),foot=points.at(-1),error=target.subtract(foot);
+        if(error.lengthSquared()<1e-10)break;
+        let xx=.01,yy=.01,zz=.01,xy=0,xz=0,yz=0;
+        const reaches=points.slice(0,-1).map(point=>foot.subtract(point));
+        for(const r of reaches){xx+=r.y*r.y+r.z*r.z;yy+=r.x*r.x+r.z*r.z;zz+=r.x*r.x+r.y*r.y;xy-=r.x*r.y;xz-=r.x*r.z;yz-=r.y*r.z;}
+        const inverse=Matrix.FromValues(xx,xy,xz,0,xy,yy,yz,0,xz,yz,zz,0,0,0,0,1).invert(),correction=Vector3.TransformNormal(error,inverse);
+        reaches.forEach((reach,i)=>{
+          const turn=Vector3.Cross(reach,correction).scale(.5),angle=Math.min(.04,turn.length());
+          if(angle<1e-8)return;
+          const parent=Quaternion.FromRotationMatrix((i?matrices[i-1]:parentWorld).getRotationMatrix()),current=Quaternion.FromRotationMatrix(matrices[i].getRotationMatrix());
+          jointPose[i]=parent.conjugate().multiply(Quaternion.RotationAxis(turn.normalize(),angle)).multiply(current).normalize();
+        });
+      }
+      // The final joint counters the shin so the toe stays level during contact.
+      const matrices=forwardPose(),shin=Quaternion.FromRotationMatrix(matrices.at(-2).getRotationMatrix());
+      jointPose[jointPose.length-1]=shin.conjugate().multiply(toeRotation).normalize();
+      poses.set(seconds,jointPose);return jointPose;
+    }
+    joints.forEach((id,i)=>tracks.set(id,[{idle:0,pose:seconds=>pose(seconds)[i]}]));
+  }
   let duration=4;
   switch(type) {
+    case 'reef-crab':
+      [[20,25],[30,35],[40,55],[50,45]].forEach((pair,row)=>pair.forEach((number,side)=>steppingLeg(number,row*.22+side*.5)));
+      for(const [number,side] of [[10,-1],[15,1]]){
+        const joints=chain(number),phase=side<0?0:Math.PI;
+        add(joints[0],up,side*.035,{phase,idle:.5});
+        add(joints[1],new Vector3(0,0,side),.025,{phase:phase+Math.PI/2,idle:.4});
+      }
+      add(bone(3),up,.04,{idle:.6});add(bone(5),up,.04,{phase:Math.PI/3,idle:.6});break;
     case 'octopus':arms([11,18,25,32,39,46,53,60]);break;
     case 'manta-ray':
       for(const [number,side] of [[12,-1],[20,1]]){
@@ -125,7 +176,7 @@ export function animateReefModel(bytes,type) {
       const base=Quaternion.FromArray(node.rotation||[0,0,0,1]),values=[];let previous;
       for(let frame=0;frame<count;frame++) {
         const time=frame===count-1?0:times[frame];let rotation=base.clone();
-        for(const part of active)rotation=rotation.multiply(Quaternion.RotationAxis(part.axis,part.bias+part.amplitude*(name==='idle'?part.idle:1)*wave(part,time,length)));
+        for(const part of active)rotation=part.pose?part.pose(time):rotation.multiply(Quaternion.RotationAxis(part.axis,part.bias+part.amplitude*(name==='idle'?part.idle:1)*wave(part,time,length)));
         rotation.normalize();if(previous&&Quaternion.Dot(previous,rotation)<0)rotation.scaleInPlace(-1);
         values.push(...rotation.asArray());previous=rotation;
       }
@@ -147,7 +198,7 @@ export function animateReefModel(bytes,type) {
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const [input,output,...selected]=process.argv.slice(2);assert.ok(input&&output,'Usage: node scripts/animate-reef.mjs INPUT_DIRECTORY OUTPUT_DIRECTORY [MODEL ...]');
   assert.notEqual(resolve(input),resolve(output),'Keep source rigs intact');await mkdir(output,{recursive:true});
-  const supported=REEF_ADDITIONS.filter(spec=>spec.rigged).map(spec=>spec.id+'.glb');
+  const supported=['reef-crab',...REEF_ADDITIONS.filter(spec=>spec.rigged).map(spec=>spec.id)].map(id=>id+'.glb');
   const files=(await readdir(input)).filter(file=>supported.includes(file)&&(!selected.length||selected.includes(file.replace('.glb',''))));
   assert.ok(files.length,'No supported reef rigs found');
   for(const file of files){const result=animateReefModel(await readFile(join(input,file)),file.replace('.glb',''));await writeFile(join(output,file),result.bytes);console.log(file+': '+result.clips.map(clip=>clip.name+' '+clip.channels+' joints / '+clip.duration+'s').join(', '));}
