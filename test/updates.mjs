@@ -42,7 +42,7 @@ export async function checkUpdates(browser,name) {
       console.log(`${name}: checking automatic update during ${route}.`);
       next=false;delayActivation=route==='welcome';
       const context=await browser.newContext({viewport:{width:375,height:559},hasTouch:true,locale:'de-DE',reducedMotion:'reduce'});
-      const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
+      const page=await context.newPage();page.on('pageerror',error=>errors.push(`${route}, main tab: ${error.message}`));
       const snapshot=()=>page.evaluate(({gameKey,reefKey})=>{
         const state=JSON.parse(localStorage.getItem(gameKey));return {values:state.game.values,notes:state.game.notes,seed:state.game.seed,scores:state.scores,reef:localStorage.getItem(reefKey)};
       },{gameKey:STORAGE_KEY,reefKey:REEF_STORAGE_KEY});
@@ -73,7 +73,8 @@ export async function checkUpdates(browser,name) {
         }
         let before=await snapshot();let reader;
         if(route==='playing'){
-          reader=await context.newPage();reader.on('pageerror',error=>errors.push(error.message));await reader.goto(base);await reader.locator('.board-shell.ready').waitFor();
+          reader=await context.newPage();reader.on('pageerror',error=>errors.push(`${route}, reader tab: ${error.message}`));await reader.goto(base);await reader.locator('.board-shell.ready').waitFor();
+          await reader.waitForFunction(()=>document.getElementById('reef-aquarium').dataset.status==='ready');
           await context.setOffline(true);
         }
         next=true;await page.evaluate(async()=>{try{await (await navigator.serviceWorker.getRegistration()).update();}catch{}});
@@ -104,11 +105,15 @@ export async function checkUpdates(browser,name) {
           throw new Error(`${name}: ${route} update did not finish: ${JSON.stringify(state)}`,{cause:error});
         });
         await page.locator('.board-shell.ready').waitFor();
+        await page.waitForFunction(()=>document.getElementById('reef-aquarium').dataset.status==='ready');
         assert.equal(await page.locator('#app-version').getAttribute('data-build'),nextBuild);
         assert.deepEqual(await snapshot(),before,'updates must preserve the Sudoku, notes, points and reef');
         assert.equal(await page.locator('#update-dialog').count(),0);
         assert.equal(await page.locator('#settings-update-notice').getAttribute('hidden')!==null,true);
-        if(reader)await reader.waitForFunction(version=>document.getElementById('app-version')?.textContent===version,nextVersion);
+        if(reader){
+          await reader.waitForFunction(version=>document.getElementById('app-version')?.textContent===version,nextVersion);
+          await reader.waitForFunction(()=>document.getElementById('reef-aquarium').dataset.status==='ready');
+        }
       }finally{await context.close();}
     }
     assert.deepEqual(errors,[]);

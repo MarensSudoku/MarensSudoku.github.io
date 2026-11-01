@@ -1,3 +1,4 @@
+import './report-ci-error.mjs';
 import { chromium, webkit } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
