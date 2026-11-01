@@ -11,6 +11,23 @@ export const LOCALES = {
   da: { name: 'Dansk', flag: 'dk', tag: 'da-DK' },
   sv: { name: 'Svenska', flag: 'se', tag: 'sv-SE' },
   fi: { name: 'Suomi', flag: 'fi', tag: 'fi-FI' },
+  pl: { name: 'Polski', flag: 'pl', tag: 'pl-PL' },
+  cs: { name: 'Čeština', flag: 'cz', tag: 'cs-CZ' },
+  hu: { name: 'Magyar', flag: 'hu', tag: 'hu-HU' },
+  ro: { name: 'Română', flag: 'ro', tag: 'ro-RO' },
+  lv: { name: 'Latviešu', flag: 'lv', tag: 'lv-LV' },
+  lt: { name: 'Lietuvių', flag: 'lt', tag: 'lt-LT' },
+  ru: { name: 'Русский', flag: 'ru', tag: 'ru-RU' },
+  uk: { name: 'Українська', flag: 'ua', tag: 'uk-UA' },
+  tr: { name: 'Türkçe', flag: 'tr', tag: 'tr-TR' },
+  he: { name: 'עברית', flag: 'il', tag: 'he-IL', dir: 'rtl' },
+  hi: { name: 'हिन्दी', flag: 'in', tag: 'hi-IN' },
+  id: { name: 'Bahasa Indonesia', flag: 'id', tag: 'id-ID' },
+  vi: { name: 'Tiếng Việt', flag: 'vn', tag: 'vi-VN' },
+  ja: { name: '日本語', flag: 'jp', tag: 'ja-JP' },
+  ko: { name: '한국어', flag: 'kr', tag: 'ko-KR' },
+  'zh-Hans': { name: '简体中文', flag: 'cn', tag: 'zh-CN' },
+  'zh-Hant': { name: '繁體中文', flag: 'tw', tag: 'zh-TW' },
 };
 
 export function resolveLanguage(preferences = []) {

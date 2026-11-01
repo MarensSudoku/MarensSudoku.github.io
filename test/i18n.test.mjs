@@ -26,7 +26,7 @@ test('every language has every text, placeholder, flag, release note and legal r
       if (/<[a-z]/.test(value)) assert.deepEqual(ui[key].match(/<\/?[a-z0-9]+/g), value.match(/<\/?[a-z0-9]+/g), `${code}.${key}: markup`);
     }
     assert.deepEqual(Object.keys(legal).sort(), Object.keys(LEGAL).filter(id => LEGAL[id] !== code).sort(), `${code}: legal reading aids`);
-    for (const [id, copy] of Object.entries(legal)) assert.ok(copy.length > 400, `${code}.${id}: legal text`);
+    for (const [id, copy] of Object.entries(legal)) assert.ok(Buffer.byteLength(copy) > 400, `${code}.${id}: legal text`);
     assert.equal(RELEASE.notes[code]?.length, RELEASE.notes.de.length, `${code}: release notes`);
     await access(new URL(`../web/assets/flags/flag-${locale.flag}.svg`, import.meta.url));
   }
