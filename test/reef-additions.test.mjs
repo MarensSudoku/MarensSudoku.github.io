@@ -115,6 +115,23 @@ test('new models have embedded assets, thumbnails and portable looping skeletal 
   }
 });
 
+test('seahorse keeps its tail coil rigid while its stem moves gently',async()=>{
+  const {json,binary}=glb(await readFile(new URL('../web/assets/models/seahorse.glb',import.meta.url)));
+  const byName=new Map(json.nodes.map((node,id)=>[node.name,id]));
+  const node=number=>byName.get('Bone_'+String(number).padStart(3,'0'));
+  for(const clip of json.animations){
+    const channels=new Map(clip.channels.map(channel=>[channel.target.node,channel]));
+    for(const number of [4,5,6,7])assert.equal(channels.has(node(number)),false,'Coil joints keep their rest rotation');
+    for(const number of [8,9,10,11]){
+      const channel=channels.get(node(number));assert.ok(channel,'Tail stem must remain animated');
+      const values=floats(json,binary,clip.samplers[channel.sampler].output),rest=Quaternion.FromArray(json.nodes[node(number)].rotation||[0,0,0,1]);
+      let maximum=0;
+      for(let i=0;i<values.length;i+=4)maximum=Math.max(maximum,2*Math.acos(Math.min(1,Math.abs(Quaternion.Dot(rest,Quaternion.FromArray(values,i))))));
+      assert.ok(maximum>.0005&&maximum<.01,'Tail motion must stay gentle enough to preserve the spiral');
+    }
+  }
+});
+
 test('crab articulates all forty leg joints smoothly and keeps stance feet at ground height',async()=>{
   const {json,binary}=glb(await readFile(new URL('../web/assets/models/reef-crab.glb',import.meta.url)));
   const names=clip=>clip.channels.map(channel=>json.nodes[channel.target.node].name);

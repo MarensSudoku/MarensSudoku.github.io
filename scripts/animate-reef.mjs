@@ -131,9 +131,11 @@ export function animateReefModel(bytes,type) {
       sway(3,up,.045,{phase:Math.PI,idle:.3});sway(5,up,-.045,{phase:Math.PI,idle:.3});
       sway(8,up,.012,{idle:.5});break;
     case 'seahorse':
-      duration=6;add(bone(0),new Vector3(1,0,0),.04,{idle:.65});
-      sway(12,new Vector3(1,0,0),.032,{falloff:.93,lag:.45,idle:.7});
-      add(bone(25),up,.025,{idle:.5});break;
+      duration=6;add(bone(0),new Vector3(1,0,0),.025,{idle:.65});
+      // Move the tail stem gently while keeping the coiled tip in its rest shape.
+      chain(11).slice(0,4).forEach((id,i)=>add(id,new Vector3(1,0,0),.006*.8**i,{phase:-i*.15,idle:.5}));
+      add(bone(3),up,.015,{idle:.5});
+      add(bone(13),up,.075,{cycles:12,idle:.65});break;
     case 'pistol-shrimp':
       legs([16,21,26,31,36,41,46,51]);sway(9,new Vector3(1,0,0),.012,{idle:.3});
       add(bone(73),up,.14,{shape:'snap',idle:.6});add(bone(75),up,-.09,{shape:'snap',idle:.6});
