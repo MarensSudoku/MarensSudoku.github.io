@@ -8,11 +8,12 @@ export async function checkMusicLifecycle(browser,name,base) {
     await page.waitForFunction(()=>!document.getElementById('reef-music').paused);
     await page.locator('#reef-music').evaluate(audio=>{audio.currentTime=12;});
     await page.waitForFunction(()=>{const audio=document.getElementById('reef-music');return !audio.seeking&&audio.currentTime>=12;});
-    const before=await page.locator('#reef-music').evaluate(audio=>({src:audio.currentSrc,time:audio.currentTime}));
-    await page.evaluate(()=>{
+    const before=await page.evaluate(()=>{
+      const audio=document.getElementById('reef-music'),started=performance.now(),position={src:audio.currentSrc,time:audio.currentTime};
       if(navigator.mediaSession){navigator.mediaSession.playbackState='playing';if(window.MediaMetadata)navigator.mediaSession.metadata=new MediaMetadata({title:'Reef music'});}
       Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));
       dispatchEvent(new Event('pagehide'));
+      return {...position,stopDelay:(performance.now()-started)/1000};
     });
     // Without a source the media element reaches NETWORK_EMPTY one task after load(); WebKit may still report NO_SOURCE before that.
     await page.waitForFunction(()=>document.getElementById('reef-music').networkState===0,null,{timeout:2000}).catch(()=>{});
@@ -20,10 +21,22 @@ export async function checkMusicLifecycle(browser,name,base) {
     assert.deepEqual(stopped,{paused:true,src:null,networkState:0,readyState:0},'backgrounding must unload the player completely');
     assert.equal(await page.evaluate(()=>navigator.mediaSession?.playbackState??'none'),'none');
     assert.equal(await page.evaluate(()=>navigator.mediaSession?.metadata??null),null);
-    await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});
-    await page.waitForFunction(time=>{const audio=document.getElementById('reef-music');return !audio.paused&&!audio.seeking&&audio.currentTime>=time-.1;},before.time);
-    assert.equal(await page.locator('#reef-music').evaluate(audio=>audio.currentSrc),before.src);
-    assert.ok(await page.locator('#reef-music').evaluate((audio,time)=>audio.currentTime<time+3,before.time),'returning must continue near the stored position');
+    await page.evaluate(()=>{
+      const audio=document.getElementById('reef-music'),started=performance.now();window.__musicResume=null;
+      const capture=()=>{
+        if(audio.paused||audio.seeking||audio.readyState<2)return;
+        window.__musicResume={src:audio.currentSrc,time:audio.currentTime,elapsed:(performance.now()-started)/1000};
+        audio.removeEventListener('playing',capture);audio.removeEventListener('seeked',capture);
+      };
+      audio.addEventListener('playing',capture);audio.addEventListener('seeked',capture);
+      delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));capture();
+    });
+    await page.waitForFunction(()=>window.__musicResume);
+    const resumed=await page.evaluate(()=>window.__musicResume);
+    assert.equal(resumed.src,before.src);
+    assert.ok(resumed.time>=before.time-.1,'returning must not restart the track');
+    // Audio advances while a slow runner delivers events and executes later browser commands.
+    assert.ok(resumed.time<=before.time+before.stopDelay+resumed.elapsed+.5,'returning must continue near the stored position');
     await page.evaluate(()=>dispatchEvent(new Event('pagehide')));
     assert.equal(await page.locator('#reef-music').getAttribute('src'),null,'pagehide must release the source even without visibilitychange');
     await page.evaluate(()=>dispatchEvent(new Event('pageshow')));
