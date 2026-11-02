@@ -55,7 +55,7 @@ test('saved games keep published German and English and accept every new languag
 
 test('music titles come from the language files and keep readable fallbacks', async () => {
   const { ui } = await strings('fr'), t = key => ui[key] ?? key;
-  const [first, second] = makeMusicTracks(['01-sonnenlicht-ueber-dem-riff_1.mp3', '07-neuer-titel.mp3']);
-  assert.equal(trackName(first, t), `${ui['track.01-sonnenlicht-ueber-dem-riff']} · ${ui.musicVariant.replace('{n}', '1')}`);
-  assert.equal(trackName(second, t), 'neuer titel');
+  const [first, second] = makeMusicTracks(['01-sonnenlicht-ueber-dem-riff.mp3', '21-neuer-titel.mp3']);
+  assert.equal(trackName(first, t), `01 · ${ui['track.01-sonnenlicht-ueber-dem-riff']}`);
+  assert.equal(trackName(second, t), '21 · neuer titel');
 });

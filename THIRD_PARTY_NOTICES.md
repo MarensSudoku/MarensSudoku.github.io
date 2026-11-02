@@ -19,3 +19,5 @@ The built app includes the application notices as assets/music/LICENSE.txt and a
 The complete, unchanged English CC BY 4.0 legal code is also included as assets/licenses/CC-BY-4.0.txt, obtained from https://creativecommons.org/licenses/by/4.0/legalcode.txt on 29 October 2026. Legal notices and licence texts are embedded from their original local files into expandable sections of Help & info, including for offline use. Standalone copies remain available at their existing addresses.
 
 The supplemental sound-effect release dated 2 November 2026 explicitly includes the ninth recording, `09-blasenwolke.wav`, under the same CC BY 4.0 terms and attribution. The original eight-file release notice is retained unchanged.
+
+The supplemental music release dated 2 November 2026 adds nine recordings under the same CC BY 4.0 terms and attribution. The current catalogue contains twenty music recordings and nine sound effects. Eleven previously released music recordings now have individual titles and consecutive filenames; their compressed audio is unchanged. The music notice retains the original release list and explicitly maps the old filenames to the current names.

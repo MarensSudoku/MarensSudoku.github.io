@@ -108,7 +108,31 @@ music: `音楽ライセンス – CC BY 4.0
 許諾されるのは実際に存在する権利のみです。法律で認められた利用やパブリックドメインに属する利用には追加の許可は不要で、この表示によって制限されることもありません。独占的な保護や第三者の請求がないことは保証されません。保証と責任は CC BY 4.0 第 5 条および強行法規によって定まり、この表示が独自の免責を追加することはありません。
 
 公開に関する注記
-初回公開は、2026年10月28日にプロジェクト運営者の指示により行われました。すでに実際に許諾された CC BY の権利は、条件が守られている限り一方的に撤回できません。支払い記録とアカウントデータは非公開のままです。`,
+初回公開は、2026年10月28日にプロジェクト運営者の指示により行われました。すでに実際に許諾された CC BY の権利は、条件が守られている限り一方的に撤回できません。支払い記録とアカウントデータは非公開のままです。
+
+2026年11月2日付の補足：以下の追加9音源は、同じCC BY 4.0の条件と帰属表示により明示的に公開されます。音量を調整しMP3に変換しています。ファイル名の対応表は公開済みの11音源を示し、それらの圧縮音声は変更していません。
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `効果音ライセンス – CC BY 4.0
 
 公開状況：2026年10月28日、初回公開。以下に記載する 8 つの音声録音は、他者のサンプルや外部の生成サービスを使わず、このために手続き的に合成したものです。後から別のファイルを追加しても、自動的にライセンスされることはありません。

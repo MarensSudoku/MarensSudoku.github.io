@@ -9,22 +9,35 @@ import { createGame, emptyProgress } from '../web/sudoku/model.mjs';
 import { defaults, load, save, STORAGE_KEY } from '../web/storage.mjs';
 import { parseByteRange, rangeResponse } from '../web/range.mjs';
 
-test('dropped music files and numbered variants have distinct translated names', async () => {
+test('all twenty music recordings have consecutive numbers and distinct translated titles', async () => {
   const tracks = makeMusicTracks(await readdir(new URL('../web/assets/music/', import.meta.url)));
-  assert.ok(tracks.length > 0);
+  assert.equal(tracks.length,20);
   assert.equal(tracks.some(track => track.file === '03-schwebende-perlen_2.mp3'), false);
-  assert.equal(tracks[0].file, DEFAULT_MUSIC_TRACK);
+  assert.equal(tracks[2].file, DEFAULT_MUSIC_TRACK);
   assert.equal(new Set(tracks.map(track => track.file)).size, tracks.length);
+  assert.equal(new Set(tracks.map(track=>name(track))).size,tracks.length);
+  assert.deepEqual(tracks.map(track=>Number(track.file.slice(0,2))),Array.from({length:20},(_,index)=>index+1));
   for (const track of tracks) {
     assert.ok(de[track.key], track.key);
+    assert.ok(!track.file.includes('_')&&!name(track).includes('Variante'));
     assert.ok((await stat(new URL('../web/assets/music/' + track.file, import.meta.url))).size > 0);
   }
-  const variants = makeMusicTracks(['01-sonnenlicht-ueber-dem-riff_1.mp3','01-sonnenlicht-ueber-dem-riff_2.mp3','README.md','../private.mp3']);
-  assert.equal(variants.length, 2); assert.notEqual(name(variants[0]), name(variants[1]));
-  assert.ok(name(variants[0]).includes('Variante 1'));
-  const nested = makeMusicTracks(['04-kristallklares-wasser_1.mp3','04-kristallklares-wasser_1_2.mp3']);
-  assert.equal(name(nested.find(track => track.file === '04-kristallklares-wasser_1.mp3')), 'Kristallklares Wasser · Variante 1');
-  assert.equal(name(nested.find(track => track.file === '04-kristallklares-wasser_1_2.mp3')), 'Kristallklares Wasser · Variante 2');
+  const dropped=makeMusicTracks(['21-neuer-titel.mp3','README.md','../private.mp3']);
+  assert.equal(dropped.length,1);assert.equal(name(dropped[0]),'21 · neuer titel');
+});
+
+test('published music names migrate while favourites are validated and saved without changing the game',()=>{
+  let stored;
+  globalThis.localStorage={getItem:()=>stored,setItem:(_key,value)=>{stored=value;}};
+  const game=createGame(generate('easy',44)),settings={...defaults(),musicTrack:'01-sonnenlicht-ueber-dem-riff_2.mp3',musicFavorites:['12-sonnentanz-in-der-lagune.mp3','12-sonnentanz-in-der-lagune.mp3','../private.mp3',null],musicFavoritesOnly:true};
+  save(game,settings,emptyProgress());
+  const restored=load();
+  assert.equal(restored.problem,false);assert.deepEqual(restored.game,game);
+  assert.equal(restored.settings.musicTrack,'02-goldene-strahlen.mp3');
+  assert.deepEqual(restored.settings.musicFavorites,['12-sonnentanz-in-der-lagune.mp3']);
+  assert.equal(restored.settings.musicFavoritesOnly,true);
+  save(restored.game,restored.settings,restored.progress);
+  assert.deepEqual(load().settings.musicFavorites,restored.settings.musicFavorites);
 });
 test('random music stays in the catalogue and never repeats the previous track when alternatives exist', () => {
   const tracks = makeMusicTracks(['a.mp3','b.mp3','c.mp3']);

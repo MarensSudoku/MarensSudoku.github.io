@@ -108,7 +108,31 @@ Alcance de los derechos y responsabilidad
 Solo se conceden los derechos realmente disponibles. Un uso permitido por la ley o de dominio público no necesita permiso adicional y no queda restringido por este aviso. No se garantiza una protección exclusiva ni la ausencia de reclamaciones de terceros. La garantía y la responsabilidad se rigen por la sección 5 de la licencia CC BY 4.0 y por el derecho imperativo; este aviso no añade exclusiones propias.
 
 Nota de autorización
-La primera publicación fue encargada por el responsable del proyecto el 28 de octubre de 2026. Los derechos CC BY ya concedidos de forma efectiva no pueden revocarse unilateralmente si se cumplen las condiciones. Los justificantes de pago y de cuenta siguen siendo privados.`,
+La primera publicación fue encargada por el responsable del proyecto el 28 de octubre de 2026. Los derechos CC BY ya concedidos de forma efectiva no pueden revocarse unilateralmente si se cumplen las condiciones. Los justificantes de pago y de cuenta siguen siendo privados.
+
+Complemento del 2 de noviembre de 2026: las nueve grabaciones adicionales indicadas abajo se publican expresamente bajo las mismas condiciones CC BY 4.0 y atribución. Se ajustó su volumen y se convirtieron a MP3. La correspondencia de nombres identifica las once grabaciones ya publicadas; su audio comprimido no cambia.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Licencia de los efectos de sonido – CC BY 4.0
 
 Estado de la publicación: 28 de octubre de 2026, primera publicación. Las ocho grabaciones de sonido indicadas abajo se sintetizaron de forma procedimental expresamente para este proyecto, sin muestras de terceros ni servicios externos de generación. Añadir más archivos después no los licencia automáticamente.

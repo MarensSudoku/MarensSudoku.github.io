@@ -108,7 +108,31 @@ music: `음악 라이선스 – CC BY 4.0
 실제로 존재하는 권리만 부여됩니다. 법률이 허용하거나 퍼블릭 도메인에 속하는 이용에는 추가 허가가 필요 없으며 이 고지로 제한되지 않습니다. 독점적 보호나 제3자의 청구가 없음은 보증되지 않습니다. 보증과 책임은 CC BY 4.0 제5조와 강행 법규에 따라 정해지며, 이 고지는 자체적인 면책을 추가하지 않습니다.
 
 공개 관련 메모
-최초 공개는 2026년 10월 28일 프로젝트 운영자의 지시로 이루어졌습니다. 이미 실제로 부여된 CC BY 권리는 조건이 지켜지는 한 일방적으로 철회할 수 없습니다. 결제 증빙과 계정 데이터는 비공개로 유지됩니다.`,
+최초 공개는 2026년 10월 28일 프로젝트 운영자의 지시로 이루어졌습니다. 이미 실제로 부여된 CC BY 권리는 조건이 지켜지는 한 일방적으로 철회할 수 없습니다. 결제 증빙과 계정 데이터는 비공개로 유지됩니다.
+
+2026년 11월 2일 추가 사항: 아래 추가 녹음 9개는 동일한 CC BY 4.0 조건과 저작자 표시로 명시적으로 공개됩니다. 음량을 조정하고 MP3로 변환했습니다. 파일명 대응표는 이전에 공개된 녹음 11개를 나타내며, 해당 압축 오디오는 변경되지 않았습니다.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `효과음 라이선스 – CC BY 4.0
 
 공개 상태: 2026년 10월 28일, 최초 공개. 아래 나열한 8개의 사운드 녹음은 다른 사람의 샘플이나 외부 생성 서비스 없이 이를 위해 절차적으로 합성한 것입니다. 나중에 다른 파일을 추가해도 자동으로 라이선스가 부여되지 않습니다.

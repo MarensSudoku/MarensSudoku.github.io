@@ -108,7 +108,31 @@ Hakların kapsamı ve sorumluluk
 Yalnızca fiilen mevcut olan haklar verilir. Yasal olarak izin verilen veya kamu malı kapsamındaki kullanımlar ek izin gerektirmez ve bu bildirimle sınırlanmaz. Münhasır koruma veya üçüncü taraf taleplerinden muafiyet garanti edilmez. Garanti ve sorumluluk, CC BY 4.0’ın 5. Bölümü ve emredici hukuk kurallarına göre belirlenir; bu bildirim kendi istisnalarını eklemez.
 
 Yayın notu
-İlk yayın, proje işleteni tarafından 28.10.2026’da talimatla gerçekleştirilmiştir. Fiilen verilmiş CC BY hakları, koşullara uyulduğu sürece tek taraflı olarak geri alınamaz. Ödeme belgeleri ve hesap verileri gizli kalır.`,
+İlk yayın, proje işleteni tarafından 28.10.2026’da talimatla gerçekleştirilmiştir. Fiilen verilmiş CC BY hakları, koşullara uyulduğu sürece tek taraflı olarak geri alınamaz. Ödeme belgeleri ve hesap verileri gizli kalır.
+
+2 Kasım 2026 tarihli ek: aşağıdaki dokuz ek kayıt aynı CC BY 4.0 koşulları ve atıf bilgileriyle açıkça yayımlanmıştır. Ses düzeyleri ayarlanmış ve MP3 biçimine dönüştürülmüştür. Dosya adı eşleştirmesi daha önce yayımlanan on bir kaydı belirtir; sıkıştırılmış sesleri değiştirilmemiştir.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Ses efekti lisansı – CC BY 4.0
 
 Yayın durumu: 28.10.2026, ilk yayın. Aşağıda listelenen sekiz ses kaydı, yabancı örnekler ve harici üretim hizmetleri kullanılmadan, özel olarak prosedürel yöntemle sentezlenmiştir. Daha sonra başka dosyaların eklenmesi, bunların otomatik olarak lisanslandığı anlamına gelmez.

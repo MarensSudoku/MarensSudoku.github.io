@@ -108,7 +108,31 @@ Rozsah práv a odpovědnost
 Poskytují se pouze skutečně dostupná práva. Užití dovolené zákonem nebo volné užití nepotřebuje další svolení a toto upozornění ho neomezuje. Výhradní ochrana ani prostota nároků třetích osob se nezaručuje. Záruka a odpovědnost se řídí oddílem 5 licence CC BY 4.0 a kogentním právem; toto upozornění nepřidává žádná vlastní vyloučení.
 
 Poznámka k uvolnění
-První zveřejnění zadal provozovatel projektu 28. 10. 2026. Již účinně udělená práva CC BY nelze při dodržení podmínek jednostranně odvolat. Doklady o platbách a účtech zůstávají soukromé.`,
+První zveřejnění zadal provozovatel projektu 28. 10. 2026. Již účinně udělená práva CC BY nelze při dodržení podmínek jednostranně odvolat. Doklady o platbách a účtech zůstávají soukromé.
+
+Doplnění ze dne 2. listopadu 2026: devět dalších nahrávek níže je výslovně uvolněno za stejných podmínek CC BY 4.0 a se stejným uvedením autora. Jejich hlasitost byla upravena a byly převedeny do MP3. Přehled názvů souborů identifikuje jedenáct dříve uvolněných nahrávek; jejich komprimovaný zvuk zůstává nezměněn.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Licence zvukových efektů – CC BY 4.0
 
 Stav uvolnění: 28. 10. 2026, první zveřejnění. Osm níže uvedených zvukových nahrávek bylo pro tento účel procedurálně syntetizováno, bez cizích samplů a externích generovacích služeb. Pozdější přidání dalších souborů neznamená jejich automatické licencování.

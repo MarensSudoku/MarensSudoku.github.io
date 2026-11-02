@@ -1,118 +1,118 @@
 export const RELEASE = {
-  "version": "v12",
+  "version": "v13",
   "date": "2026-11-02",
   "notes": {
     "de": [
-      "Auch beim Neustart eines Sudokus steigen jetzt Blasen vom ganzen Spielfeld auf – mit demselben Blubbern wie beim neuen und gelösten Sudoku.",
-      "Die Blasen der Ausströmer sehen jetzt schärfer aus, auch bei größeren Ausströmern."
+      "Neun neue Musikstücke bringen Steel Drums, Ukulele und sonnige Karibikrhythmen ins Riff.",
+      "Alle 20 Aufnahmen haben eigene Titel. Markiere deine Lieblingsstücke mit einem Herz und spiele auf Wunsch nur deine Favoriten."
     ],
     "en": [
-      "Restarting a Sudoku now sends bubbles up from the whole board, with the same bubbling sound as starting or solving a Sudoku.",
-      "Bubbles from air stones now look sharper, including those from larger air stones."
+      "Nine new tracks bring steel drums, ukulele and sunny Caribbean rhythms to the reef.",
+      "All 20 recordings have their own titles. Mark your favourite tracks with a heart and choose to play only your favourites."
     ],
     "es": [
-      "Al reiniciar un sudoku, ahora suben burbujas de todo el tablero con el mismo sonido que al empezar o resolver uno.",
-      "Las burbujas de los difusores ahora se ven más nítidas, también en los difusores grandes."
+      "Nueve canciones nuevas traen steel drums, ukelele y ritmos caribeños llenos de sol al arrecife.",
+      "Las 20 grabaciones tienen títulos propios. Marca tus canciones favoritas con un corazón y elige escuchar solo tus favoritos."
     ],
     "fr": [
-      "Au redémarrage d’un sudoku, des bulles montent désormais de toute la grille, avec le même bruit de bulles qu’au début ou à la résolution.",
-      "Les bulles des diffuseurs sont désormais plus nettes, même avec de grands diffuseurs."
+      "Neuf nouveaux morceaux apportent steel drums, ukulélé et rythmes ensoleillés des Caraïbes au récif.",
+      "Les 20 enregistrements ont chacun leur titre. Marquez vos morceaux préférés d’un cœur et choisissez de ne jouer que vos favoris."
     ],
     "it": [
-      "Ora, quando ricominci un sudoku, le bolle salgono da tutta la griglia con lo stesso suono dell’inizio e del completamento.",
-      "Le bolle dei diffusori ora sono più nitide, anche con i diffusori più grandi."
+      "Nove nuovi brani portano steel drums, ukulele e ritmi caraibici pieni di sole nella barriera.",
+      "Tutte le 20 registrazioni hanno un titolo proprio. Segna i tuoi brani preferiti con un cuore e scegli di ascoltare solo quelli."
     ],
     "pt": [
-      "Ao reiniciar um sudoku, as bolhas sobem agora de todo o tabuleiro, com o mesmo som do início e da resolução.",
-      "As bolhas dos difusores estão agora mais nítidas, mesmo nos difusores maiores."
+      "Nove novas faixas trazem steel drums, ukulele e ritmos soalheiros das Caraíbas ao recife.",
+      "As 20 gravações têm títulos próprios. Marca as tuas faixas favoritas com um coração e escolhe ouvir apenas os favoritos."
     ],
     "pt-BR": [
-      "Ao reiniciar um sudoku, as bolhas agora sobem de todo o tabuleiro, com o mesmo som do início e da resolução.",
-      "As bolhas dos difusores agora ficam mais nítidas, inclusive nos difusores maiores."
+      "Nove novas faixas trazem steel drums, ukulele e ritmos caribenhos cheios de sol ao recife.",
+      "As 20 gravações têm títulos próprios. Marque suas faixas favoritas com um coração e escolha ouvir só os favoritos."
     ],
     "nl": [
-      "Bij het herstarten van een sudoku stijgen nu bellen uit het hele speelveld, met hetzelfde geborrel als bij het starten of oplossen.",
-      "De bellen van de luchtstenen zijn nu scherper, ook bij grotere luchtstenen."
+      "Negen nieuwe nummers brengen steel drums, ukelele en zonnige Caribische ritmes naar het rif.",
+      "Alle 20 opnamen hebben een eigen titel. Markeer je favoriete nummers met een hartje en kies om alleen je favorieten af te spelen."
     ],
     "da": [
-      "Når du genstarter en sudoku, stiger bobler nu fra hele brættet med samme boblelyd som ved start og løsning.",
-      "Bobler fra luftsten er nu skarpere, også fra større luftsten."
+      "Ni nye numre bringer steel drums, ukulele og solrige caribiske rytmer til revet.",
+      "Alle 20 optagelser har hver sin titel. Markér dine yndlingsnumre med et hjerte, og vælg kun at afspille favoritterne."
     ],
     "sv": [
-      "När du startar om ett sudoku stiger nu bubblor från hela brädet, med samma bubblande ljud som vid start och lösning.",
-      "Luftstenarnas bubblor är nu skarpare, även från större luftstenar."
+      "Nio nya låtar ger revet steel drums, ukulele och soliga karibiska rytmer.",
+      "Alla 20 inspelningar har egna titlar. Markera dina favoritlåtar med ett hjärta och välj att bara spela favoriterna."
     ],
     "fi": [
-      "Myös sudokun uudelleenkäynnistyksessä kuplat nousevat nyt koko ruudukosta samalla kuplivalla äänellä kuin aloituksessa ja ratkaisussa.",
-      "Ilmastinkivien kuplat näyttävät nyt terävämmiltä, myös suuremmista kivistä."
+      "Yhdeksän uutta kappaletta tuo riutalle steel drum -soittimia, ukulelea ja aurinkoisia Karibian rytmejä.",
+      "Kaikilla 20 tallenteella on oma nimi. Merkitse suosikkikappaleesi sydämellä ja valitse toistettavaksi vain suosikit."
     ],
     "pl": [
-      "Po ponownym rozpoczęciu sudoku bąbelki unoszą się teraz z całej planszy, z takim samym dźwiękiem jak przy rozpoczęciu i rozwiązaniu.",
-      "Bąbelki z kamieni napowietrzających są teraz wyraźniejsze, także z większych kamieni."
+      "Dziewięć nowych utworów wnosi na rafę steel drums, ukulele i słoneczne karaibskie rytmy.",
+      "Wszystkie 20 nagrań ma własne tytuły. Oznacz ulubione utwory sercem i wybierz odtwarzanie tylko ulubionych."
     ],
     "cs": [
-      "Při restartu sudoku nyní stoupají bubliny z celé desky se stejným zvukem jako při zahájení a vyřešení.",
-      "Bubliny ze vzduchovacích kamenů jsou nyní ostřejší, i u větších kamenů."
+      "Devět nových skladeb přináší k útesu steel drums, ukulele a slunečné karibské rytmy.",
+      "Všech 20 nahrávek má vlastní názvy. Označ oblíbené skladby srdíčkem a zvol přehrávání jen oblíbených."
     ],
     "hu": [
-      "A sudoku újrakezdésekor is buborékok szállnak fel az egész tábláról, ugyanazzal a hanggal, mint a kezdéskor és a megoldáskor.",
-      "A porlasztókövek buborékai most élesebben látszanak, a nagyobb köveknél is."
+      "Kilenc új szám steel drum hangszereket, ukulelét és napfényes karibi ritmusokat hoz a zátonyra.",
+      "Mind a 20 felvétel saját címet kapott. Jelöld szívvel kedvenc számaidat, és válaszd csak a kedvencek lejátszását."
     ],
     "ro": [
-      "La repornirea unui sudoku, bulele se ridică acum de pe întreaga tablă, cu același sunet ca la început și la rezolvare.",
-      "Bulele pietrelor de aerare sunt acum mai clare, inclusiv la pietrele mai mari."
+      "Nouă piese noi aduc steel drums, ukulele și ritmuri caraibiene însorite în recif.",
+      "Toate cele 20 de înregistrări au titluri proprii. Marchează piesele preferate cu o inimă și alege să asculți doar favoritele."
     ],
     "lv": [
-      "Arī atsākot sudoku, burbuļi tagad paceļas no visa laukuma ar tādu pašu burbuļošanas skaņu kā sākot vai atrisinot.",
-      "Gaisa akmeņu burbuļi tagad ir asāki, arī lielākiem akmeņiem."
+      "Deviņi jauni skaņdarbi ienes rifā tērauda bungas, ukuleli un saulainus Karību ritmus.",
+      "Visiem 20 ierakstiem ir savi nosaukumi. Atzīmē iemīļotos skaņdarbus ar sirsniņu un izvēlies atskaņot tikai izlasi."
     ],
     "lt": [
-      "Iš naujo pradėjus sudoku, burbuliukai dabar kyla iš visos lentos, su tokiu pačiu garsu kaip pradedant ar išsprendus.",
-      "Oro akmenėlių burbuliukai dabar atrodo ryškesni, taip pat ir didesnių akmenėlių."
+      "Devyni nauji kūriniai į rifą atneša plieninių būgnų, ukulelės ir saulėtų Karibų ritmų.",
+      "Visi 20 įrašų turi savo pavadinimus. Pažymėk mėgstamus kūrinius širdute ir pasirink groti tik mėgstamiausius."
     ],
     "ru": [
-      "При перезапуске судоку пузырьки теперь поднимаются со всего поля с тем же звуком, что в начале и после решения.",
-      "Пузырьки из распылителей теперь выглядят чётче, в том числе из больших распылителей."
+      "Девять новых треков добавляют рифу стальные барабаны, укулеле и солнечные карибские ритмы.",
+      "У всех 20 записей теперь собственные названия. Отмечайте любимые треки сердечком и выбирайте воспроизведение только избранного."
     ],
     "uk": [
-      "Після перезапуску судоку бульбашки тепер піднімаються з усього поля з тим самим звуком, що на початку та після розв’язання.",
-      "Бульбашки з розпилювачів тепер виглядають чіткіше, зокрема й з великих розпилювачів."
+      "Дев’ять нових треків додають рифу сталеві барабани, укулеле та сонячні карибські ритми.",
+      "Усі 20 записів мають власні назви. Позначайте улюблені треки сердечком і обирайте відтворення лише улюблених."
     ],
     "tr": [
-      "Sudoku yeniden başlatıldığında da artık tüm tahtadan baloncuklar yükselir; başlama ve çözme sırasında duyulan aynı ses eşlik eder.",
-      "Hava taşlarının baloncukları, büyük hava taşlarında da artık daha net görünüyor."
+      "Dokuz yeni parça resife çelik davullar, ukulele ve güneşli Karayip ritimleri getiriyor.",
+      "20 kaydın hepsinin kendine ait adı var. Sevdiğin parçaları kalple işaretle ve yalnızca favorilerini çalmayı seç."
     ],
     "he": [
-      "גם בהתחלת סודוקו מחדש עולות עכשיו בועות מכל הלוח, עם אותו צליל בעבוע כמו בתחילת משחק ובפתרונו.",
-      "הבועות מאבני האוויר נראות עכשיו חדות יותר, גם באבנים גדולות."
+      "תשעה קטעים חדשים מביאים לשונית תופי פלדה, יוקולילי ומקצבים קריביים שטופי שמש.",
+      "לכל 20 ההקלטות יש שמות משלהן. סמנו את הקטעים האהובים בלב ובחרו להשמיע רק מועדפים."
     ],
     "hi": [
-      "सुडोकू फिर से शुरू करने पर भी अब पूरे बोर्ड से बुलबुले उठते हैं और वही बुलबुलों की आवाज़ आती है जो नया खेल शुरू करने या हल करने पर आती है।",
-      "एयर स्टोन के बुलबुले अब ज़्यादा साफ़ दिखते हैं, बड़े एयर स्टोन से निकलने वाले भी।"
+      "नौ नई धुनें रीफ़ में स्टील ड्रम, यूकुलेले और धूप भरी कैरिबियाई लय लाती हैं।",
+      "सभी 20 रिकॉर्डिंग के अपने नाम हैं। पसंदीदा धुनों को दिल से चिह्नित करें और केवल पसंदीदा चलाना चुनें।"
     ],
     "id": [
-      "Saat sudoku dimulai ulang, gelembung kini naik dari seluruh papan dengan suara yang sama seperti saat memulai atau menyelesaikannya.",
-      "Gelembung dari batu aerasi kini lebih tajam, termasuk dari batu yang lebih besar."
+      "Sembilan lagu baru membawa steel drum, ukulele, dan irama Karibia yang cerah ke terumbu.",
+      "Semua 20 rekaman memiliki judul sendiri. Tandai lagu kesukaanmu dengan hati dan pilih untuk memutar hanya favorit."
     ],
     "vi": [
-      "Khi chơi lại sudoku, bong bóng giờ cũng bay lên từ toàn bộ bàn với âm thanh như lúc bắt đầu hoặc giải xong.",
-      "Bong bóng từ đá sủi khí giờ rõ nét hơn, kể cả với đá lớn."
+      "Chín bản nhạc mới mang trống thép, ukulele và nhịp điệu Caribe đầy nắng đến rạn san hô.",
+      "Cả 20 bản thu đều có tên riêng. Đánh dấu trái tim cho bài bạn thích và chọn chỉ phát các bài yêu thích."
     ],
     "ja": [
-      "数独をやり直すときも、開始時やクリア時と同じ音とともに盤面全体から泡が上がるようになりました。",
-      "エアストーンの泡がよりくっきり表示されるようになりました。大きなエアストーンでも鮮明です。"
+      "スティールドラムやウクレレ、陽気なカリブのリズムを楽しめる9曲がリーフに加わりました。",
+      "全20曲にそれぞれのタイトルが付きました。好きな曲にハートを付けて、お気に入りだけを再生できます。"
     ],
     "ko": [
-      "스도쿠를 다시 시작할 때도 새 게임을 시작하거나 완성할 때와 같은 소리와 함께 보드 전체에서 거품이 올라와요.",
-      "에어스톤의 거품이 이제 더 선명하게 보여요. 큰 에어스톤에서도 선명해요."
+      "스틸 드럼, 우쿨렐레, 햇살 가득한 카리브 리듬을 담은 새 음악 9곡이 산호초에 추가됐어요.",
+      "20개 녹음 모두 각자의 제목이 생겼어요. 좋아하는 곡에 하트를 누르고 즐겨찾기만 재생할 수 있어요."
     ],
     "zh-Hans": [
-      "重新开始当前数独时，现在也会从整个棋盘升起气泡，并播放与开始新数独或完成数独时相同的冒泡声。",
-      "气泡石产生的气泡现在更加清晰，大尺寸气泡石也一样。"
+      "新增九首音乐，让钢鼓、尤克里里和阳光般的加勒比节奏来到珊瑚礁。",
+      "全部20段录音都有了自己的曲名。为喜欢的曲目点亮爱心，即可选择仅播放收藏。"
     ],
     "zh-Hant": [
-      "重新開始目前的數獨時，現在也會從整個棋盤升起氣泡，並播放與開始新數獨或完成數獨時相同的冒泡聲。",
-      "氣泡石產生的氣泡現在更加清晰，大尺寸氣泡石也一樣。"
+      "新增九首音樂，讓鋼鼓、烏克麗麗和陽光般的加勒比節奏來到珊瑚礁。",
+      "全部20段錄音都有了自己的曲名。為喜歡的曲目點亮愛心，即可選擇僅播放收藏。"
     ]
   }
 };

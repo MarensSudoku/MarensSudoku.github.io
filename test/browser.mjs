@@ -10,6 +10,7 @@ import { checkWaiting } from './waiting.mjs';
 import { checkInstallGuide } from './install-guide.mjs';
 import { checkInstalledApp } from './installed-app.mjs';
 import { checkMusicLifecycle } from './music-lifecycle.mjs';
+import { checkMusicFavorites } from './music-favorites.mjs';
 import { checkLanguages, chooseLanguage } from './language.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
@@ -109,9 +110,9 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.waitForFunction(() => document.getElementById('music-track').options.length > 0);
   await page.waitForFunction(() => !document.getElementById('reef-music').paused);
   const tracks = await page.locator('#music-track option').evaluateAll(options => options.map(option => ({ value:option.value, title:option.textContent })));
-  assert.ok(tracks.length >= 6);
+  assert.equal(tracks.length,20);
   assert.equal(tracks.some(track => track.value === '03-schwebende-perlen_2.mp3'), false);
-  assert.equal(tracks[0].value, '02-zwischen-bunten-korallen_1.mp3');
+  assert.equal(tracks[0].value, '01-sonnenlicht-ueber-dem-riff.mp3');
   assert.equal(new Set(tracks.map(track => track.title)).size, tracks.length);
   for (let i = 0; i < tracks.length; i++) {
     await page.locator('#music-track').selectOption(tracks[i].value);
@@ -422,7 +423,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.ok((await page.locator('#legal-commons pre').textContent()).includes('Section 8 -- Interpretation.'));
   await page.locator('#help-dialog .dialog-close').click();
   await page.locator('#settings-open').click();
-  await page.locator('#music-track').selectOption(tracks[0].value);
+  await page.locator('#music-track').selectOption(tracks.at(-1).value);
   await page.waitForFunction(() => { const audio = document.getElementById('reef-music'); return !audio.paused && audio.currentTime > 0.1; });
   const range = await page.evaluate(async () => {
     const response = await fetch(document.getElementById('reef-music').currentSrc, { headers:{ Range:'bytes=0-127' } });
@@ -459,6 +460,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await checkInstallGuide(browser,name,base);
   await checkInstalledApp(browser,name,base);
   await checkMusicLifecycle(browser,name,base);
+  await checkMusicFavorites(browser,name,base);
   await checkUpdates(browser,name);
   await checkWaiting(browser,name,base);
   await checkUnitBubbles(browser,name,base);

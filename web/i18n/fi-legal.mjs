@@ -108,7 +108,31 @@ Oikeuksien laajuus ja vastuu
 Vain tosiasiallisesti käytettävissä olevat oikeudet myönnetään. Lain sallima tai vapaa käyttö ei tarvitse lisälupaa, eikä tämä ilmoitus rajoita sitä. Yksinomaista suojaa tai vapautta kolmansien osapuolten vaatimuksista ei luvata. Takuu ja vastuu määräytyvät CC BY 4.0 -lisenssin 5 kohdan ja pakottavan lainsäädännön mukaan; tämä ilmoitus ei lisää omia rajoituksia.
 
 Julkaisumerkintä
-Projektin ylläpitäjä tilasi ensimmäisen julkaisun 28.10.2026. Jo tehokkaasti myönnettyjä CC BY -oikeuksia ei voi yksipuolisesti perua, kun ehtoja noudatetaan. Maksu- ja tilitositteet pysyvät yksityisinä.`,
+Projektin ylläpitäjä tilasi ensimmäisen julkaisun 28.10.2026. Jo tehokkaasti myönnettyjä CC BY -oikeuksia ei voi yksipuolisesti perua, kun ehtoja noudatetaan. Maksu- ja tilitositteet pysyvät yksityisinä.
+
+Lisäys 2. marraskuuta 2026: alla olevat yhdeksän uutta tallennetta julkaistaan nimenomaisesti samoin CC BY 4.0 -ehdoin ja nimeämistiedoin. Niiden äänenvoimakkuutta on säädetty ja ne on muunnettu MP3-muotoon. Tiedostonimien vastaavuudet yksilöivät yksitoista aiemmin julkaistua tallennetta; niiden pakattu ääni on ennallaan.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Äänitehosteiden lisenssi – CC BY 4.0
 
 Julkaisutila: 28.10.2026, ensimmäinen julkaisu. Alla mainitut kahdeksan äänitallennetta on syntetisoitu proseduraalisesti tätä varten ilman kolmansien osapuolten näytteitä tai ulkoisia generointipalveluja. Myöhemmin lisättyjä tiedostoja ei lisensoida automaattisesti.

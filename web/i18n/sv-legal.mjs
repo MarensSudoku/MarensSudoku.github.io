@@ -108,7 +108,31 @@ Rättigheternas omfattning och ansvar
 Endast faktiskt tillgängliga rättigheter upplåts. Användning som är tillåten enligt lag eller som är fri behöver inget ytterligare tillstånd och begränsas inte av detta meddelande. Inget exklusivt skydd eller frihet från tredje parts anspråk utlovas. Garanti och ansvar följer avsnitt 5 i CC BY 4.0-licensen och tvingande rätt; detta meddelande lägger inte till några egna undantag.
 
 Frisläppningsanteckning
-Den första publiceringen beställdes av den projektansvarige den 28 oktober 2026. Redan effektivt upplåtna CC BY-rättigheter kan inte återkallas ensidigt så länge villkoren följs. Betalnings- och kontounderlag förblir privata.`,
+Den första publiceringen beställdes av den projektansvarige den 28 oktober 2026. Redan effektivt upplåtna CC BY-rättigheter kan inte återkallas ensidigt så länge villkoren följs. Betalnings- och kontounderlag förblir privata.
+
+Tillägg den 2 november 2026: de nio extra inspelningarna nedan ges uttryckligen ut med samma CC BY 4.0-villkor och namnangivelse. Ljudstyrkan har justerats och de har konverterats till MP3. Filnamnskopplingen identifierar de elva tidigare utgivna inspelningarna; deras komprimerade ljud är oförändrat.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Licens för ljudeffekter – CC BY 4.0
 
 Frisläppningsstatus: 28 oktober 2026, första publicering. De åtta ljudinspelningarna nedan har syntetiserats proceduriellt för ändamålet, utan tredjepartssamplingar eller externa genereringstjänster. Filer som läggs till senare licensieras inte automatiskt.

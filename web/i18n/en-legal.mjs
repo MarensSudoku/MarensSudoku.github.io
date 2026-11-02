@@ -99,7 +99,31 @@ Scope of rights and liability
 Only rights that are actually available are granted. Use that is permitted by law or in the public domain needs no additional permission and is not restricted by this notice. No exclusive protectability or freedom from third-party claims is promised. Warranty and liability are governed by Section 5 of the CC BY 4.0 licence and mandatory law; this notice adds no exclusions of its own.
 
 Release note
-The first publication was ordered by the project operator on 28 October 2026. CC BY rights that have already been effectively granted cannot be revoked unilaterally as long as the conditions are met. Payment and account records remain private.`,
+The first publication was ordered by the project operator on 28 October 2026. CC BY rights that have already been effectively granted cannot be revoked unilaterally as long as the conditions are met. Payment and account records remain private.
+
+Supplement dated 2 November 2026: the nine additional recordings below are expressly released under the same CC BY 4.0 terms and attribution. Their loudness was adjusted and they were converted to MP3. The filename mapping identifies the eleven previously released recordings; their compressed audio is unchanged.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Sound-effect licence – CC BY 4.0
 
 Release status: 28 October 2026, first publication. The eight sound recordings named below were specially synthesised procedurally, without third-party samples or external generation services. Adding further files later does not license them automatically.

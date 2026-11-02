@@ -108,7 +108,31 @@ Tiesību apjoms un atbildība
 Tiek piešķirtas tikai faktiski pieejamās tiesības. Likumā atļautai vai publiskā domēna izmantošanai nav vajadzīga papildu atļauja, un šis paziņojums to neierobežo. Netiek garantēta ekskluzīva aizsardzība vai brīvība no trešo personu prasībām. Garantija un atbildība tiek noteikta saskaņā ar CC BY 4.0 licences 5. sadaļu un imperatīvajām tiesību normām; šis paziņojums nepievieno savus izņēmumus.
 
 Publicēšanas piezīme
-Pirmo publicēšanu projekta uzturētājs uzdeva 28.10.2026. Jau efektīvi piešķirtās CC BY tiesības nevar vienpusēji atsaukt, kamēr tiek ievēroti nosacījumi. Maksājumu un kontu dokumenti paliek privāti.`,
+Pirmo publicēšanu projekta uzturētājs uzdeva 28.10.2026. Jau efektīvi piešķirtās CC BY tiesības nevar vienpusēji atsaukt, kamēr tiek ievēroti nosacījumi. Maksājumu un kontu dokumenti paliek privāti.
+
+Papildinājums 2026. gada 2. novembrī: deviņi tālāk minētie papildu ieraksti ir nepārprotami publicēti ar tiem pašiem CC BY 4.0 noteikumiem un attiecinājumu. To skaļums ir pielāgots, un tie ir pārveidoti MP3 formātā. Failu nosaukumu atbilstība identificē vienpadsmit iepriekš publicētos ierakstus; to saspiestais audio nav mainīts.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Skaņas efektu licence – CC BY 4.0
 
 Publicēšanas statuss: 28.10.2026., pirmā publicēšana. Zemāk minētie astoņi skaņas ieraksti ir īpaši šim nolūkam procedurāli sintezēti, bez trešo personu paraugiem vai ārējiem ģenerēšanas pakalpojumiem. Vēlāk pievienoti faili netiek licencēti automātiski.

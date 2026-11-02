@@ -108,7 +108,31 @@ Teisių apimtis ir atsakomybė
 Suteikiamos tik faktiškai turimos teisės. Įstatymo leidžiamam ar viešajai sričiai priklausančiam naudojimui papildomas leidimas nereikalingas, ir šis pranešimas jo neriboja. Negarantuojama išimtinė apsauga ar laisvė nuo trečiųjų asmenų reikalavimų. Garantija ir atsakomybė nustatomos pagal CC BY 4.0 licencijos 5 skirsnį ir imperatyviąsias teisės normas; šis pranešimas neprideda savų išimčių.
 
 Paskelbimo pastaba
-Pirmąjį paskelbimą projekto prižiūrėtojas pavedė 2026-10-28. Jau veiksmingai suteiktų CC BY teisių negalima vienašališkai atšaukti, kol laikomasi sąlygų. Mokėjimų ir paskyrų įrodymai lieka privatūs.`,
+Pirmąjį paskelbimą projekto prižiūrėtojas pavedė 2026-10-28. Jau veiksmingai suteiktų CC BY teisių negalima vienašališkai atšaukti, kol laikomasi sąlygų. Mokėjimų ir paskyrų įrodymai lieka privatūs.
+
+2026 m. lapkričio 2 d. papildymas: devyni toliau nurodyti papildomi įrašai aiškiai skelbiami tomis pačiomis CC BY 4.0 sąlygomis ir su ta pačia autorystės nuoroda. Jų garsumas pakoreguotas ir jie konvertuoti į MP3. Failų pavadinimų atitikmenys nurodo vienuolika anksčiau paskelbtų įrašų; jų suglaudintas garsas nepakeistas.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Garso efektų licencija – CC BY 4.0
 
 Paskelbimo būsena: 2026-10-28, pirmasis paskelbimas. Toliau nurodyti aštuoni garso įrašai buvo specialiai procedūriškai sintezuoti, be trečiųjų asmenų pavyzdžių ar išorinių generavimo paslaugų. Vėliau pridėti failai automatiškai nelicencijuojami.

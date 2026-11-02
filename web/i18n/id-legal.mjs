@@ -108,7 +108,31 @@ Cakupan hak dan tanggung jawab
 Hanya hak yang benar-benar ada yang diberikan. Penggunaan yang diizinkan undang-undang atau yang termasuk domain publik tidak memerlukan izin tambahan dan tidak dibatasi oleh pemberitahuan ini. Perlindungan eksklusif atau kebebasan dari klaim pihak ketiga tidak dijamin. Jaminan dan tanggung jawab ditentukan oleh Bagian 5 CC BY 4.0 dan hukum yang bersifat memaksa; pemberitahuan ini tidak menambahkan pengecualian sendiri.
 
 Catatan publikasi
-Publikasi pertama diinstruksikan oleh pengelola proyek pada 28.10.2026. Hak CC BY yang sudah benar-benar diberikan tidak dapat ditarik secara sepihak selama syaratnya dipenuhi. Bukti pembayaran dan data akun tetap rahasia.`,
+Publikasi pertama diinstruksikan oleh pengelola proyek pada 28.10.2026. Hak CC BY yang sudah benar-benar diberikan tidak dapat ditarik secara sepihak selama syaratnya dipenuhi. Bukti pembayaran dan data akun tetap rahasia.
+
+Tambahan tertanggal 2 November 2026: sembilan rekaman tambahan di bawah ini secara tegas dirilis dengan ketentuan CC BY 4.0 dan atribusi yang sama. Volume suaranya disesuaikan dan dikonversi ke MP3. Pemetaan nama berkas mengidentifikasi sebelas rekaman yang telah dirilis; audio terkompresinya tidak berubah.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Lisensi efek suara – CC BY 4.0
 
 Status publikasi: 28.10.2026, publikasi pertama. Kedelapan rekaman suara yang tercantum di bawah disintesis secara prosedural khusus untuk ini, tanpa sampel pihak lain dan tanpa layanan pembuatan eksternal. Penambahan file lain di kemudian hari tidak berarti file tersebut otomatis berlisensi.

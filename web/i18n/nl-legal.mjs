@@ -108,7 +108,31 @@ Omvang van rechten en aansprakelijkheid
 Alleen daadwerkelijk beschikbare rechten worden verleend. Gebruik dat wettelijk is toegestaan of tot het publieke domein behoort, heeft geen extra toestemming nodig en wordt door deze vermelding niet beperkt. Exclusieve bescherming of vrijheid van aanspraken van derden wordt niet toegezegd. Garantie en aansprakelijkheid richten zich naar artikel 5 van de CC BY 4.0-licentie en dwingend recht; deze vermelding voegt geen eigen uitsluitingen toe.
 
 Vrijgavenotitie
-De eerste publicatie is op 28 oktober 2026 door de projectbeheerder opgedragen. Reeds effectief verleende CC BY-rechten kunnen bij naleving van de voorwaarden niet eenzijdig worden ingetrokken. Betalings- en accountbewijzen blijven privé.`,
+De eerste publicatie is op 28 oktober 2026 door de projectbeheerder opgedragen. Reeds effectief verleende CC BY-rechten kunnen bij naleving van de voorwaarden niet eenzijdig worden ingetrokken. Betalings- en accountbewijzen blijven privé.
+
+Aanvulling van 2 november 2026: de negen extra opnamen hieronder worden uitdrukkelijk onder dezelfde CC BY 4.0-voorwaarden en naamsvermelding vrijgegeven. Hun volume is aangepast en ze zijn naar MP3 omgezet. De bestandsnaamkoppeling identificeert de elf eerder vrijgegeven opnamen; hun gecomprimeerde audio is ongewijzigd.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Licentie geluidseffecten – CC BY 4.0
 
 Vrijgavestatus: 28 oktober 2026, eerste publicatie. De acht hieronder genoemde geluidsopnamen zijn speciaal procedureel gesynthetiseerd, zonder samples van derden of externe generatiediensten. Later toegevoegde bestanden worden niet automatisch gelicentieerd.

@@ -1,16 +1,15 @@
-export const DEFAULT_MUSIC_TRACK = '02-zwischen-bunten-korallen_1.mp3';
+export const DEFAULT_MUSIC_TRACK = '03-zwischen-bunten-korallen.mp3';
 export function makeMusicTracks(files) {
-  return files.filter(file => typeof file === 'string' && !/[\\/]/.test(file) && /\.(mp3|ogg|wav|m4a)$/i.test(file)).sort((a, b) => a === b ? 0 : a === DEFAULT_MUSIC_TRACK ? -1 : b === DEFAULT_MUSIC_TRACK ? 1 : a.localeCompare(b)).map(file => {
-    const stem = file.replace(/\.[^.]+$/, ''), suffix = /(?:_\d+)+$/.exec(stem);
-    const variant = suffix ? suffix[0].split('_').at(-1) : '';
-    const base = stem.replace(/(?:_\d+)+$/, ''), fallback = base.replace(/^\d+[-_ ]*/, '').replaceAll('-', ' ').replaceAll('_', ' ');
-    return { file, key: 'track.' + base, fallback, variant };
+  return files.filter(file => typeof file === 'string' && !/[\\/]/.test(file) && /\.(mp3|ogg|wav|m4a)$/i.test(file)).sort((a,b)=>a.localeCompare(b)).map(file => {
+    const base = file.replace(/\.[^.]+$/, ''), fallback = base.replace(/^\d+[-_ ]*/, '').replaceAll('-', ' ').replaceAll('_', ' ');
+    return { file, key: 'track.' + base, fallback };
   });
 }
 // Titles come from the language files; unknown dropped-in files keep a readable file name.
 export function trackName(track, t) {
   const name = t(track.key) === track.key ? track.fallback : t(track.key);
-  return track.variant ? `${name} · ${t('musicVariant').replace('{n}', track.variant)}` : name;
+  const number=/^\d+(?=-)/.exec(track.file)?.[0];
+  return number ? `${number} · ${name}` : name;
 }
 export function pickMusicTrack(tracks, current, order = 'shuffle') {
   if (order === 'sequential') return tracks[(tracks.findIndex(track => track.file === current) + 1) % tracks.length]?.file || '';
@@ -28,9 +27,12 @@ export function setupMusic(settings, t, persist) {
   const next = document.getElementById('music-next');
   const shuffle = document.getElementById('music-shuffle');
   const mute = document.getElementById('music-mute');
+  const favorites = document.getElementById('music-favorites-only');
+  const playlist = document.getElementById('music-playlist');
   let revision = 0, failed = false, awaitingGesture = false, tracks = [], resumePosition = null;
   const history = [];
   audio.volume = settings.musicVolume;
+  const playableTracks=()=>settings.musicFavoritesOnly?tracks.filter(track=>settings.musicFavorites.includes(track.file)):tracks;
 
   const clock = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
   function renderTime() {
@@ -42,7 +44,8 @@ export function setupMusic(settings, t, persist) {
     seek.setAttribute('aria-valuetext', `${clock(audio.currentTime)} / ${clock(duration)}`);
   }
   function render() {
-    select.replaceChildren(...tracks.map(track => {
+    const playable=playableTracks();
+    select.replaceChildren(...playable.map(track => {
       const option = document.createElement('option'); option.value = track.file; option.textContent = trackName(track, t); return option;
     }));
     select.value = settings.musicTrack;
@@ -57,10 +60,22 @@ export function setupMusic(settings, t, persist) {
     seek.setAttribute('aria-label', t('musicSeek'));
     shuffle.setAttribute('aria-pressed', String(settings.musicOrder === 'shuffle'));
     mute.setAttribute('aria-pressed', String(audio.muted));
+    favorites.title=t('musicFavoritesOnly');favorites.setAttribute('aria-label',favorites.title);
+    favorites.setAttribute('aria-pressed',String(settings.musicFavoritesOnly));
+    for(let index=0;index<tracks.length;index++){
+      const track=tracks[index],row=playlist.children[index],favorite=settings.musicFavorites.includes(track.file),title=trackName(track,t);
+      row.firstElementChild.textContent=title;
+      row.firstElementChild.setAttribute('aria-current',String(track.file===settings.musicTrack));
+      row.firstElementChild.disabled=settings.musicFavoritesOnly&&!favorite;
+      row.lastElementChild.setAttribute('aria-pressed',String(favorite));
+      row.lastElementChild.title=t('musicFavorite').replace('{title}',title);
+      row.lastElementChild.setAttribute('aria-label',row.lastElementChild.title);
+    }
     document.getElementById('music-mute-icon').setAttribute('href', audio.muted ? '#i-mute' : '#i-volume');
-    for (const node of [button, previous, next, shuffle, mute, select, volume]) node.disabled = !tracks.length;
+    for (const node of [button, previous, next, shuffle, mute, select, volume]) node.disabled = !playable.length;
+    favorites.disabled=!tracks.length;
     document.getElementById('music-state').textContent = t(playing ? 'musicPlaying' : 'musicPaused');
-    document.getElementById('music-status').textContent = failed ? t('musicError') : awaitingGesture ? t('musicAwaiting') : '';
+    document.getElementById('music-status').textContent = failed ? t('musicError') : settings.musicFavoritesOnly&&!playable.length ? t('musicFavoritesEmpty') : awaitingGesture ? t('musicAwaiting') : '';
     renderTime();
   }
   function pause() { revision++; audio.pause(); render(); }
@@ -77,17 +92,19 @@ export function setupMusic(settings, t, persist) {
     pause(); settings.musicTrack = file; failed = false; persist(); render();
     if (settings.musicEnabled) play();
   }
-  function nextTrack() { changeTrack(pickMusicTrack(tracks, settings.musicTrack, settings.musicOrder)); }
+  function nextTrack() { const file=pickMusicTrack(playableTracks(),settings.musicTrack,settings.musicOrder);if(file)changeTrack(file); }
   function previousTrack() {
+    const playable=playableTracks();if(!playable.length)return;
     // Like common players: after a few seconds, "previous" restarts the current track first.
     if (audio.currentTime > 3 || (!history.length && settings.musicOrder === 'shuffle')) { audio.currentTime = 0; renderTime(); return; }
-    const index = tracks.findIndex(track => track.file === settings.musicTrack);
-    changeTrack(history.pop() ?? tracks.at(index - 1).file, false);
+    const index = playable.findIndex(track => track.file === settings.musicTrack);
+    let file;do{file=history.pop();}while(file&&!playable.some(track=>track.file===file));
+    changeTrack(file ?? playable.at(index-1)?.file ?? playable[0].file, false);
   }
   async function play() {
     if (document.hidden || !settings.musicEnabled) return;
     const current = ++revision; failed = false;
-    if (!tracks.some(track => track.file === settings.musicTrack)) return;
+    if (!playableTracks().some(track => track.file === settings.musicTrack)) return;
     const url = new URL('./assets/music/' + encodeURIComponent(settings.musicTrack), import.meta.url).href;
     if (audio.src !== url || audio.error) audio.src = url;
     try { await audio.play(); }
@@ -105,6 +122,25 @@ export function setupMusic(settings, t, persist) {
     if (settings.musicEnabled) play(); else pause();
   });
   select.addEventListener('change', () => changeTrack(select.value));
+  function updateFavorites(){
+    const playable=playableTracks();history.length=0;
+    if(!playable.length)stop();
+    else if(!playable.some(track=>track.file===settings.musicTrack))changeTrack(pickMusicTrack(playable,settings.musicTrack,settings.musicOrder),false);
+    else if(settings.musicEnabled&&audio.paused)play();
+    persist();render();
+  }
+  favorites.addEventListener('click',()=>{settings.musicFavoritesOnly=!settings.musicFavoritesOnly;updateFavorites();});
+  playlist.addEventListener('click',event=>{
+    const favorite=event.target.closest('[data-favorite]');
+    if(favorite){
+      const file=favorite.dataset.favorite;
+      settings.musicFavorites=settings.musicFavorites.includes(file)?settings.musicFavorites.filter(item=>item!==file):[...settings.musicFavorites,file];
+      updateFavorites();
+    }else{
+      const file=event.target.closest('[data-music-play]')?.dataset.musicPlay;
+      if(file&&playableTracks().some(track=>track.file===file))changeTrack(file);
+    }
+  });
   next.addEventListener('click', nextTrack);
   previous.addEventListener('click', previousTrack);
   shuffle.addEventListener('click', () => { settings.musicOrder = settings.musicOrder === 'shuffle' ? 'sequential' : 'shuffle'; persist(); render(); });
@@ -143,7 +179,15 @@ export function setupMusic(settings, t, persist) {
     const files = await response.json();
     if (!Array.isArray(files)) throw new Error('Invalid music catalogue');
     tracks = makeMusicTracks(files);
-    nextTrack();
+    settings.musicFavorites=settings.musicFavorites.filter(file=>tracks.some(track=>track.file===file));
+    playlist.replaceChildren(...tracks.map(track=>{
+      const row=document.createElement('li'),play=document.createElement('button'),heart=document.createElement('button');
+      play.type=heart.type='button';play.dataset.musicPlay=heart.dataset.favorite=track.file;
+      play.className='music-play-track';heart.className='icon-button music-favorite';
+      heart.innerHTML='<svg aria-hidden="true"><use href="#i-heart"/></svg>';
+      row.append(play,heart);return row;
+    }));
+    if(playableTracks().length)nextTrack();else{stop();persist();render();}
   }).catch(() => { failed = true; render(); });
   render();
   return { render };

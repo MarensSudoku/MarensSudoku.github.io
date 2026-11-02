@@ -108,7 +108,31 @@ music: `音樂授權 – CC BY 4.0
 僅授予實際存在的權利。法律允許的使用或屬於公眾領域的使用無需額外許可，也不受本聲明限制。不保證專屬保護或不存在第三方主張。擔保和責任依 CC BY 4.0 第 5 條及強制性法律決定；本聲明不另行增加免責條款。
 
 發布說明
-首次發布由專案營運者於 2026 年 10 月 28 日指示進行。已實際授予的 CC BY 權利在條件獲得遵守時不能被單方面撤回。付款憑證和帳號資料保持保密。`,
+首次發布由專案營運者於 2026 年 10 月 28 日指示進行。已實際授予的 CC BY 權利在條件獲得遵守時不能被單方面撤回。付款憑證和帳號資料保持保密。
+
+2026年11月2日補充：下列九段新增錄音明確以相同的CC BY 4.0條款及署名方式發布。它們已調整音量並轉換為MP3。檔案名稱對照表標明先前發布的十一段錄音；其壓縮音訊保持不變。
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `音效授權 – CC BY 4.0
 
 發布狀態：2026 年 10 月 28 日，首次發布。下列八個聲音錄音是專門以程序化方式合成的，沒有使用他人的取樣，也沒有使用外部生成服務。之後新增其他檔案並不代表它們會自動獲得授權。

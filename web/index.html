@@ -39,6 +39,7 @@
     <symbol id="i-restart" viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 2 6M4 4v7h7"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="9" cy="18" r="2"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 5h12M9 12h12M9 19h12M3 5h1M3 12h1M3 19h1"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="3"/><path d="M16 4V3H3v13h1"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></symbol>
     <symbol id="i-move" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M8 6l4-4 4 4M8 18l4 4 4-4M6 8l-4 4 4 4M18 8l4 4-4 4"/></symbol>
@@ -80,10 +81,11 @@
     <label><span><strong data-t="showConflicts">Konflikte markieren</strong><small data-t="showConflictsHelp">Zeigt doppelte Zahlen in Reihe, Spalte oder Block.</small></span><input id="show-conflicts" type="checkbox" role="switch"></label>
     <section class="music-settings" aria-labelledby="music-title"><h3 id="music-title" data-t="musicTitle">Riffmusik</h3>
       <div class="music-player" id="music-player">
-        <div class="music-now"><span class="music-art" aria-hidden="true"><svg><use href="#i-waves"/></svg></span><div class="music-track-info"><span class="music-state"><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="music-state" aria-live="polite"></span></span><label class="sr-only" for="music-track" data-t="musicTrack">Titel</label><select id="music-track"></select></div></div>
+        <div class="music-now"><span class="music-art" aria-hidden="true"><svg><use href="#i-waves"/></svg></span><div class="music-track-info"><span class="music-state"><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="music-state" aria-live="polite"></span></span><label class="sr-only" for="music-track" data-t="musicTrack">Titel</label><select id="music-track"></select></div><button type="button" class="icon-button music-favorite" id="music-favorites-only" aria-pressed="false"><svg aria-hidden="true"><use href="#i-heart"/></svg></button></div>
         <div class="music-timeline"><input id="music-seek" type="range" min="0" max="0" step="0.1" value="0" disabled><div class="music-times"><time id="music-elapsed">0:00</time><time id="music-duration">0:00</time></div></div>
         <div class="music-transport"><button class="icon-button music-shuffle" id="music-shuffle" aria-pressed="true"><svg aria-hidden="true"><use href="#i-shuffle"/></svg></button><button class="icon-button" id="music-previous"><svg class="music-back" aria-hidden="true"><use href="#i-skip"/></svg></button><button class="music-play" id="music-toggle"><svg aria-hidden="true"><use id="music-toggle-icon" href="#i-play"/></svg></button><button class="icon-button" id="music-next"><svg aria-hidden="true"><use href="#i-skip"/></svg></button><button class="icon-button music-mute" id="music-mute" aria-pressed="false"><svg aria-hidden="true"><use id="music-mute-icon" href="#i-volume"/></svg></button></div>
         <label class="music-volume-row" for="music-volume"><span data-t="musicVolume">Lautstärke</span><input id="music-volume" type="range" min="0" max="100" value="25"><output id="music-volume-value" for="music-volume">25 %</output></label>
+        <details class="music-playlist"><summary data-t="musicPlaylist">Favoriten</summary><ul id="music-playlist"></ul></details>
         <p id="music-status" role="status"></p>
       </div>
     </section>

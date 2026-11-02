@@ -108,7 +108,31 @@ Phạm vi quyền và trách nhiệm
 Chỉ những quyền thực sự tồn tại mới được cấp. Việc sử dụng được pháp luật cho phép hoặc thuộc phạm vi công cộng không cần thêm sự cho phép và không bị thông báo này giới hạn. Không bảo đảm quyền bảo hộ độc quyền hay việc không có khiếu nại của bên thứ ba. Bảo đảm và trách nhiệm được xác định theo Mục 5 của CC BY 4.0 và luật bắt buộc; thông báo này không bổ sung loại trừ riêng.
 
 Ghi chú công bố
-Lần công bố đầu tiên do nhà vận hành dự án chỉ thị vào ngày 28.10.2026. Các quyền CC BY đã thực sự được cấp không thể bị rút lại đơn phương khi các điều kiện được tuân thủ. Chứng từ thanh toán và dữ liệu tài khoản vẫn được giữ bí mật.`,
+Lần công bố đầu tiên do nhà vận hành dự án chỉ thị vào ngày 28.10.2026. Các quyền CC BY đã thực sự được cấp không thể bị rút lại đơn phương khi các điều kiện được tuân thủ. Chứng từ thanh toán và dữ liệu tài khoản vẫn được giữ bí mật.
+
+Bổ sung ngày 2 tháng 11 năm 2026: chín bản thu bổ sung dưới đây được phát hành rõ ràng theo cùng điều kiện CC BY 4.0 và cách ghi công. Âm lượng đã được điều chỉnh và chúng đã được chuyển sang MP3. Bảng đối chiếu tên tệp xác định mười một bản thu đã phát hành trước đó; âm thanh nén của chúng không thay đổi.
+
+- 12-sonnentanz-in-der-lagune.mp3
+- 13-kleine-karibikpause.mp3
+- 14-barfuss-am-riff.mp3
+- 15-karibik-vollgas.mp3
+- 16-tropenwirbel.mp3
+- 17-sonne-im-blut.mp3
+- 18-inselgroove.mp3
+- 19-inselhuepfer.mp3
+- 20-ukulele-auf-wellen.mp3
+
+01-sonnenlicht-ueber-dem-riff_1.mp3 → 01-sonnenlicht-ueber-dem-riff.mp3
+01-sonnenlicht-ueber-dem-riff_2.mp3 → 02-goldene-strahlen.mp3
+02-zwischen-bunten-korallen_1.mp3 → 03-zwischen-bunten-korallen.mp3
+02-zwischen-bunten-korallen_2.mp3 → 04-tanz-der-rifffische.mp3
+03-schwebende-perlen_1.mp3 → 05-schwebende-perlen.mp3
+04-kristallklares-wasser_1.mp3 → 06-kristallklares-wasser.mp3
+04-kristallklares-wasser_1_2.mp3 → 07-tuerkise-weite.mp3
+05-abend-im-riff_1.mp3 → 08-abend-im-riff.mp3
+05-abend-im-riff_1_2.mp3 → 09-korallen-im-abendlicht.mp3
+06-stille-lagune_1.mp3 → 10-stille-lagune.mp3
+06-stille-lagune_2.mp3 → 11-schweben-im-blau.mp3`,
 sounds: `Giấy phép hiệu ứng âm thanh – CC BY 4.0
 
 Tình trạng công bố: 28.10.2026, công bố lần đầu. Tám bản ghi âm thanh được liệt kê dưới đây được tổng hợp theo phương pháp thủ tục dành riêng cho mục đích này, không dùng mẫu âm thanh của người khác và không dùng dịch vụ tạo bên ngoài. Việc thêm tệp khác về sau không có nghĩa là chúng tự động được cấp phép.
