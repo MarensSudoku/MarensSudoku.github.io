@@ -17,3 +17,5 @@ The listed music and procedurally synthesised sound effects have separate CC BY 
 The built app includes the application notices as assets/music/LICENSE.txt and assets/sounds/LICENSE.txt. Each notice links to the unchanged Creative Commons legal code. The music notice retains the original twelve-file release, including one track no longer shipped; the current game includes eleven music files. The sound-effect notice identifies eight files. Attribution designation for released audio: MarensSudoku-Projekt.
 
 The complete, unchanged English CC BY 4.0 legal code is also included as assets/licenses/CC-BY-4.0.txt, obtained from https://creativecommons.org/licenses/by/4.0/legalcode.txt on 29 October 2026. Legal notices and licence texts are embedded from their original local files into expandable sections of Help & info, including for offline use. Standalone copies remain available at their existing addresses.
+
+The supplemental sound-effect release dated 2 November 2026 explicitly includes the ninth recording, `09-blasenwolke.wav`, under the same CC BY 4.0 terms and attribution. The original eight-file release notice is retained unchanged.

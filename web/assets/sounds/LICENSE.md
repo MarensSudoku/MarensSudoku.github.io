@@ -44,3 +44,7 @@ Nur tatsächlich verfügbare Rechte können eingeräumt werden. Gemeinfreie Best
 ## Freigabevermerk
 
 Die Erstveröffentlichung wurde vom Projektbetreiber am 28.10.2026 beauftragt. Wirksam erteilte CC-BY-Rechte können bei Einhaltung der Bedingungen nicht einseitig zurückgenommen werden. Fremde oder später hinzugefügte Aufnahmen sind nicht erfasst.
+
+## Ergänzende Freigabeliste vom 02.11.2026
+
+Zusätzlich ausdrücklich unter denselben oben genannten CC-BY-4.0-Bedingungen freigegeben: `09-blasenwolke.wav`. Diese Aufnahme wurde eigens prozedural synthetisiert, ohne Fremdsamples oder externe Erzeugungsdienste. Die oben genannte Namensnennung und der unveränderte Lizenztext gelten auch für diese Aufnahme.

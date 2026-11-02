@@ -1,9 +1,10 @@
 import { UNITS } from '../sudoku/engine.mjs';
-const SOUND_FILES = { entry:'01-zahl-eintragen.wav', note:'02-notiz-setzen.wav', erase:'03-zahl-loeschen.wav', unit:'04-einheit-geschafft.wav', achievement:'05-neue-perle.wav', win:'06-riffsieg.wav', menu:'07-menue-antippen.wav', new:'08-neuer-tauchgang.wav' };
+import { createUnitBubbles } from './unit-bubbles.mjs';
+const SOUND_FILES = { entry:'01-zahl-eintragen.wav', note:'02-notiz-setzen.wav', erase:'03-zahl-loeschen.wav', unit:'04-einheit-geschafft.wav', achievement:'05-neue-perle.wav', win:'06-riffsieg.wav', menu:'07-menue-antippen.wav', new:'08-neuer-tauchgang.wav', bubbles:'09-blasenwolke.wav' };
 
 export function createEffects(parent) {
   const layer = document.getElementById(parent), effects = new Set(), sounds = new Set(), buffers = {};
-  let context;
+  let context, bubbles, bubblesChecked = false;
   try { const AudioContext = window.AudioContext || window.webkitAudioContext; if (AudioContext) context = new AudioContext(); } catch {}
   const native = context ? {} : Object.fromEntries(Object.entries(SOUND_FILES).map(([key, file]) => {
     const audio = new Audio(); audio.preload = 'none'; audio.src = new URL('../assets/sounds/' + file, import.meta.url).href; return [key, audio];
@@ -54,6 +55,13 @@ export function createEffects(parent) {
         animate(glow, [{ opacity:0.65 }, { opacity:0 }], { duration:380, delay:i % 9 * 22, fill:'both' });
       }
     },
+    bubbles(units) {
+      if (!units.length) return;
+      this.playSfx('bubbles');
+      if (this.reduced) return;
+      if (!bubblesChecked) { bubblesChecked = true; bubbles = createUnitBubbles(layer.parentElement); }
+      bubbles?.burst(units.flatMap(n => UNITS[n]));
+    },
     celebrate() {
       if (this.reduced) return;
       this.shimmer(Array.from({ length:27 }, (_, i) => i));
@@ -63,7 +71,7 @@ export function createEffects(parent) {
         animate(bubble, [{ opacity:0.8, transform:'translate(0,0) scale(1)' }, { opacity:0, transform:`translate(${(Math.random() - 0.5) * 160}px,-250px) scale(.2)` }], { duration:1400 + Math.random() * 400, easing:'ease-out' });
       }
     },
-    stopEffects() { for (const effect of effects) effect.cancel(); effects.clear(); layer.replaceChildren(); },
+    stopEffects() { bubbles?.stop(); stopSounds(); for (const effect of effects) effect.cancel(); effects.clear(); layer.replaceChildren(); },
   };
   queueMicrotask(() => scene.onReady?.());
   return scene;

@@ -13,6 +13,7 @@ export const SOUND_SPECS = [
   { file: '06-riffsieg.wav', duration: 1.80, peak: 0.40 },
   { file: '07-menue-antippen.wav', duration: 0.08, peak: 0.16 },
   { file: '08-neuer-tauchgang.wav', duration: 0.65, peak: 0.25 },
+  { file: '09-blasenwolke.wav', duration: 1.85, peak: 0.30 },
 ];
 const TAU = Math.PI * 2;
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -74,6 +75,17 @@ export function synthesizeSound(file) {
       wash(samples, 0.002, 0.51, 1, 81);
       bubble(samples, 0.33, 0.16, 500, 0.22); bubble(samples, 0.46, 0.17, 680, 0.17);
       break;
+    case '09-blasenwolke.wav': {
+      let seed = 91;
+      const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+      wash(samples, .002, 1.7, .1, 91);
+      for (let i = 0; i < 32; i++) {
+        const frequency = 210 + random() ** 2 * 1050;
+        tone(samples, .008 + i * .046 + random() * .04, .1 + random() * .18,
+          frequency, (.22 + random() * .34) * (1 - i / 42), -frequency * .65);
+      }
+      break;
+    }
   }
 
   const window = samples.map((_, i) => {

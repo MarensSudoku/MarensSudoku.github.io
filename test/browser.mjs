@@ -3,6 +3,7 @@ import { chromium, webkit } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { checkTutorial } from './tutorial.mjs';
+import { checkUnitBubbles } from './unit-bubbles.mjs';
 import { RELEASE } from '../web/release.mjs';
 import { checkUpdates } from './updates.mjs';
 import { checkWaiting } from './waiting.mjs';
@@ -162,7 +163,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await page.locator('#settings-open').click();
   await page.waitForFunction(() => { const audio = document.getElementById('reef-music'); return !audio.paused && audio.currentTime > 0.1; });
   await page.screenshot({ path:`output/${name}-music-reload.png`, fullPage:true });
-  await page.waitForFunction(() => window.__sfxDecoded === 8 || window.__sfxAudioTags.filter(audio => audio.src.includes('/assets/sounds/')).length === 8);
+  await page.waitForFunction(() => window.__sfxDecoded === 9 || window.__sfxAudioTags.filter(audio => audio.src.includes('/assets/sounds/')).length === 9);
   const beforeSound = await page.evaluate(() => window.__sfxPlayed);
   assert.equal(await page.locator('#test-sound, #settings-dialog #reef-editor-open').count(),0);
   await page.locator('#sfx-volume').focus();await page.keyboard.press('ArrowRight');
@@ -218,7 +219,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal(await page.locator('#help-open #update-badge').isVisible(), true, 'a waiting update must be flagged on the info button');
   await page.evaluate(() => { for (const id of ['update-notice','update-badge']) document.getElementById(id).hidden = true; });
   await page.locator('#help-dialog .dialog-close').click();
-  console.log(`${name}: ${tracks.length} music files, random next track and reload, click start after pause, eight decoded SFX and sound mute passed.`);
+  console.log(`${name}: ${tracks.length} music files, random next track and reload, click start after pause, nine decoded SFX and sound mute passed.`);
   const initial = await read(), index = initial.game.puzzle.findIndex(n => !n), solution = initial.game.solution[index];
   await page.waitForFunction(previous => document.getElementById('round-time').textContent !== previous, pausedClock);
   await page.locator(`[data-index="${index}"]`).click();
@@ -460,6 +461,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await checkMusicLifecycle(browser,name,base);
   await checkUpdates(browser,name);
   await checkWaiting(browser,name,base);
+  await checkUnitBubbles(browser,name,base);
   console.log(`${name}: guarded browser actions, native touch input and active-play screen-lock lifecycle passed.`);
   } finally { await browser.close(); }
 }

@@ -199,7 +199,7 @@ function input(number) {
     scene.playSfx('win'); scene.celebrate(); $('win-dialog').classList.toggle('motion-celebrate', !reduced()); $('win-dialog').showModal(); announce(t('completed'));
   } else {
     const added = fullUnits(game).filter(n => !before.includes(n));
-    scene.shimmer(added); scene.playSfx(added.length ? 'unit' : noteMode && number ? 'note' : number ? 'entry' : 'erase');
+    scene.shimmer(added); scene.bubbles(added); scene.playSfx(added.length ? 'unit' : noteMode && number ? 'note' : number ? 'entry' : 'erase');
   }
 }
 function confirmation(title, copy) {
