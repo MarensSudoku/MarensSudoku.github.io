@@ -2,14 +2,13 @@ import { createEffects } from './game/effects.mjs';
 import { createScreenWakeLock } from './screen.mjs';
 import { setupReefEditor } from './reef-editor.mjs';
 import {REEF_REWARDS} from './reef-additions.mjs';
-import { conflicts, isSolved, PEERS, UNITS } from './sudoku/engine.mjs';
+import { conflicts, isSolved, PEERS } from './sudoku/engine.mjs';
 import { createGame, restartGame, enter, undo, fullUnits, complete, emptyProgress, emptyScores, progressValue, ACHIEVEMENTS, validGame } from './sudoku/model.mjs';
 import { load, save, STORAGE_KEY } from './storage.mjs';
 import { setupMusic } from './music.mjs';
 import { RELEASE } from './release.mjs';
 import { LOCALES } from './locales.mjs';
 import { makeBackup, readBackup, restoreBackup, MAX_BACKUP_BYTES } from './backup.mjs';
-import { logicalHint } from './sudoku/engine.mjs';
 
 const $ = id => document.getElementById(id);
 const state = load();
@@ -120,7 +119,6 @@ function renderBoard() {
   syncClock();
   $('undo').disabled = !game || !game.history.length || busy || readOnly;
   $('notes').disabled = !game || busy || readOnly; $('erase').disabled = !game || busy || readOnly;
-  $('hint').disabled = !game || busy || readOnly;
   $('backup-export').disabled = busy || readOnly || storageBlocked;
   $('backup-import').disabled = busy || readOnly;
   $('notes').setAttribute('aria-pressed', String(noteMode));
@@ -209,11 +207,12 @@ function input(number) {
     scene.shimmer(added); scene.bubbles(added); scene.playSfx(added.length ? 'unit' : noteMode && number ? 'note' : number ? 'entry' : 'erase');
   }
 }
-function confirmation(title, copy) {
+function confirmation(title, copy, yes = 'confirm', no = 'cancel') {
   return new Promise(resolve => {
     const dialog = $('confirm-dialog');
     if (dialog.open) { resolve(false); return; }
     $('confirm-title').textContent = t(title); $('confirm-copy').textContent = t(copy);
+    for (const [id, key] of [['confirm-yes', yes], ['confirm-no', no]]) { $(id).dataset.t = key; $(id).textContent = t(key); }
     const finish = value => { dialog.close(); $('confirm-yes').onclick = null; $('confirm-no').onclick = null; dialog.oncancel = null; resolve(value); };
     $('confirm-yes').onclick = () => finish(true); $('confirm-no').onclick = () => finish(false);
     dialog.oncancel = event => { event.preventDefault(); finish(false); }; dialog.showModal(); $('confirm-no').focus();
@@ -261,31 +260,6 @@ $('win-next').addEventListener('click', () => { $('win-dialog').close(); newPuzz
 $('undo').addEventListener('click', () => { if (game && !busy && !readOnly && undo(game)) { persist(); renderBoard(); scene.playSfx('erase'); } });
 $('notes').addEventListener('click', () => { noteMode = !noteMode; renderBoard(); });
 $('erase').addEventListener('click', () => input(0));
-const format = (key, values) => t(key).replace(/\{(\w+)\}/g, (_, name) => values[name]);
-const coordinate = index => `${t('cell')} ${Math.floor(index / 9) + 1}, ${t('column')} ${index % 9 + 1}`;
-const unitName = index => `${t(index < 9 ? 'cell' : index < 18 ? 'column' : 'hintBox')} ${index % 9 + 1}`;
-$('hint').addEventListener('click', () => {
-  if (!game || busy || readOnly) return;
-  const hint = logicalHint(game.values);
-  $('hint-steps').replaceChildren();
-  if (hint.index !== undefined) {
-    selection = hint.index; renderBoard();
-    $('hint-copy').textContent = format(hint.kind === 'single' ? 'hintSingle' : 'hintHidden', { cell:coordinate(hint.index), n:hint.value, unit:unitName(hint.unit ?? 0) });
-    for (const unit of [Math.floor(hint.index / 9), 9 + hint.index % 9, 18 + Math.floor(hint.index / 27) * 3 + Math.floor(hint.index % 9 / 3)]) {
-      const values = [...new Set(UNITS[unit].map(index => game.values[index]).filter(Boolean))].sort().join(', ');
-      if (values) { const item = document.createElement('li'); item.textContent = format('hintExclude', { unit:unitName(unit), values }); $('hint-steps').append(item); }
-    }
-    for (const step of hint.steps) {
-      const item = document.createElement('li');
-      item.textContent = format(step.kind === 'locked' ? 'hintLocked' : 'hintPair', {
-        n:step.value, values:step.values?.join(', '), unit:unitName(step.unit), other:unitName(step.other ?? 0),
-        cells:step.places.map(coordinate).join('; '), targets:step.targets.map(coordinate).join('; '),
-      });
-      $('hint-steps').append(item);
-    }
-  } else $('hint-copy').textContent = t(hint.kind === 'blocked' ? 'hintBlocked' : hint.kind === 'solved' ? 'hintSolved' : 'hintNone');
-  $('hint-dialog').showModal();
-});
 $('board').addEventListener('keydown', event => {
   if (!game || busy) return;
   const row = Math.floor(selection / 9), col = selection % 9;
@@ -460,7 +434,11 @@ $('welcome-install').addEventListener('click', () => {
 });
 $('help-tour').addEventListener('click', () => { $('help-dialog').close(); if (reefViewing) setReefView(false); startTour(); });
 $('help-reef-tour').addEventListener('click', () => { $('help-dialog').close(); if (reefViewing) setReefView(false); startTour(true); });
-$('tour-next').addEventListener('click', () => { tourStep++; showTourStep(); });
+$('tour-next').addEventListener('click', async () => {
+  const finishedSudoku = tourStep === tour.length - 1 && !tourEditorActive;
+  tourStep++; showTourStep();
+  if (finishedSudoku && await confirmation('reefTutorial', 'tourReefOffer', 'reefTutorial', 'tourLater')) startTour(true);
+});
 $('tour-skip').addEventListener('click', () => { tourStep = tour.length; showTourStep(); });
 $('tour-dialog').addEventListener('cancel', event => { event.preventDefault(); $('tour-skip').click(); });
 window.addEventListener('resize', placeTour);

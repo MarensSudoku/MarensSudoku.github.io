@@ -25,7 +25,7 @@ Games and preferences stay in this browser. Achievement saving is enabled by def
 
 Settings includes an expandable progress backup section. Save a JSON file containing the current puzzle, notes, undo history, points, achievements, reef and preferences, then load it on another device. Imports are validated before confirmation, including puzzle uniqueness and reef contents. Confirming replaces local progress and reloads the app; cancelling or an invalid file preserves it. Backups remain local files and require no account.
 
-The Hint button explains the next logical placement, including candidate eliminations for harder puzzles. Hints change no entries or points and never guess a number. Inconsistent entries ask the player to check their work instead. Sudoku basics and the full reef-editor tutorial are separate; both are available in Help & info.
+Sudoku basics and the full reef-editor tutorial are separate; both are available in Help & info. The row, column and box rules use the spotlight without an extra yellow fill; yellow retains its matching-number meaning. Finishing the Sudoku tutorial offers the reef tutorial with a short explanation of placing fish and corals, changing colours and setting swimming routes, plus a reminder of that location. Choose Reef tutorial to continue or Later to return to Sudoku; skipping or pressing Escape ends the current tutorial without a follow-up.
 
 An existing v1 installation first needs its regular update to v2; subsequent updates use the new startup dialog.
 

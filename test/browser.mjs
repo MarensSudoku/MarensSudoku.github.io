@@ -3,6 +3,7 @@ import { chromium, webkit } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { checkTutorial } from './tutorial.mjs';
+import { checkTutorialFollowup } from './tutorial-followup.mjs';
 import { checkUnitBubbles } from './unit-bubbles.mjs';
 import { RELEASE } from '../web/release.mjs';
 import { checkUpdates } from './updates.mjs';
@@ -463,6 +464,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await checkMusicLifecycle(browser,name,base);
   await checkMusicFavorites(browser,name,base);
   await checkImprovements(browser,name,base);
+  await checkTutorialFollowup(browser,name,base);
   await checkUpdates(browser,name);
   await checkWaiting(browser,name,base);
   await checkUnitBubbles(browser,name,base);

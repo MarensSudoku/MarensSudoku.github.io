@@ -11,6 +11,9 @@ export async function checkTutorial(page,name) {
   let editor=false,total=0;
   for(const mode of ['sudoku','reef']) {
   if(mode==='reef') {
+    await page.locator('#confirm-dialog').waitFor({state:'visible'});
+    assert.ok((await page.locator('#confirm-copy').textContent()).includes('„Hilfe & Infos“'));
+    await page.locator('#confirm-no')[touch?'tap':'click']();
     await page.waitForFunction(()=>['ready','unavailable'].includes(document.getElementById('reef-aquarium').dataset.status));
     editor=await page.locator('#reef-aquarium').getAttribute('data-status')==='ready';
     if(!editor)break;
@@ -23,6 +26,12 @@ export async function checkTutorial(page,name) {
   for(let step=1;step<=count;step++){
     const key=await page.locator('#tour-dialog').getAttribute('data-step');seen.add(key);
     assert.ok(await page.locator('.tour-target').count()>0,`${key}: a visible control or example must be highlighted`);
+    if(['tourRow','tourColumn','tourBox'].includes(key)) {
+      assert.equal(await page.locator('.cell.tour-target').count(),9);
+      assert.equal(await page.locator('.cell.tour-target').evaluateAll(cells=>cells.some(cell=>{const [r,g,b]=getComputedStyle(cell).backgroundColor.match(/[\d.]+/g).map(Number);return r>g&&g>b&&r-b>40;})),false,'rule examples must use the spotlight without yellow cell fills');
+      assert.ok((await page.locator('#tour-spotlight').boundingBox()).width>0,'the rule spotlight must remain visible');
+      await page.screenshot({path:`output/${name}-${key}.png`});
+    }
     assert.ok((await page.locator('#tour-title').textContent()).length>0);
     assert.equal(await page.evaluate(()=>document.activeElement.id),'tour-next');
     assert.equal(await page.locator('#tour-bubble').evaluate(node=>{const r=node.getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;}),true,`${key}: tutorial must fit the viewport`);
@@ -52,6 +61,7 @@ export async function checkTutorial(page,name) {
   for(const key of ['tourFocus','tourMatching','tourErrors','tourPadColors'])assert.ok(seen.has(key));
   if(editor)for(const key of ['tourEditorSelect','tourEditorRotate','tourEditorColor','tourEditorSpeed','tourEditorRadius','tourEditorFish','tourEditorList','tourEditorSave'])assert.ok(seen.has(key));
   assert.equal(await page.locator('#tour-dialog').evaluate(node=>node.open),false);
+  assert.equal(await page.locator('#confirm-dialog').evaluate(node=>node.open),false,'the reef tutorial must finish without another follow-up prompt');
   assert.equal(await page.locator('#reef-editor').isHidden(),true);
   assert.equal(await page.locator('#reef-picker-dialog').evaluate(node=>!node.open),true);
   assert.equal(await page.locator('#reef-properties-dialog, #reef-properties-open').count(),0);

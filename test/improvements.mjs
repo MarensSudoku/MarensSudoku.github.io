@@ -9,15 +9,8 @@ export async function checkImprovements(browser,name,base) {
     const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
     const read=()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)),STORAGE_KEY);
     await page.goto(base);await page.locator('.board-shell.ready').waitFor();await page.locator('#welcome-start').click();
-    const beforeHint=(await read()).game;
-    await page.locator('#hint').click();
-    assert.ok((await page.locator('#hint-copy').textContent()).includes('bleibt'));
-    assert.ok(await page.locator('#hint-steps li').count()>0,'a hint must explain which existing numbers rule out candidates');
-    assert.equal(await page.locator('#hint-dialog').evaluate(node=>node.matches(':modal')),true);
-    await page.locator('#hint-dialog .dialog-close').click();
-    const afterHint=(await read()).game;
-    assert.deepEqual(afterHint.values,beforeHint.values);assert.deepEqual(afterHint.notes,beforeHint.notes);
-    assert.equal(afterHint.mistakes,beforeHint.mistakes);assert.equal(afterHint.usedUndo,beforeHint.usedUndo);
+    assert.equal(await page.locator('#hint, #hint-dialog').count(),0);
+    assert.equal(await page.locator('.game-tools button').count(),5);
     await page.waitForFunction(()=>document.getElementById('reef-aquarium').dataset.status==='ready');
     const width=await page.locator('#reef-aquarium').evaluate(canvas=>canvas.width);
     await page.locator('#settings-open').click();await page.locator('#energy-saver').check();
@@ -53,6 +46,6 @@ export async function checkImprovements(browser,name,base) {
     assert.equal(restored.settings.energySaver,true);assert.equal(restored.settings.musicEnabled,false);
     assert.deepEqual(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),REEF_STORAGE_KEY),reef);
     assert.deepEqual(errors,[]);
-    console.log(`${name}: logical hint, real render resolution, remembered pause/mute, native backup download, invalid/cancelled import and complete restore passed.`);
+    console.log(`${name}: five Sudoku controls, real render resolution, remembered pause/mute, native backup download, invalid/cancelled import and complete restore passed.`);
   } finally { await context.close(); }
 }
