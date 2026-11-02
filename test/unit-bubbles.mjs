@@ -115,7 +115,7 @@ export async function checkUnitBubbles(browser,name,base) {
 }
 
 export async function checkFieldBubbles(browser,name,base) {
-  for(const action of ['start','win']){
+  for(const action of ['start','restart','win']){
     const {missing,state}=fixture([4]);
     if(action==='win'){state.game.values=[...solution];state.game.values[missing]=0;}
     const context=await browser.newContext({viewport:{width:1024,height:850},reducedMotion:'no-preference',serviceWorkers:'block'});
@@ -128,11 +128,17 @@ export async function checkFieldBubbles(browser,name,base) {
       },state);
       const page=await context.newPage();await page.goto(base);await page.locator('.board-shell.ready').waitFor();await page.locator('#welcome-start').click();
       if(action==='start') {await page.locator('#new-game').click();await page.locator('#confirm-yes').click();}
+      else if(action==='restart') {
+        await page.locator('#restart-game').click();await page.locator('#confirm-yes').click();
+        const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('marenssudoku:state:v1')));
+        assert.deepEqual(saved.game.puzzle,state.game.puzzle);assert.deepEqual(saved.game.values,state.game.puzzle);
+        assert.deepEqual(saved.scores,state.scores,'restarting with bubbles must preserve points');
+      }
       else {await page.locator(`[data-index="${missing}"]`).click();await page.keyboard.press(String(solution[missing]));await page.locator('#win-dialog').waitFor();}
       await page.waitForFunction(()=>window.__fieldSupported===false||window.__fieldPoints>81*12);
       assert.ok(await page.evaluate(()=>window.__fieldSupported===false||window.__fieldPoints<=1600),'a whole-board celebration must keep the particle budget bounded');
       await page.screenshot({path:`output/${name}-whole-board-${action}.png`});
     } finally {await context.close();}
   }
-  console.log(`${name}: new Sudoku and solved Sudoku emit bounded whole-board bubble clouds.`);
+  console.log(`${name}: new, restarted and solved Sudoku emit bounded whole-board bubble clouds.`);
 }

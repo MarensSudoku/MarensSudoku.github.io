@@ -247,7 +247,7 @@ $('new-game').addEventListener('click', () => newPuzzle());
 $('restart-game').addEventListener('click', async () => {
   if (!game || busy || readOnly || !await confirmation('restartTitle','restartCopy')) return;
   game = restartGame(game); selection = Math.max(0, game.values.findIndex(v => !v)); noteMode = false;
-  scene.stopEffects(); persist(); renderBoard(); renderAchievements(); scene.playSfx('new'); announce(t('restartDone'));
+  scene.stopEffects(); persist(); renderBoard(); renderAchievements(); scene.playSfx('new'); scene.bubbleField(); announce(t('restartDone'));
 });
 $('difficulty').addEventListener('change', () => newPuzzle());
 $('win-next').addEventListener('click', () => { $('win-dialog').close(); newPuzzle(game.difficulty, false); });
