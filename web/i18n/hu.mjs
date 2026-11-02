@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Buborékos zátony",
+  "bubblesCondition": "Oldj meg 5 kört",
+  "obj.bubble-vent": "Porlasztókő",
   "forumTitle": "Vitafórum",
   "forumOpen": "Fórum megnyitása a GitHubon",
   "forumHint": "Kérdéseket, ötleteket és visszajelzést szívesen fogadunk. A fórum nyilvános, és az alkalmazáson kívül nyílik meg. Az íráshoz GitHub-fiók kell. Kérjük, ne tegyél közzé bizalmas információt vagy mások személyes adatait.",

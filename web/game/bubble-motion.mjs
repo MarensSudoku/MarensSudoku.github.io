@@ -3,8 +3,9 @@ export const MAX_BUBBLES = DENSITY * 36;
 
 export function emitBubbles(cells, bounds, viewport, time, random = Math.random) {
   const bubbles = [];
-  for (const [order, cell] of [...new Set(cells)].entries()) {
-    for (let i = 0; i < DENSITY; i++) {
+  const unique = [...new Set(cells)], density = Math.min(DENSITY, Math.floor(MAX_BUBBLES / Math.max(1, unique.length)));
+  for (const [order, cell] of unique.entries()) {
+    for (let i = 0; i < density; i++) {
       const seed = random(), group = i % 14, size = group === 0 ? .35 + seed * .22 : group < 4 ? .12 + seed * .14 : .025 + seed * .085;
       const diameter = size * bounds.width / 9 / viewport.height;
       const birth = time + order * .008 + random() * .16;

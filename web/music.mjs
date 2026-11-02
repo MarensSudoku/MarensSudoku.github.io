@@ -64,10 +64,13 @@ export function setupMusic(settings, t, persist) {
     renderTime();
   }
   function pause() { revision++; audio.pause(); render(); }
+  function clearMediaSession() {
+    if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null;}
+  }
   function stop() {
     if(audio.hasAttribute('src'))resumePosition={src:audio.src,time:audio.currentTime};
     pause();audio.removeAttribute('src');audio.load();
-    if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null;}
+    clearMediaSession();
   }
   function changeTrack(file, remember = true) {
     if (remember) history.push(settings.musicTrack);
@@ -118,7 +121,9 @@ export function setupMusic(settings, t, persist) {
     resumePosition=null;
   });
   audio.addEventListener('playing', () => { awaitingGesture = false; failed = false; render(); });
-  audio.addEventListener('pause', render);
+  audio.addEventListener('pause', () => {render();if(document.hidden||!audio.hasAttribute('src'))clearMediaSession();});
+  // Media unloading completes asynchronously; clear any late browser playback bookkeeping too.
+  audio.addEventListener('emptied',()=>{if(!audio.hasAttribute('src'))clearMediaSession();});
   audio.addEventListener('ended', () => { if (settings.musicEnabled) nextTrack(); });
   audio.addEventListener('error', () => { revision++; failed = true; audio.pause(); render(); });
   function userGesture(event) {

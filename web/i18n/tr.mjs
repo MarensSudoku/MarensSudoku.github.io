@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Kabarcıklı resif",
+  "bubblesCondition": "5 tur çöz",
+  "obj.bubble-vent": "Hava taşı",
   "forumTitle": "Tartışma forumu",
   "forumOpen": "Forumu GitHub’da aç",
   "forumHint": "Sorular, fikirler ve geri bildirimler memnuniyetle karşılanır. Forum herkese açıktır ve uygulamanın dışında açılır. Yazmak için bir GitHub hesabı gerekir. Lütfen gizli bilgileri veya başkalarının kişisel verilerini paylaşma.",

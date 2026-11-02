@@ -27,7 +27,7 @@ test('renaming published achievements preserves saved badges and their condition
   const progress={total:100,easy:94,medium:1,hard:5,direct:1,unlocked:published.map(item=>item[0])},scores={points:1234,best:1234,solved:100};
   const stored=JSON.stringify({schema:1,game:null,settings:{language:'de',theme:'light',reducedMotion:false,showConflicts:true,tracking:true},progress,scores});
   const previous=globalThis.localStorage;globalThis.localStorage={getItem:()=>stored,setItem(){assert.fail('Loading renamed badges must not rewrite the save');}};
-  try{const restored=load();assert.equal(restored.problem,false);assert.deepEqual(restored.progress,progress);assert.deepEqual(restored.scores,scores);}
+  try{const restored=load();assert.equal(restored.problem,false);assert.deepEqual(restored.progress,{...progress,unlocked:[...progress.unlocked,'bubbles']});assert.deepEqual(restored.scores,scores);}
   finally{if(previous===undefined)delete globalThis.localStorage;else globalThis.localStorage=previous;}
 });
 
@@ -39,9 +39,9 @@ test('retired objects are absent from the catalogue, models and previews',async(
   }
 });
 
-test('six new achievements award their own reef objects at the configured milestone, once',()=>{
+test('later achievements award their own reef objects at the configured milestone, once',()=>{
   const additions=ACHIEVEMENTS.slice(7);
-  assert.equal(additions.length,6);assert.equal(new Set(REEF_ADDITIONS.map(item=>item.unlock)).size,13);
+  assert.equal(additions.length,7);assert.equal(new Set(REEF_ADDITIONS.map(item=>item.unlock)).size,14);
   for(const achievement of additions){
     assert.equal(REEF_ADDITIONS.filter(item=>item.unlock===achievement.id).length,1);
     const progress=emptyProgress(),scores=emptyScores(),difficulty=achievement.kind==='medium'?'medium':'easy';
@@ -78,7 +78,7 @@ test('seahorse unlocks after one round and manta after ten rounds',()=>{
 });
 
 test('all added models save; walking behaviours remain on the ground and can rest',()=>{
-  assert.equal(REEF_ADDITIONS.length,13);
+  assert.equal(REEF_ADDITIONS.length,14);
   assert.equal(validReefLayout({schema:1,objects:REEF_ADDITIONS.map(spec=>reefObject(spec.id,spec.id))}),true);
   for(const type of WALKING_TYPES){
     const object=reefObject(type,type,{x:2,y:.03,z:4});
@@ -91,7 +91,7 @@ test('all added models save; walking behaviours remain on the ground and can res
 });
 
 test('new models have embedded assets, thumbnails and portable looping skeletal clips',async()=>{
-  for(const spec of [...REEF_ADDITIONS,{id:'reef-crab',rigged:true}]){
+  for(const spec of [...REEF_ADDITIONS.filter(spec=>spec.id!=='bubble-vent'),{id:'reef-crab',rigged:true}]){
     const bytes=await readFile(new URL('../web/assets/models/'+spec.id+'.glb',import.meta.url)),{json,binary}=glb(bytes);
     assert.ok(bytes.length<8*1024*1024);assert.equal(json.asset.version,'2.0');
     assert.ok(json.buffers.every(item=>!item.uri));assert.ok(json.images.every(item=>!item.uri&&Number.isInteger(item.bufferView)));

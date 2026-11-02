@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Terumbu berbuih",
+  "bubblesCondition": "Selesaikan 5 ronde",
+  "obj.bubble-vent": "Batu gelembung",
   "forumTitle": "Forum diskusi",
   "forumOpen": "Buka forum di GitHub",
   "forumHint": "Pertanyaan, ide, dan masukan sangat diterima. Forum ini bersifat publik dan terbuka di luar aplikasi. Untuk menulis, kamu perlu akun GitHub. Jangan bagikan informasi rahasia atau data pribadi orang lain.",

@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Rạn san hô sủi bọt",
+  "bubblesCondition": "Giải 5 vòng",
+  "obj.bubble-vent": "Đá sủi bọt",
   "forumTitle": "Diễn đàn thảo luận",
   "forumOpen": "Mở diễn đàn trên GitHub",
   "forumHint": "Mọi câu hỏi, ý tưởng và góp ý đều được hoan nghênh. Diễn đàn là công khai và mở bên ngoài ứng dụng. Để viết bài, bạn cần có tài khoản GitHub. Vui lòng không đăng thông tin bí mật hoặc dữ liệu cá nhân của người khác.",

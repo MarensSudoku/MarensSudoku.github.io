@@ -65,12 +65,9 @@ export function createEffects(parent) {
     celebrate() {
       if (this.reduced) return;
       this.shimmer(Array.from({ length:27 }, (_, i) => i));
-      for (let i = 0; i < 28; i++) {
-        const bubble = document.createElement('span'); bubble.className = 'victory-bubble';
-        bubble.style.left = `${15 + Math.random() * 70}%`; bubble.style.top = `${60 + Math.random() * 35}%`;
-        animate(bubble, [{ opacity:0.8, transform:'translate(0,0) scale(1)' }, { opacity:0, transform:`translate(${(Math.random() - 0.5) * 160}px,-250px) scale(.2)` }], { duration:1400 + Math.random() * 400, easing:'ease-out' });
-      }
+      this.bubbleField();
     },
+    bubbleField() {this.bubbles(Array.from({length:27},(_,i)=>i));},
     stopEffects() { bubbles?.stop(); stopSounds(); for (const effect of effects) effect.cancel(); effects.clear(); layer.replaceChildren(); },
   };
   queueMicrotask(() => scene.onReady?.());

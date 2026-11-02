@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Bubblande rev",
+  "bubblesCondition": "Lös 5 rundor",
+  "obj.bubble-vent": "Bubbelsten",
   "forumTitle": "Diskussionsforum",
   "forumOpen": "Öppna forumet på GitHub",
   "forumHint": "Frågor, idéer och synpunkter är välkomna. Forumet är offentligt och öppnas utanför appen. Ett GitHub-konto krävs för att skriva. Publicera inte konfidentiell information eller andras personuppgifter.",

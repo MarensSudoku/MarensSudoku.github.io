@@ -30,6 +30,7 @@ import {REEF_ADDITIONS} from '../reef-additions.mjs';
 import {loadRiggedModel} from './rigged-model.mjs';
 import {bounceLimits,bounceStep,coarseContact} from './bounce.mjs';
 import {boxEntry,createSurface,updateSurface,surfaceContact} from './surface-collision.mjs';
+import {createBubbleVent,createVentBubbles} from './bubble-vent.mjs';
 
 class GroundShadow extends MaterialPluginBase {
   constructor(material) {super(material,'GroundShadow',100);this._enable(true);}
@@ -114,6 +115,7 @@ export async function createAquarium(canvas) {
     sand.isPickable = false;
     const water = createWater(scene,sandMaterial,mobile||software), scenery = [], swaying = [];
     const templates = new Map(), riggedTemplates = new Map(), pendingModels = new Map(), objects = new Map(), fish = [];
+    const ventBubbles = createVentBubbles(scene);
     let obstacleBounds=null;
     const collisionSurfaces=new WeakMap();
     let framing = 1, editing = false, transformMode = 'move', transformEnabled = true, selected = null, hovered = null, dragging = null, ready = false, replacing = false, selectionChanged = () => {}, beforeChange = () => {};
@@ -224,6 +226,11 @@ export async function createAquarium(canvas) {
     }
     async function prepareObject(type) {
       if(templates.has(type))return;
+      if(type==='bubble-vent'){
+        const template=createBubbleVent(scene);
+        for(const mesh of template.getChildMeshes())if(mesh.material&&!mesh.material.pluginManager.getPlugin('ReefColor'))new ReefColor(mesh.material);
+        templates.set(type,template);return;
+      }
       const spec=REEF_ADDITIONS.find(item=>item.id===type);
       if(!spec)throw new Error('Unknown reef model');
       if(!pendingModels.has(type))pendingModels.set(type,(async()=>{
@@ -604,6 +611,9 @@ export async function createAquarium(canvas) {
       updateSelectionRing();
       scene.metadata={reefTime:time};
       water.update(time,dark);
+      const vents=[...objects.values()].filter(entry=>entry.record.type==='bubble-vent');
+      ventBubbles.update(vents,!reduced);
+      if(editing&&!reduced){if(vents.length)engine.runRenderLoop(render);else engine.stopRenderLoop(render);}
       scene.render();
     }
     function drawOnce() { engine.beginFrame(); render(performance.now(),true); engine.endFrame(); }
@@ -611,7 +621,7 @@ export async function createAquarium(canvas) {
       engine.stopRenderLoop(render); last = performance.now() - 40;
       if (document.hidden) return;
       drawOnce();
-      if (!reduced&&!editing) engine.runRenderLoop(render);
+      if (!reduced&&(!editing||[...objects.values()].some(entry=>entry.record.type==='bubble-vent'))) engine.runRenderLoop(render);
     }
     function resize() {
       obstacleBounds=null;
@@ -665,7 +675,7 @@ export async function createAquarium(canvas) {
         if (reduced !== options.reduced) { reduced = options.reduced; resume(); }
         else if (reduced && !document.hidden) drawOnce();
       },
-      dispose() {window.removeEventListener('resize', resize);document.removeEventListener('visibilitychange',resume);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',pointerUp);canvas.removeEventListener('pointerleave',pointerLeave);engine.dispose();canvas.dataset.status='disposed';},
+      dispose() {window.removeEventListener('resize', resize);document.removeEventListener('visibilitychange',resume);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerup',pointerUp);canvas.removeEventListener('pointercancel',pointerUp);canvas.removeEventListener('pointerleave',pointerLeave);ventBubbles.dispose();engine.dispose();canvas.dataset.status='disposed';},
     };
   } catch (error) { engine?.dispose(); canvas.dataset.status = 'unavailable'; throw error; }
 }

@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "泡立つサンゴ礁",
+  "bubblesCondition": "5 ラウンドを解く",
+  "obj.bubble-vent": "エアストーン",
   "forumTitle": "ディスカッションフォーラム",
   "forumOpen": "GitHub でフォーラムを開く",
   "forumHint": "質問、アイデア、フィードバックを歓迎します。フォーラムは公開されており、アプリの外で開きます。投稿には GitHub アカウントが必要です。機密情報や他人の個人データは投稿しないでください。",

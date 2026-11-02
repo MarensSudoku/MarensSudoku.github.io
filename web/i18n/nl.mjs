@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Bruisend rif",
+  "bubblesCondition": "Los 5 rondes op",
+  "obj.bubble-vent": "Bellensteen",
   "forumTitle": "Discussieforum",
   "forumOpen": "Forum op GitHub openen",
   "forumHint": "Vragen, ideeën en feedback zijn welkom. Het forum is openbaar en opent buiten de app. Om te schrijven heb je een GitHub-account nodig. Plaats geen vertrouwelijke informatie of persoonsgegevens van anderen.",

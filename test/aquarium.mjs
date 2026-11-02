@@ -9,6 +9,7 @@ import { checkCrabEditor } from './crab-editor.mjs';
 import { checkMobileRing } from './mobile-ring.mjs';
 import { checkReefAdditions } from './reef-additions.mjs';
 import {checkBounceEditor} from './bounce-editor.mjs';
+import {checkReefVent} from './reef-vent.mjs';
 import { REEF_STORAGE_KEY } from '../web/reef-layout.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output',{recursive:true});
@@ -126,5 +127,6 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]].filter(([nam
       assert.equal(await tab.locator('[role=gridcell]').count(),81);
       await fallback.close(); console.log('chromium: unavailable 3D preserves the playable grid.');
     }
+    await checkReefVent(browser,name,base);
   } finally { await browser.close(); }
 }

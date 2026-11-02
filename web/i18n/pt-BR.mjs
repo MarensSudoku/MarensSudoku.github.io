@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Recife borbulhante",
+  "bubblesCondition": "Resolva 5 rodadas",
+  "obj.bubble-vent": "Difusor de bolhas",
   "forumTitle": "Fórum de discussão",
   "forumOpen": "Abrir o fórum no GitHub",
   "forumHint": "Perguntas, ideias e comentários são bem-vindos. O fórum é público e abre fora do aplicativo. Para publicar você precisa de uma conta GitHub. Não publique informações confidenciais nem dados pessoais de outras pessoas.",

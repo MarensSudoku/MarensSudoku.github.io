@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "氣泡珊瑚礁",
+  "bubblesCondition": "完成 5 局",
+  "obj.bubble-vent": "氣泡石",
   "forumTitle": "討論區",
   "forumOpen": "在 GitHub 上開啟討論區",
   "forumHint": "歡迎提出問題、想法和回饋。討論區是公開的，會在應用程式之外開啟。發文需要 GitHub 帳號。請不要張貼機密資訊或他人的個人資料。",

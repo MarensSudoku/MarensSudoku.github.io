@@ -12,7 +12,7 @@ import { LOCALES } from './locales.mjs';
 const $ = id => document.getElementById(id);
 const state = load();
 let game = state.game, progress = state.progress, scores = state.scores, settings = state.settings;
-let storageBlocked = state.problem, readOnly = false, busy = false, noteMode = false;
+let storageBlocked = state.problem, readOnly = false, busy = false, noteMode = false, pendingStartBubbles = false;
 let selection = game ? Math.max(0, game.values.findIndex(v => !v)) : 0;
 let workerJob = null, generation = 0, updateWorker = null, updateApplying = false, nextUpdateAttempt = 0;
 let startupUpdateCheck=Promise.resolve();
@@ -241,6 +241,7 @@ async function newPuzzle(difficulty = $('difficulty').value, ask = true) {
   } else { showNotice('generationFailed'); if (game) $('difficulty').value = game.difficulty; }
   renderBoard();
   if (result && hadGame) scene.playSfx('new');
+  if (result) {if($('welcome-dialog').open)pendingStartBubbles=true;else scene.bubbleField();}
 }
 $('new-game').addEventListener('click', () => newPuzzle());
 $('restart-game').addEventListener('click', async () => {
@@ -372,7 +373,7 @@ function showTourStep() {
   selection=tourSelection;renderBoard();
   const dialog = $('tour-dialog'), step = tour[tourStep],editor=step?.[0].startsWith('tourEditor');
   if(!editor&&tourEditorActive){reefEditor.finish(false);tourEditorActive=false;tourFish=null;}
-  if (!step) { tourTargets = [];dialog.close();cells[selection].focus();return; }
+  if (!step) { tourTargets = [];dialog.close();cells[selection].focus();if(pendingStartBubbles){pendingStartBubbles=false;scene.bubbleField();}return; }
   if(editor){
     if(!tourEditorActive){
       reefEditor.start();aquarium.setLayout(aquarium.defaultLayout);
@@ -403,6 +404,7 @@ $('welcome-start').addEventListener('click', () => enterApp(async()=>{
   $('welcome-dialog').close();
   if(!aquarium){showWaiting('reefLoading');await aquariumReady;$('loading').close();}
   cells[selection].focus();
+  if(pendingStartBubbles){pendingStartBubbles=false;scene.bubbleField();}
 }));
 $('welcome-tour').addEventListener('click', () => enterApp(()=>{ $('welcome-dialog').close(); startTour(); }));
 const appWindow=matchMedia('(display-mode: standalone)');

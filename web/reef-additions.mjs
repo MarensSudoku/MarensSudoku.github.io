@@ -12,6 +12,7 @@ export const REEF_ADDITIONS = [
   {"id":"starfish","kind":"prop","size":1.05,"yaw":3.141592653589793,"unlock":"starfinder","pitch":1.5707963267948966,"rigged":true},
   {"id":"manta-ray","kind":"swim","size":2.8,"yaw":1.5707963267948966,"unlock":"flow","rigged":true},
   {"id":"jellyfish","kind":"swim","size":1.6,"yaw":1.5707963267948966,"unlock":"drift"},
+  {"id":"bubble-vent","kind":"prop","unlock":"bubbles"},
 ];
 export const REEF_REWARDS = REEF_ADDITIONS.filter(item=>item.unlock);
 export const canAddReefType = (type,unlocked=[]) => {

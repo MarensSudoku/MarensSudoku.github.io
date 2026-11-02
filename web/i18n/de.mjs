@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Sprudelndes Riff",
+  "bubblesCondition": "5 Runden lösen",
+  "obj.bubble-vent": "Blasenausströmer",
   "forumTitle": "Diskussionsforum",
   "forumOpen": "Forum auf GitHub öffnen",
   "forumHint": "Fragen, Ideen und Feedback sind willkommen. Das Forum ist öffentlich und öffnet sich außerhalb der App. Zum Schreiben brauchst du ein GitHub-Konto. Bitte keine vertraulichen oder fremden personenbezogenen Daten veröffentlichen.",

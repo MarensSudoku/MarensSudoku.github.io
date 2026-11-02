@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Burbuliuojantis rifas",
+  "bubblesCondition": "Išspręsk 5 ratus",
+  "obj.bubble-vent": "Oro akmuo",
   "forumTitle": "Diskusijų forumas",
   "forumOpen": "Atidaryti forumą GitHub",
   "forumHint": "Klausimai, idėjos ir atsiliepimai laukiami. Forumas yra viešas ir atsidaro už programėlės ribų. Norint rašyti, reikia GitHub paskyros. Prašome neskelbti konfidencialios informacijos ar kitų žmonių asmens duomenų.",

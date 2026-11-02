@@ -30,6 +30,7 @@ export async function checkUnitBubbles(browser,name,base) {
           const result=draw.apply(this,args);
           if(this.canvas.classList.contains('unit-bubbles') && !this.getUniform(this.getParameter(this.CURRENT_PROGRAM),this.getUniformLocation(this.getParameter(this.CURRENT_PROGRAM),'u_map'))){
             window.__bubbleDraws++;window.__bubblePoints??=args[2];window.__bubbleInitialPoints??=args[2];window.__bubbleGL=this;
+            window.__bubbleRefractionActive ||= document.body.style.filter.includes('unit-bubble-refraction')&&document.querySelector('#unit-bubble-refraction feImage')?.getAttribute('href')?.startsWith('data:image/png');
             if(window.__bubblePixels<30){
               const pixels=new Uint8Array(this.drawingBufferWidth*this.drawingBufferHeight*4);
               this.readPixels(0,0,this.drawingBufferWidth,this.drawingBufferHeight,this.RGBA,this.UNSIGNED_BYTE,pixels);
@@ -58,8 +59,7 @@ export async function checkUnitBubbles(browser,name,base) {
       assert.equal(await page.evaluate(()=>window.__bubbleWarmPixels),0,'reflections must stay silver/cyan without soap-film rainbow colours');
       assert.equal(await page.locator('.unit-bubbles').getAttribute('aria-hidden'),'true');
       assert.equal(await page.locator('.unit-bubbles').evaluate(canvas=>getComputedStyle(canvas).pointerEvents),'none');
-      assert.match(await page.locator('body').evaluate(body=>body.style.filter),/unit-bubble-refraction/,'the refraction must cover HTML as well as the aquarium');
-      assert.match(await page.locator('#unit-bubble-refraction feImage').getAttribute('href'),/^data:image\/png/);
+      assert.equal(await page.evaluate(()=>window.__bubbleRefractionActive),true,'a live refraction map must cover HTML as well as the aquarium while bubbles render');
       await page.locator(`[data-index="${(missing+1)%81}"]`).click();
       assert.equal(await page.locator('.cell[aria-selected=true]').getAttribute('data-index'),String((missing+1)%81),'bubbles must not intercept Sudoku input');
       await page.screenshot({path:`output/${name}-unit-bubbles-${units.join('-')}.png`});
@@ -107,5 +107,29 @@ export async function checkUnitBubbles(browser,name,base) {
       assert.deepEqual(errors,[]);
     }finally{await context.close();}
   }
+  await checkFieldBubbles(browser,name,base);
   console.log(`${name}: ${rendered?'row/column/box shaders render real pixels; overlap deduplication, touch, idle cleanup and supported context recovery passed':'WebGL unavailable; graceful fallback passed'}; reduced motion and unsupported WebGL passed.`);
+}
+
+export async function checkFieldBubbles(browser,name,base) {
+  for(const action of ['start','win']){
+    const {missing,state}=fixture([4]);
+    if(action==='win'){state.game.values=[...solution];state.game.values[missing]=0;}
+    const context=await browser.newContext({viewport:{width:1024,height:850},reducedMotion:'no-preference',serviceWorkers:'block'});
+    try {
+      await context.addInitScript(state=>{
+        localStorage.setItem('marenssudoku:state:v1',JSON.stringify(state));window.__fieldPoints=0;
+        const get=HTMLCanvasElement.prototype.getContext,draw=WebGLRenderingContext.prototype.drawArrays;
+        HTMLCanvasElement.prototype.getContext=function(...args){const result=get.apply(this,args);if(this.classList.contains('unit-bubbles'))window.__fieldSupported=Boolean(result);return result;};
+        WebGLRenderingContext.prototype.drawArrays=function(...args){const result=draw.apply(this,args);if(this.canvas.classList.contains('unit-bubbles'))window.__fieldPoints=Math.max(window.__fieldPoints,args[2]);return result;};
+      },state);
+      const page=await context.newPage();await page.goto(base);await page.locator('.board-shell.ready').waitFor();await page.locator('#welcome-start').click();
+      if(action==='start') {await page.locator('#new-game').click();await page.locator('#confirm-yes').click();}
+      else {await page.locator(`[data-index="${missing}"]`).click();await page.keyboard.press(String(solution[missing]));await page.locator('#win-dialog').waitFor();}
+      await page.waitForFunction(()=>window.__fieldSupported===false||window.__fieldPoints>81*12);
+      assert.ok(await page.evaluate(()=>window.__fieldSupported===false||window.__fieldPoints<=1600),'a whole-board celebration must keep the particle budget bounded');
+      await page.screenshot({path:`output/${name}-whole-board-${action}.png`});
+    } finally {await context.close();}
+  }
+  console.log(`${name}: new Sudoku and solved Sudoku emit bounded whole-board bubble clouds.`);
 }

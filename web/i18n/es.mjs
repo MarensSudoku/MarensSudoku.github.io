@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Arrecife burbujeante",
+  "bubblesCondition": "Resuelve 5 rondas",
+  "obj.bubble-vent": "Difusor de burbujas",
   "forumTitle": "Foro de discusión",
   "forumOpen": "Abrir el foro en GitHub",
   "forumHint": "Tus preguntas, ideas y comentarios son bienvenidos. El foro es público y se abre fuera de la aplicación. Para publicar necesitas una cuenta de GitHub. No publiques información confidencial ni datos personales de otras personas.",

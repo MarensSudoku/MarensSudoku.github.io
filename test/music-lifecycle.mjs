@@ -3,6 +3,16 @@ import assert from 'node:assert/strict';
 export async function checkMusicLifecycle(browser,name,base) {
   const context=await browser.newContext({locale:'en-US',reducedMotion:'reduce',serviceWorkers:'block'});
   try {
+    await context.addInitScript(()=>{
+      if(!navigator.mediaSession)Object.defineProperty(navigator,'mediaSession',{value:{playbackState:'none',metadata:null}});
+      // Reproduce browser bookkeeping arriving after stop() but before the element's emptied handler.
+      document.addEventListener('emptied',event=>{
+        if(event.target.id==='reef-music'&&!event.target.hasAttribute('src')&&document.hidden){
+          navigator.mediaSession.playbackState='playing';
+          navigator.mediaSession.metadata=window.MediaMetadata?new MediaMetadata({title:'Late media state'}):{title:'Late media state'};
+        }
+      },true);
+    });
     const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
     await page.goto(base);await page.locator('.board-shell.ready').waitFor();await page.locator('#welcome-start').click();
     await page.waitForFunction(()=>!document.getElementById('reef-music').paused);

@@ -9,7 +9,7 @@ export const REEF_CATEGORIES = {
   animals:['anemone','reef-crab','nudibranch','sea-turtle','octopus','sea-snail','spiny-lobster','cleaner-shrimp','pistol-shrimp','starfish','jellyfish'],
   corals:['reef','coral-fan','coral-staghorn','coral-plates','coral-brain','coral-tubes'],
   plants:['ribbon-grass','sea-fern'],
-  decoration:['reef-ledge','treasure-chest','shipwreck'],
+  decoration:['reef-ledge','bubble-vent','treasure-chest','shipwreck'],
 };
 export const FISH_MOTIONS = ['circle','patrol','eight','still','school','bounce'];
 const ranges = {x:[-30,30],y:[0,16],z:[-8,80],scale:[.25,2.5],yaw:[-Math.PI*2,Math.PI*2],speed:[.1,3],radius:[.25,9],phase:[0,100],baseSpeed:[.01,.3]};

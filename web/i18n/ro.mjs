@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Recif cu bule",
+  "bubblesCondition": "Rezolvă 5 runde",
+  "obj.bubble-vent": "Difuzor de bule",
   "forumTitle": "Forum de discuții",
   "forumOpen": "Deschide forumul pe GitHub",
   "forumHint": "Întrebările, ideile și părerile sunt binevenite. Forumul este public și se deschide în afara aplicației. Pentru a scrie ai nevoie de un cont GitHub. Te rugăm să nu publici informații confidențiale sau datele personale ale altor persoane.",

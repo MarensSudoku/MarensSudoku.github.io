@@ -51,6 +51,7 @@ export const ACHIEVEMENTS = [
   { id: 'snap', target: 3, kind: 'direct', icon: 'star' },
   { id: 'trails', target: 5, kind: 'medium', icon: 'coral' },
   { id: 'drift', target: 15, kind: 'total', icon: 'pearl' },
+  { id: 'bubbles', target: 5, kind: 'total', icon: 'pearl' },
 ];
 export const emptyProgress = () => ({ total: 0, easy: 0, medium: 0, hard: 0, direct: 0, unlocked: [] });
 export const emptyScores = () => ({ points:0, best:0, solved:0 });

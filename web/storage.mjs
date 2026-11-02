@@ -30,6 +30,8 @@ export function load() {
     settings.sfxVolume = Number.isFinite(settings.sfxVolume) && settings.sfxVolume >= 0 && settings.sfxVolume <= 1 ? settings.sfxVolume : 0.3;
     if (data.game) { data.game.elapsedMs ??= 0; data.game.mistakes ??= 0; data.game.score ??= null; data.game.credited ??= data.game.completionRecorded; }
     const progress = settings.tracking ? Object.fromEntries(Object.keys(emptyProgress()).map(key => [key,data.progress[key]])) : emptyProgress();
+    // Published saves already contain the completed rounds for the new reward.
+    if(settings.tracking&&progress.total>=5&&!progress.unlocked.includes('bubbles'))progress.unlocked.push('bubbles');
     const knownScore = data.game?.completionRecorded ? data.game.score?.total || 0 : 0;
     const legacy = validProgress(data.progress) ? data.progress : null;
     const scores = data.scores || { points:Math.max(legacy?.points || 0,knownScore), best:Math.max(legacy?.best || 0,knownScore), solved:Math.max(legacy?.total || 0,knownScore ? 1 : 0) };

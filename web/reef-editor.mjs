@@ -7,7 +7,7 @@ export function setupReefEditor(aquarium,{t,onModeChange,confirmReset,readOnly,u
   const history=[];
   let restoring=false,pointerAction=null,pointerSaved=false;
   const label=type=>t('obj.'+type), tools=$('reef-object-tools'), picker=$('reef-picker-dialog'),hintPanel=$('reef-hint'),top=document.querySelector('.reef-editor-top'),ring=tools.querySelector('.reef-tool-ring'),actions=document.querySelector('.reef-editor-actions');
-  const preview=type=>`./assets/models/previews/${type}.png`;
+  const preview=type=>`./assets/models/previews/${type}.${type==='bubble-vent'?'svg':'png'}`;
   const hints={move:'reefMoveHint',height:'reefHeightHint',rotate:'reefRotateHint','rotate-x':'reefRotateXHint','rotate-z':'reefRotateZHint',scale:'reefScaleHint'};
   function message(key,warning=false) {
     const node=$('reef-message'),copy=t(key);if(node.textContent!==copy)node.textContent=copy;node.dataset.warning=String(warning);

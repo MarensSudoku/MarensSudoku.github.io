@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "보글보글 산호초",
+  "bubblesCondition": "라운드 5회 풀기",
+  "obj.bubble-vent": "기포 발생기",
   "forumTitle": "토론 포럼",
   "forumOpen": "GitHub에서 포럼 열기",
   "forumHint": "질문, 아이디어, 의견을 환영해요. 포럼은 공개되어 있으며 앱 밖에서 열려요. 글을 쓰려면 GitHub 계정이 필요해요. 기밀 정보나 다른 사람의 개인정보는 올리지 마세요.",

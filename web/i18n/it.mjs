@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Reef frizzante",
+  "bubblesCondition": "Risolvi 5 round",
+  "obj.bubble-vent": "Diffusore di bolle",
   "forumTitle": "Forum di discussione",
   "forumOpen": "Apri il forum su GitHub",
   "forumHint": "Domande, idee e commenti sono benvenuti. Il forum è pubblico e si apre fuori dall’app. Per scrivere serve un account GitHub. Non pubblicare informazioni riservate o dati personali altrui.",

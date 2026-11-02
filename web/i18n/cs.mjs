@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Bublající útes",
+  "bubblesCondition": "Vyřeš 5 kol",
+  "obj.bubble-vent": "Vzduchovací kámen",
   "forumTitle": "Diskusní fórum",
   "forumOpen": "Otevřít fórum na GitHubu",
   "forumHint": "Otázky, nápady a zpětná vazba jsou vítány. Fórum je veřejné a otevírá se mimo aplikaci. K psaní potřebuješ účet na GitHubu. Nezveřejňuj prosím důvěrné informace ani osobní údaje jiných lidí.",

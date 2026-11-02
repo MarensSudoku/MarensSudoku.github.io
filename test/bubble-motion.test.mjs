@@ -23,6 +23,12 @@ test('close bubbles merge while conserving air volume', () => {
   assert.ok(result[0].diameter > .03);
 });
 
+test('a full-board cloud covers every cell without exceeding the particle cap',()=>{
+  const cloud=emitBubbles(Array.from({length:81},(_,i)=>i),{left:0,top:0,width:450,height:450},{width:1000,height:800},0,()=>.5);
+  assert.ok(cloud.length<=MAX_BUBBLES);
+  assert.equal(new Set(cloud.map(bubble=>Math.floor(bubble.y*800/50)*9+Math.floor(bubble.x*800/50))).size,81);
+});
+
 test('a large bubble divides into smaller bubbles while conserving air volume', () => {
   const source = [bubble({diameter:.05,splitAt:.2})], before = volume(source);
   const result = advanceBubbles(source,.3,.02,() => .5);

@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Bubbling reef",
+  "bubblesCondition": "Solve 5 rounds",
+  "obj.bubble-vent": "Bubble vent",
   "forumTitle": "Discussion forum",
   "forumOpen": "Open forum on GitHub",
   "forumHint": "Questions, ideas and feedback are welcome. The forum is public and opens outside the app. Posting requires a GitHub account. Please do not post confidential information or other people’s personal data.",

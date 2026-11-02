@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Kupliva riutta",
+  "bubblesCondition": "Ratkaise 5 kierrosta",
+  "obj.bubble-vent": "Ilmastinkivi",
   "forumTitle": "Keskustelufoorumi",
   "forumOpen": "Avaa foorumi GitHubissa",
   "forumHint": "Kysymykset, ideat ja palaute ovat tervetulleita. Foorumi on julkinen ja avautuu sovelluksen ulkopuolella. Kirjoittaminen vaatii GitHub-tilin. Älä julkaise luottamuksellisia tietoja tai muiden henkilötietoja.",

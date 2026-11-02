@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Burbuļojošs rifs",
+  "bubblesCondition": "Atrisini 5 kārtas",
+  "obj.bubble-vent": "Gaisa akmens",
   "forumTitle": "Diskusiju forums",
   "forumOpen": "Atvērt forumu GitHub",
   "forumHint": "Jautājumi, idejas un atsauksmes ir laipni gaidītas. Forums ir publisks un atveras ārpus lietotnes. Lai rakstītu, vajadzīgs GitHub konts. Lūdzu, nepublicē konfidenciālu informāciju vai citu cilvēku personas datus.",

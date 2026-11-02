@@ -1,4 +1,7 @@
 export default {
+  "badge.bubbles": "Bąbelkowa rafa",
+  "bubblesCondition": "Rozwiąż 5 rund",
+  "obj.bubble-vent": "Kamień napowietrzający",
   "forumTitle": "Forum dyskusyjne",
   "forumOpen": "Otwórz forum na GitHubie",
   "forumHint": "Pytania, pomysły i opinie są mile widziane. Forum jest publiczne i otwiera się poza aplikacją. Do pisania potrzebujesz konta GitHub. Nie publikuj poufnych informacji ani danych osobowych innych osób.",
