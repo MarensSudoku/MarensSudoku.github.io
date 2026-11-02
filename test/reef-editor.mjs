@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { REEF_STORAGE_KEY,validReefLayout,REEF_TYPES } from '../web/reef-layout.mjs';
+import { REEF_STORAGE_KEY,validReefLayout,REEF_TYPES,REEF_CATEGORIES } from '../web/reef-layout.mjs';
 
 export async function checkReefEditor(page,name) {
   const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('marenssudoku:state:v1')));
   const enter=async()=>{if(await page.locator('#reef-view-toggle').getAttribute('aria-pressed')!=='true')await page.locator('#reef-view-toggle').click();await page.locator('#reef-view-edit').click();await page.locator('#reef-editor').waitFor({state:'visible'});};
   const release=async()=>{if(await page.locator('#reef-deselect').isVisible())await page.locator('#reef-deselect').click();};
   const behaviour=async()=>{await page.locator('#reef-ring-motion-open').click();};
-  const chooseType=async type=>{await release();const count=Number(await page.locator('#reef-count').textContent());await page.locator('#reef-add-type').click();await page.locator(`[data-reef-type="${type}"]`).click();assert.equal(Number(await page.locator('#reef-count').textContent()),count+1,'choosing a model must immediately add exactly one object');};
+  const chooseType=async type=>{await release();const count=Number(await page.locator('#reef-count').textContent());await page.locator('#reef-add-type').click();await page.locator(`[data-reef-category="${Object.keys(REEF_CATEGORIES).find(category=>REEF_CATEGORIES[category].includes(type))}"]`).click();await page.locator(`[data-reef-type="${type}"]`).click();assert.equal(Number(await page.locator('#reef-count').textContent()),count+1,'choosing a model must immediately add exactly one object');};
   const chooseObject=async id=>{await release();const count=await page.locator('#reef-count').textContent();await page.locator('#reef-object-list').click();await page.locator(`[data-reef-id="${id}"]`).check();await page.locator('#reef-edit-selected').click();assert.equal(await page.locator('#reef-count').textContent(),count,'selecting an existing object must not add a copy');};
   const selected=()=>page.locator('#reef-editor').getAttribute('data-selected');
   const drag=async(dx,dy)=>{
@@ -65,7 +65,18 @@ export async function checkReefEditor(page,name) {
   assert.equal(await page.locator('[data-reef-id^="foreground-plant-"]').count(),4);
   assert.equal(await page.locator('[data-reef-id^="foreground-anemone-"]').count(),2);
   await page.locator('#reef-picker-dialog .dialog-close').click();
-  await page.locator('#reef-add-type').click();assert.equal(await page.locator('[data-reef-type]').count(),REEF_TYPES.length);
+  await page.locator('#reef-add-type').click();
+  const found=[];
+  for(const [category,types] of Object.entries(REEF_CATEGORIES)){
+    await page.locator(`[data-reef-category="${category}"]`).click();
+    const cards=await page.locator('[data-reef-type]').evaluateAll(cards=>cards.map(card=>({type:card.dataset.reefType,locked:card.disabled})));
+    assert.deepEqual(cards.map(card=>card.type).sort(),[...types].sort());found.push(...cards.map(card=>card.type));
+    assert.deepEqual(cards.map(card=>card.locked),cards.map(card=>card.locked).sort(),'unlocked objects must precede locked rewards');
+  }
+  assert.deepEqual(found.sort(),[...REEF_TYPES].sort());
+  await page.locator('#reef-picker-dialog .dialog-close').click();await page.locator('#reef-add-type').click();
+  assert.equal(await page.locator('[data-reef-category="decoration"]').getAttribute('aria-pressed'),'true','the catalogue must remember its category');
+  await page.locator('[data-reef-category="fish"]').click();
   await page.waitForFunction(()=>[...document.querySelectorAll('#reef-picker img')].every(img=>img.complete&&img.naturalWidth===192));
   await page.screenshot({path:`output/${name}-reef-picker.png`});
   await page.locator('[data-reef-type="blue-tang"]').click();assert.equal(await page.locator('#reef-add').count(),0);

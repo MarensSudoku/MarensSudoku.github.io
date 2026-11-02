@@ -1,9 +1,9 @@
-import { FISH_TYPES, WALKING_TYPES, REEF_TYPES, saveReefLayout } from './reef-layout.mjs';
+import { FISH_TYPES, WALKING_TYPES, REEF_TYPES, REEF_CATEGORIES, saveReefLayout } from './reef-layout.mjs';
 import {REEF_ADDITIONS,canAddReefType} from './reef-additions.mjs';
 
 export function setupReefEditor(aquarium,{t,onModeChange,confirmReset,readOnly,unlocked=()=>[],prepareObject=type=>aquarium.prepareObject(type)}) {
   const $=id=>document.getElementById(id), root=$('reef-editor');
-  let selected=null, original=null, addType=REEF_TYPES[0],mode='move',hintsHidden=false,sliderField=null;
+  let selected=null, original=null, addType=REEF_TYPES[0],category='fish',mode='move',hintsHidden=false,sliderField=null;
   const history=[];
   let restoring=false,pointerAction=null,pointerSaved=false;
   const label=type=>t('obj.'+type), tools=$('reef-object-tools'), picker=$('reef-picker-dialog'),hintPanel=$('reef-hint'),top=document.querySelector('.reef-editor-top'),ring=tools.querySelector('.reef-tool-ring'),actions=document.querySelector('.reef-editor-actions');
@@ -120,7 +120,11 @@ export function setupReefEditor(aquarium,{t,onModeChange,confirmReset,readOnly,u
   function showPicker(existing) {
     $('reef-picker-title').textContent=t(existing?'reefSelection':'reefAddType');
     $('reef-list-actions').hidden=!existing;
-    const choices=existing?aquarium.getLayout().objects:REEF_TYPES.map(type=>({type}));
+    $('reef-categories').hidden=existing;picker.dataset.catalog=String(!existing);
+    $('reef-categories').querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.reefCategory===category)));
+    const rewards=unlocked();
+    const choices=existing?aquarium.getLayout().objects:[...REEF_CATEGORIES[category]]
+      .sort((a,b)=>Number(canAddReefType(b,rewards))-Number(canAddReefType(a,rewards))).map(type=>({type}));
     $('reef-picker').replaceChildren(...choices.map((object,i)=>{
       const card=document.createElement(existing?'label':'button'),image=document.createElement('img'),name=document.createElement('span');
       image.src=preview(object.type);image.alt='';image.width=96;image.height=80;
@@ -128,7 +132,7 @@ export function setupReefEditor(aquarium,{t,onModeChange,confirmReset,readOnly,u
       if(existing){const check=document.createElement('input');check.type='checkbox';check.dataset.reefId=object.id;check.addEventListener('change',updateListActions);card.append(check);}
       else{card.type='button';card.dataset.reefType=object.type;card.setAttribute('aria-pressed',String(object.type===addType));
         const reward=REEF_ADDITIONS.find(item=>item.id===object.type)?.unlock;
-        card.disabled=!canAddReefType(object.type,unlocked());
+        card.disabled=!canAddReefType(object.type,rewards);
         if(reward){const hint=document.createElement('small');hint.className='reef-reward';hint.textContent=(card.disabled?'🔒 ':t('unlocked')+' · ')+t(reward+'Condition');card.append(hint);}
         card.addEventListener('click',async()=>{
         if(!canAddReefType(object.type,unlocked()))return;
@@ -142,6 +146,7 @@ export function setupReefEditor(aquarium,{t,onModeChange,confirmReset,readOnly,u
       card.append(image,name);return card;
     }));
     if(existing&&!choices.length){const empty=document.createElement('p');empty.className='reef-picker-empty';empty.textContent=t('reefNoObjects');$('reef-picker').append(empty);}
+    $('reef-picker').scrollTop=0;
     updateListActions();if(!picker.open)picker.showModal();
   }
   function finish(save) {
@@ -167,6 +172,10 @@ export function setupReefEditor(aquarium,{t,onModeChange,confirmReset,readOnly,u
   });
   $('reef-undo').addEventListener('click',undo);
   $('reef-add-type').addEventListener('click',()=>showPicker(false));
+  $('reef-categories').addEventListener('click',event=>{
+    const button=event.target.closest('[data-reef-category]');if(!button)return;
+    category=button.dataset.reefCategory;showPicker(false);
+  });
   $('reef-object-list').addEventListener('click',()=>showPicker(true));
   $('reef-select-all').addEventListener('change',()=>{picker.querySelectorAll('[data-reef-id]').forEach(input=>input.checked=$('reef-select-all').checked);updateListActions();});
   $('reef-edit-selected').addEventListener('click',()=>{const input=picker.querySelector('[data-reef-id]:checked');if(input){picker.close();aquarium.select(input.dataset.reefId);}});

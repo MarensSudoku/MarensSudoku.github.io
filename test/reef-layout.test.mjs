@@ -1,8 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { reefObject,validReefLayout,readReefLayout,saveReefLayout,REEF_STORAGE_KEY,MAX_REEF_OBJECTS } from '../web/reef-layout.mjs';
+import { reefObject,validReefLayout,readReefLayout,saveReefLayout,REEF_STORAGE_KEY,MAX_REEF_OBJECTS,REEF_TYPES,REEF_CATEGORIES } from '../web/reef-layout.mjs';
 import { aquariumPose } from '../web/game/swimming.mjs';
 import {Matrix,Vector3} from '@babylonjs/core/Maths/math.vector.js';
+
+test('every reef object appears in exactly one catalogue category',()=>{
+  const types=Object.values(REEF_CATEGORIES).flat();
+  assert.deepEqual([...types].sort(),[...REEF_TYPES].sort());
+  assert.equal(new Set(types).size,types.length);
+  assert.ok(REEF_CATEGORIES.fish.includes('seahorse')&&REEF_CATEGORIES.fish.includes('manta-ray'));
+  assert.ok(REEF_CATEGORIES.animals.includes('sea-turtle')&&REEF_CATEGORIES.animals.includes('jellyfish'));
+});
 
 test('reef storage validates geometry, model names, behaviours and unique IDs',()=>{
   const object=reefObject('blue-tang','my-fish',{motion:'eight',speed:1.7,x:2,z:4});

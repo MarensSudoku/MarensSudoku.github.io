@@ -138,6 +138,14 @@
     </div></div>
     <div class="reef-editor-bottom" id="reef-hint"><p id="reef-message" role="status"></p><button id="reef-hint-close" type="button" data-reef-label="reefHideHints"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div>
   </section>
-  <dialog id="reef-picker-dialog" aria-labelledby="reef-picker-title"><div class="dialog-top"><h2 id="reef-picker-title"></h2><button class="icon-button dialog-close" aria-label="Schließen"><svg><use href="#i-close"/></svg></button></div><div id="reef-picker" class="dialog-body reef-picker"></div><div id="reef-list-actions" class="reef-list-actions" hidden><label><input id="reef-select-all" type="checkbox"><span data-t="reefSelectAll">Alle auswählen</span></label><button id="reef-edit-selected" class="quiet-button" disabled data-t="reefEditSelected">Bearbeiten</button><button id="reef-delete-selected" class="primary-button" disabled data-t="reefDeleteSelected">Auswahl löschen</button></div></dialog>
+  <dialog id="reef-picker-dialog" aria-labelledby="reef-picker-title"><div class="dialog-top"><h2 id="reef-picker-title"></h2><button class="icon-button dialog-close" aria-label="Schließen"><svg><use href="#i-close"/></svg></button></div>
+    <div id="reef-categories" class="reef-categories" role="group" aria-label="Kategorien" data-t-label="reefCategories" hidden>
+      <button type="button" data-reef-category="fish" data-t="reefCategory.fish" aria-pressed="true">Fische</button>
+      <button type="button" data-reef-category="animals" data-t="reefCategory.animals" aria-pressed="false">Weitere Tiere</button>
+      <button type="button" data-reef-category="corals" data-t="reefCategory.corals" aria-pressed="false">Korallen</button>
+      <button type="button" data-reef-category="plants" data-t="reefCategory.plants" aria-pressed="false">Pflanzen</button>
+      <button type="button" data-reef-category="decoration" data-t="reefCategory.decoration" aria-pressed="false">Deko &amp; Felsen</button>
+    </div>
+    <div id="reef-picker" class="dialog-body reef-picker"></div><div id="reef-list-actions" class="reef-list-actions" hidden><label><input id="reef-select-all" type="checkbox"><span data-t="reefSelectAll">Alle auswählen</span></label><button id="reef-edit-selected" class="quiet-button" disabled data-t="reefEditSelected">Bearbeiten</button><button id="reef-delete-selected" class="primary-button" disabled data-t="reefDeleteSelected">Auswahl löschen</button></div></dialog>
   <p id="reef-color-help" class="sr-only" data-t="reefColorHelp">Ganz links: Originalfarbe.</p>
 </body></html>

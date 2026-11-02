@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {REEF_ADDITIONS} from '../web/reef-additions.mjs';
-import {REEF_STORAGE_KEY,REEF_TYPES} from '../web/reef-layout.mjs';
+import {REEF_STORAGE_KEY,REEF_CATEGORIES} from '../web/reef-layout.mjs';
 import {ACHIEVEMENTS} from '../web/sudoku/model.mjs';
 
 export async function checkReefAdditions(browser,name,base){
@@ -22,7 +22,7 @@ export async function checkReefAdditions(browser,name,base){
     };
     await page.goto(base);await start();await enter();await picker();
     assert.equal(await card('manta-ray').isDisabled(),true);assert.equal(await card('seahorse').isDisabled(),true);
-    assert.equal(await page.locator('[data-reef-type]').count(),REEF_TYPES.length);
+    assert.equal(await page.locator('[data-reef-type]').count(),REEF_CATEGORIES.fish.length);
     await page.waitForFunction(()=>[...document.querySelectorAll('#reef-picker img')].every(img=>img.complete&&img.naturalWidth===192));
     await page.screenshot({path:`output/${name}-reef-unlocks.png`});
     await page.locator('#reef-picker-dialog .dialog-close').click();await page.locator('#reef-cancel').click();
@@ -36,7 +36,7 @@ export async function checkReefAdditions(browser,name,base){
     await page.locator('#reef-picker-dialog .dialog-close').click();
     const count=Number(await page.locator('#reef-count').textContent());
     for(const spec of REEF_ADDITIONS){
-      await picker();assert.equal(await card(spec.id).isEnabled(),true);await card(spec.id).click();
+      await picker();await page.locator(`[data-reef-category="${Object.keys(REEF_CATEGORIES).find(category=>REEF_CATEGORIES[category].includes(spec.id))}"]`).click();assert.equal(await card(spec.id).isEnabled(),true);await card(spec.id).click();
       await page.waitForFunction(()=>Boolean(document.getElementById('reef-editor').dataset.selected));
       assert.equal(await page.locator('#reef-object-tools').isVisible(),true);
       if(spec.kind!=='prop')assert.equal(await page.locator('#reef-ring-speed-open').isVisible(),true);
