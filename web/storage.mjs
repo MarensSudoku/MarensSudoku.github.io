@@ -15,7 +15,7 @@ const renamedMusic={
   '06-stille-lagune_1.mp3':'10-stille-lagune.mp3',
   '06-stille-lagune_2.mp3':'11-schweben-im-blau.mp3',
 };
-export const defaults = () => ({ language: resolveLanguage(navigator.languages || [navigator.language]), theme: 'light', reducedMotion: false, showConflicts: true, tracking: true, musicVolume: 0.25, musicTrack: DEFAULT_MUSIC_TRACK, musicOrder:'shuffle', musicEnabled: true, musicFavorites:[], musicFavoritesOnly:false, sfxEnabled: true, sfxVolume: 0.3 });
+export const defaults = () => ({ language: resolveLanguage(navigator.languages || [navigator.language]), theme: 'light', reducedMotion: false, energySaver:false, showConflicts: true, tracking: true, musicVolume: 0.25, musicTrack: DEFAULT_MUSIC_TRACK, musicOrder:'shuffle', musicEnabled: true, musicMuted:false, rememberMusic:false, musicFavorites:[], musicFavoritesOnly:false, sfxEnabled: true, sfxVolume: 0.3 });
 function validProgress(p) {
   return p && ['total','easy','medium','hard','direct'].every(k => Number.isSafeInteger(p[k]) && p[k] >= 0) &&
     p.total === p.easy + p.medium + p.hard && p.direct <= p.total && Array.isArray(p.unlocked) &&
@@ -23,10 +23,9 @@ function validProgress(p) {
     p.unlocked.every(id => ACHIEVEMENTS.some(a => a.id === id)) &&
     ['points','best'].every(key => p[key] === undefined || Number.isSafeInteger(p[key]) && p[key] >= 0) && (p.best ?? 0) <= (p.points ?? 0);
 }
-export function load() {
+export function parseState(text) {
   const fallback = { game: null, settings: defaults(), progress: emptyProgress(), scores:emptyScores(), problem: false };
   try {
-    const text = localStorage.getItem(STORAGE_KEY);
     if (!text) return fallback;
     const data = JSON.parse(text), settings = data.settings;
     if (data.schema !== 1 || !settings || !Object.hasOwn(LOCALES, settings.language) || !['light','dark'].includes(settings.theme) ||
@@ -40,7 +39,10 @@ export function load() {
     settings.musicTrack=Object.hasOwn(renamedMusic,settings.musicTrack)?renamedMusic[settings.musicTrack]:settings.musicTrack;
     settings.musicFavorites=Array.isArray(settings.musicFavorites)?[...new Set(settings.musicFavorites.filter(file=>typeof file==='string'&&file.length<256&&!/[\\/]/.test(file)))].slice(0,200):[];
     settings.musicFavoritesOnly=settings.musicFavoritesOnly===true;
-    settings.musicEnabled = true;
+    settings.rememberMusic = settings.rememberMusic === true;
+    settings.musicEnabled = !settings.rememberMusic || settings.musicEnabled !== false;
+    settings.musicMuted = settings.rememberMusic && settings.musicMuted === true;
+    settings.energySaver = settings.energySaver === true;
     settings.musicOrder = ['shuffle','sequential'].includes(settings.musicOrder) ? settings.musicOrder : 'shuffle';
     settings.sfxEnabled = typeof settings.sfxEnabled === 'boolean' ? settings.sfxEnabled : true;
     settings.sfxVolume = Number.isFinite(settings.sfxVolume) && settings.sfxVolume >= 0 && settings.sfxVolume <= 1 ? settings.sfxVolume : 0.3;
@@ -53,6 +55,10 @@ export function load() {
     const scores = data.scores || { points:Math.max(legacy?.points || 0,knownScore), best:Math.max(legacy?.best || 0,knownScore), solved:Math.max(legacy?.total || 0,knownScore ? 1 : 0) };
     return { game: data.game, settings, progress, scores, problem: false };
   } catch { return { ...fallback, problem: true }; }
+}
+export function load() {
+  try { return parseState(localStorage.getItem(STORAGE_KEY)); }
+  catch { return { ...parseState(null), problem:true }; }
 }
 function validScores(scores) {
   return scores && ['points','best','solved'].every(key => Number.isSafeInteger(scores[key]) && scores[key] >= 0) && scores.best <= scores.points;

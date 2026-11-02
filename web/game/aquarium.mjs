@@ -84,8 +84,9 @@ export async function createAquarium(canvas) {
     engine = new Engine(canvas, true, { alpha:false, stencil:true, preserveDrawingBuffer:false, powerPreference:'low-power' });
     // CPU rendering uses a lighter reef at 30 fps; desktop also halves resolution while mobile keeps native screen pixels.
     const software = /swiftshader|llvmpipe|softpipe|basic render|warp|software/i.test(engine.getGlInfo().renderer);
-    engine.setHardwareScalingLevel(mobile ? 1 / devicePixelRatio : software ? 2 : 1 / Math.min(devicePixelRatio, 1.5));
-    const frameBudget = 1000 / (software ? 30 : 60) - 2;
+    const fullResolution = mobile ? 1 / devicePixelRatio : software ? 2 : 1 / Math.min(devicePixelRatio, 1.5);
+    engine.setHardwareScalingLevel(fullResolution);
+    let frameBudget = 1000 / (software ? 30 : 60) - 2;
     const scene = new Scene(engine);
     scene.clearColor = new Color4(.2,.7,.86,1);
     scene.fogMode = Scene.FOGMODE_LINEAR; scene.fogStart = 16; scene.fogEnd = 100; scene.fogColor = new Color3(.2,.7,.86);
@@ -568,7 +569,7 @@ export async function createAquarium(canvas) {
     canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);
     canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerUp);
     canvas.addEventListener('pointerleave',pointerLeave);
-    let reduced = false, dark = false, time = 0, last = performance.now();
+    let reduced = false, dark = false, energySaver = false, time = 0, last = performance.now();
     if(stored.layout){
       await Promise.all([...new Set(stored.layout.objects.map(object=>object.type))].filter(type=>!templates.has(type)).map(prepareObject));
       setLayout(stored.layout);
@@ -671,6 +672,13 @@ export async function createAquarium(canvas) {
       },
       removeObject,
       updateOptions(options) {
+        if (energySaver !== Boolean(options.energySaver)) {
+          energySaver = Boolean(options.energySaver);
+          frameBudget = 1000 / (software || energySaver ? 30 : 60) - 2;
+          engine.setHardwareScalingLevel(energySaver ? Math.max(1, fullResolution * 1.5) : fullResolution);
+          resize();
+        }
+        canvas.dataset.energySaver = String(energySaver);
         if (dark !== options.dark) { dark = options.dark; sky.intensity = dark ? .3 : .95; sun.intensity = dark ? .18 : .85; }
         if (reduced !== options.reduced) { reduced = options.reduced; resume(); }
         else if (reduced && !document.hidden) drawOnce();

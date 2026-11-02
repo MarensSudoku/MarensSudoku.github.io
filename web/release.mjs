@@ -1,118 +1,118 @@
 export const RELEASE = {
-  "version": "v13",
+  "version": "v14",
   "date": "2026-11-02",
   "notes": {
     "de": [
-      "Neun neue Musikstücke bringen Steel Drums, Ukulele und sonnige Karibikrhythmen ins Riff.",
-      "Alle 20 Aufnahmen haben eigene Titel. Markiere deine Lieblingsstücke mit einem Herz und spiele auf Wunsch nur deine Favoriten."
+      "Starte sofort ins Sudoku, schone auf Wunsch den Akku und sichere deinen Fortschritt samt Riff als Datei.",
+      "Getrennte Tutorials, erklärende Sudoku-Tipps und klare Bonusregeln helfen beim Spielen. Auf Wunsch bleibt deine Musikpause bis zum nächsten Besuch gespeichert."
     ],
     "en": [
-      "Nine new tracks bring steel drums, ukulele and sunny Caribbean rhythms to the reef.",
-      "All 20 recordings have their own titles. Mark your favourite tracks with a heart and choose to play only your favourites."
+      "Start Sudoku straight away, save battery if you wish and back up your progress and reef to a file.",
+      "Separate tutorials, explained Sudoku hints and clearer bonus rules help you play. Optionally keep music paused until your next visit."
     ],
     "es": [
-      "Nueve canciones nuevas traen steel drums, ukelele y ritmos caribeños llenos de sol al arrecife.",
-      "Las 20 grabaciones tienen títulos propios. Marca tus canciones favoritas con un corazón y elige escuchar solo tus favoritos."
+      "Empieza el sudoku al instante, ahorra batería si quieres y guarda tu progreso y arrecife en un archivo.",
+      "Tutoriales separados, pistas explicadas y reglas de bonificación claras te ayudan a jugar. Puedes recordar la pausa musical para la próxima visita."
     ],
     "fr": [
-      "Neuf nouveaux morceaux apportent steel drums, ukulélé et rythmes ensoleillés des Caraïbes au récif.",
-      "Les 20 enregistrements ont chacun leur titre. Marquez vos morceaux préférés d’un cœur et choisissez de ne jouer que vos favoris."
+      "Commence le sudoku sans attendre, économise la batterie et sauvegarde ta progression et ton récif dans un fichier.",
+      "Des tutoriels séparés, des indices expliqués et des règles de bonus claires facilitent le jeu. Tu peux conserver la pause musicale pour ta prochaine visite."
     ],
     "it": [
-      "Nove nuovi brani portano steel drums, ukulele e ritmi caraibici pieni di sole nella barriera.",
-      "Tutte le 20 registrazioni hanno un titolo proprio. Segna i tuoi brani preferiti con un cuore e scegli di ascoltare solo quelli."
+      "Inizia subito il sudoku, risparmia batteria e salva progressi e barriera in un file.",
+      "Tutorial separati, indizi spiegati e regole bonus più chiare ti aiutano a giocare. Puoi conservare la pausa musicale per la prossima visita."
     ],
     "pt": [
-      "Nove novas faixas trazem steel drums, ukulele e ritmos soalheiros das Caraíbas ao recife.",
-      "As 20 gravações têm títulos próprios. Marca as tuas faixas favoritas com um coração e escolhe ouvir apenas os favoritos."
+      "Começa logo o sudoku, poupa bateria e guarda o progresso e o recife num ficheiro.",
+      "Tutoriais separados, dicas explicadas e regras de bónus claras ajudam a jogar. Podes guardar a pausa da música para a próxima visita."
     ],
     "pt-BR": [
-      "Nove novas faixas trazem steel drums, ukulele e ritmos caribenhos cheios de sol ao recife.",
-      "As 20 gravações têm títulos próprios. Marque suas faixas favoritas com um coração e escolha ouvir só os favoritos."
+      "Comece o sudoku na hora, economize bateria e salve seu progresso e recife em um arquivo.",
+      "Tutoriais separados, dicas explicadas e regras de bônus claras ajudam a jogar. Você pode guardar a pausa da música para a próxima visita."
     ],
     "nl": [
-      "Negen nieuwe nummers brengen steel drums, ukelele en zonnige Caribische ritmes naar het rif.",
-      "Alle 20 opnamen hebben een eigen titel. Markeer je favoriete nummers met een hartje en kies om alleen je favorieten af te spelen."
+      "Begin meteen met sudoku, spaar batterij en bewaar je voortgang en rif in een bestand.",
+      "Aparte tutorials, uitgelegde tips en duidelijke bonusregels helpen bij het spelen. Je kunt de muziekpauze onthouden voor je volgende bezoek."
     ],
     "da": [
-      "Ni nye numre bringer steel drums, ukulele og solrige caribiske rytmer til revet.",
-      "Alle 20 optagelser har hver sin titel. Markér dine yndlingsnumre med et hjerte, og vælg kun at afspille favoritterne."
+      "Start sudoku med det samme, spar batteri og gem dine fremskridt og rev i en fil.",
+      "Separate vejledninger, forklarede tip og tydelige bonusregler hjælper dig. Du kan huske musikpausen til næste besøg."
     ],
     "sv": [
-      "Nio nya låtar ger revet steel drums, ukulele och soliga karibiska rytmer.",
-      "Alla 20 inspelningar har egna titlar. Markera dina favoritlåtar med ett hjärta och välj att bara spela favoriterna."
+      "Börja med sudoku direkt, spara batteri och spara dina framsteg och ditt rev i en fil.",
+      "Separata guider, förklarade tips och tydliga bonusregler hjälper dig spela. Musikpausen kan sparas till nästa besök."
     ],
     "fi": [
-      "Yhdeksän uutta kappaletta tuo riutalle steel drum -soittimia, ukulelea ja aurinkoisia Karibian rytmejä.",
-      "Kaikilla 20 tallenteella on oma nimi. Merkitse suosikkikappaleesi sydämellä ja valitse toistettavaksi vain suosikit."
+      "Aloita sudoku heti, säästä akkua ja varmuuskopioi edistyminen sekä riutta tiedostoon.",
+      "Erilliset opastukset, selitetyt vihjeet ja selvemmät bonussäännöt auttavat pelaamaan. Voit säilyttää musiikkitauon seuraavaan käyntiin."
     ],
     "pl": [
-      "Dziewięć nowych utworów wnosi na rafę steel drums, ukulele i słoneczne karaibskie rytmy.",
-      "Wszystkie 20 nagrań ma własne tytuły. Oznacz ulubione utwory sercem i wybierz odtwarzanie tylko ulubionych."
+      "Zacznij sudoku od razu, oszczędzaj baterię i zapisz postępy oraz rafę do pliku.",
+      "Oddzielne samouczki, wyjaśnione wskazówki i jasne zasady premii pomagają w grze. Możesz zachować pauzę muzyki do następnej wizyty."
     ],
     "cs": [
-      "Devět nových skladeb přináší k útesu steel drums, ukulele a slunečné karibské rytmy.",
-      "Všech 20 nahrávek má vlastní názvy. Označ oblíbené skladby srdíčkem a zvol přehrávání jen oblíbených."
+      "Začni sudoku hned, šetři baterii a ulož postup i útes do souboru.",
+      "Oddělené průvodce, vysvětlené nápovědy a jasná pravidla bonusů pomohou při hraní. Pauzu hudby lze zachovat do příští návštěvy."
     ],
     "hu": [
-      "Kilenc új szám steel drum hangszereket, ukulelét és napfényes karibi ritmusokat hoz a zátonyra.",
-      "Mind a 20 felvétel saját címet kapott. Jelöld szívvel kedvenc számaidat, és válaszd csak a kedvencek lejátszását."
+      "Kezdd azonnal a sudokut, kíméld az akkumulátort, és mentsd fájlba haladásodat és zátonyodat.",
+      "Külön útmutatók, megmagyarázott tippek és világos bónuszszabályok segítenek. A zeneszünet a következő látogatásig megjegyezhető."
     ],
     "ro": [
-      "Nouă piese noi aduc steel drums, ukulele și ritmuri caraibiene însorite în recif.",
-      "Toate cele 20 de înregistrări au titluri proprii. Marchează piesele preferate cu o inimă și alege să asculți doar favoritele."
+      "Începe sudoku imediat, economisește bateria și salvează progresul și reciful într-un fișier.",
+      "Tutoriale separate, indicii explicate și reguli clare de bonus te ajută să joci. Poți păstra pauza muzicii până la următoarea vizită."
     ],
     "lv": [
-      "Deviņi jauni skaņdarbi ienes rifā tērauda bungas, ukuleli un saulainus Karību ritmus.",
-      "Visiem 20 ierakstiem ir savi nosaukumi. Atzīmē iemīļotos skaņdarbus ar sirsniņu un izvēlies atskaņot tikai izlasi."
+      "Sāc sudoku uzreiz, taupi akumulatoru un saglabā progresu un rifu failā.",
+      "Atsevišķas pamācības, izskaidroti padomi un skaidri bonusa noteikumi palīdz spēlēt. Mūzikas pauzi var saglabāt līdz nākamajai reizei."
     ],
     "lt": [
-      "Devyni nauji kūriniai į rifą atneša plieninių būgnų, ukulelės ir saulėtų Karibų ritmų.",
-      "Visi 20 įrašų turi savo pavadinimus. Pažymėk mėgstamus kūrinius širdute ir pasirink groti tik mėgstamiausius."
+      "Pradėk sudoku iškart, taupyk akumuliatorių ir išsaugok pažangą bei rifą faile.",
+      "Atskiros pamokos, paaiškintos užuominos ir aiškios premijų taisyklės padeda žaisti. Muzikos pauzę galima išlaikyti iki kito apsilankymo."
     ],
     "ru": [
-      "Девять новых треков добавляют рифу стальные барабаны, укулеле и солнечные карибские ритмы.",
-      "У всех 20 записей теперь собственные названия. Отмечайте любимые треки сердечком и выбирайте воспроизведение только избранного."
+      "Начинайте судоку сразу, экономьте заряд и сохраняйте прогресс вместе с рифом в файл.",
+      "Отдельные уроки, подсказки с объяснениями и понятные правила бонусов помогают играть. Паузу музыки можно сохранить до следующего посещения."
     ],
     "uk": [
-      "Дев’ять нових треків додають рифу сталеві барабани, укулеле та сонячні карибські ритми.",
-      "Усі 20 записів мають власні назви. Позначайте улюблені треки сердечком і обирайте відтворення лише улюблених."
+      "Починайте судоку одразу, заощаджуйте заряд і зберігайте поступ разом із рифом у файл.",
+      "Окремі уроки, підказки з поясненнями та зрозумілі правила бонусів допомагають грати. Паузу музики можна зберегти до наступного відвідування."
     ],
     "tr": [
-      "Dokuz yeni parça resife çelik davullar, ukulele ve güneşli Karayip ritimleri getiriyor.",
-      "20 kaydın hepsinin kendine ait adı var. Sevdiğin parçaları kalple işaretle ve yalnızca favorilerini çalmayı seç."
+      "Sudokuya hemen başla, pil tasarrufu yap ve ilerlemeni resifinle birlikte dosyaya kaydet.",
+      "Ayrı öğreticiler, açıklamalı ipuçları ve anlaşılır bonus kuralları oynamana yardımcı olur. Müzik duraklamasını sonraki ziyaretine kadar saklayabilirsin."
     ],
     "he": [
-      "תשעה קטעים חדשים מביאים לשונית תופי פלדה, יוקולילי ומקצבים קריביים שטופי שמש.",
-      "לכל 20 ההקלטות יש שמות משלהן. סמנו את הקטעים האהובים בלב ובחרו להשמיע רק מועדפים."
+      "אפשר להתחיל סודוקו מיד, לחסוך בסוללה ולשמור את ההתקדמות והשונית בקובץ.",
+      "הדרכות נפרדות, רמזים מוסברים וכללי בונוס ברורים עוזרים לשחק. אפשר לשמור את השהיית המוזיקה עד לביקור הבא."
     ],
     "hi": [
-      "नौ नई धुनें रीफ़ में स्टील ड्रम, यूकुलेले और धूप भरी कैरिबियाई लय लाती हैं।",
-      "सभी 20 रिकॉर्डिंग के अपने नाम हैं। पसंदीदा धुनों को दिल से चिह्नित करें और केवल पसंदीदा चलाना चुनें।"
+      "तुरंत सुडोकू शुरू करें, बैटरी बचाएँ और रीफ़ सहित प्रगति फ़ाइल में सहेजें।",
+      "अलग प्रशिक्षण, समझाए गए संकेत और स्पष्ट बोनस नियम खेलने में मदद करते हैं। अगली बार तक संगीत विराम याद रखा जा सकता है।"
     ],
     "id": [
-      "Sembilan lagu baru membawa steel drum, ukulele, dan irama Karibia yang cerah ke terumbu.",
-      "Semua 20 rekaman memiliki judul sendiri. Tandai lagu kesukaanmu dengan hati dan pilih untuk memutar hanya favorit."
+      "Mulai sudoku segera, hemat baterai dan simpan kemajuan beserta terumbu ke berkas.",
+      "Tutorial terpisah, petunjuk dengan penjelasan dan aturan bonus yang jelas membantu bermain. Jeda musik dapat disimpan hingga kunjungan berikutnya."
     ],
     "vi": [
-      "Chín bản nhạc mới mang trống thép, ukulele và nhịp điệu Caribe đầy nắng đến rạn san hô.",
-      "Cả 20 bản thu đều có tên riêng. Đánh dấu trái tim cho bài bạn thích và chọn chỉ phát các bài yêu thích."
+      "Bắt đầu sudoku ngay, tiết kiệm pin và lưu tiến trình cùng rạn san hô vào tệp.",
+      "Hướng dẫn riêng, gợi ý có giải thích và quy tắc thưởng rõ ràng giúp bạn chơi. Có thể giữ trạng thái tạm dừng nhạc đến lần truy cập sau."
     ],
     "ja": [
-      "スティールドラムやウクレレ、陽気なカリブのリズムを楽しめる9曲がリーフに加わりました。",
-      "全20曲にそれぞれのタイトルが付きました。好きな曲にハートを付けて、お気に入りだけを再生できます。"
+      "すぐに数独を始められます。省電力設定と、リーフを含む進行状況のファイル保存も利用できます。",
+      "数独とリーフの個別ガイド、理由を説明するヒント、明確なボーナス案内を追加しました。音楽の一時停止を次回まで記憶できます。"
     ],
     "ko": [
-      "스틸 드럼, 우쿨렐레, 햇살 가득한 카리브 리듬을 담은 새 음악 9곡이 산호초에 추가됐어요.",
-      "20개 녹음 모두 각자의 제목이 생겼어요. 좋아하는 곡에 하트를 누르고 즐겨찾기만 재생할 수 있어요."
+      "스도쿠를 바로 시작하고, 배터리를 절약하며, 산호초와 진행 상황을 파일로 저장하세요.",
+      "별도 튜토리얼, 이유를 설명하는 힌트와 명확한 보너스 규칙이 플레이를 돕습니다. 음악 일시정지를 다음 방문까지 기억할 수 있습니다."
     ],
     "zh-Hans": [
-      "新增九首音乐，让钢鼓、尤克里里和阳光般的加勒比节奏来到珊瑚礁。",
-      "全部20段录音都有了自己的曲名。为喜欢的曲目点亮爱心，即可选择仅播放收藏。"
+      "立即开始数独，按需节省电量，并将进度和珊瑚礁备份为文件。",
+      "独立教程、带解释的提示和清楚的奖励规则帮助你游玩。可选择记住音乐暂停状态，保留到下次访问。"
     ],
     "zh-Hant": [
-      "新增九首音樂，讓鋼鼓、烏克麗麗和陽光般的加勒比節奏來到珊瑚礁。",
-      "全部20段錄音都有了自己的曲名。為喜歡的曲目點亮愛心，即可選擇僅播放收藏。"
+      "立即開始數獨，按需節省電量，並將進度和珊瑚礁備份為檔案。",
+      "獨立教學、附帶解釋的提示和清楚的獎勵規則協助遊玩。可選擇記住音樂暫停狀態，保留到下次造訪。"
     ]
   }
 };

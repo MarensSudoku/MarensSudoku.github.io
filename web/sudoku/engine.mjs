@@ -46,20 +46,31 @@ export function countSolutions(input, limit = 2, budget = 200000) {
   return count;
 }
 
-export function solveLogic(input) {
-  if (!validGrid(input) || conflicts(input).size) return { solved: false, rank: -1 };
+export function solveLogic(input, hint = false) {
+  if (!validGrid(input) || conflicts(input).size) return hint ? { kind:'blocked' } : { solved: false, rank: -1 };
+  if (hint) {
+    try { if (!countSolutions(input, 1)) return { kind:'blocked' }; }
+    catch { return { kind:'none' }; }
+  }
   const grid = [...input];
+  const steps = [];
   let masks = candidates(grid), rank = 0;
   const place = (i, bit) => { grid[i] = digit(bit); masks = candidates(grid); };
   for (let pass = 0; pass < 1200; pass++) {
-    if (grid.every(Boolean)) return { solved: isSolved(grid), rank, solution: grid };
-    if (grid.some((v, i) => !v && !masks[i])) return { solved: false, rank };
+    if (grid.every(Boolean)) return hint ? { kind:'solved' } : { solved: isSolved(grid), rank, solution: grid };
+    if (grid.some((v, i) => !v && !masks[i])) return hint ? { kind:'blocked' } : { solved: false, rank };
     const single = masks.findIndex(m => bits(m) === 1);
-    if (single >= 0) { place(single, masks[single]); continue; }
+    if (single >= 0) {
+      if (hint) return { kind:'single', index:single, value:digit(masks[single]), steps };
+      place(single, masks[single]); continue;
+    }
     let changed = false;
     outer: for (const unit of UNITS) for (let n = 1; n <= 9; n++) {
       const places = unit.filter(i => masks[i] & (1 << n));
-      if (places.length === 1) { place(places[0], 1 << n); rank = Math.max(rank, 1); changed = true; break outer; }
+      if (places.length === 1) {
+        if (hint) return { kind:'hidden', index:places[0], value:n, unit:UNITS.indexOf(unit), steps };
+        place(places[0], 1 << n); rank = Math.max(rank, 1); changed = true; break outer;
+      }
     }
     if (changed) continue;
     outer: for (const unit of UNITS) for (let n = 1; n <= 9; n++) {
@@ -68,7 +79,10 @@ export function solveLogic(input) {
       for (const other of UNITS) {
         if (other === unit || !places.every(i => other.includes(i))) continue;
         const targets = other.filter(i => !unit.includes(i) && (masks[i] & bit));
-        if (targets.length) { targets.forEach(i => { masks[i] &= ~bit; }); rank = Math.max(rank, 2); changed = true; break outer; }
+        if (targets.length) {
+          if (hint) steps.push({ kind:'locked', value:n, unit:UNITS.indexOf(unit), other:UNITS.indexOf(other), places:[...places], targets:[...targets] });
+          targets.forEach(i => { masks[i] &= ~bit; }); rank = Math.max(rank, 2); changed = true; break outer;
+        }
       }
     }
     if (changed) continue;
@@ -76,12 +90,16 @@ export function solveLogic(input) {
       const pair = masks[i];
       if (bits(pair) !== 2 || unit.filter(j => masks[j] === pair).length !== 2) continue;
       const targets = unit.filter(j => masks[j] && masks[j] !== pair && (masks[j] & pair));
-      if (targets.length) { targets.forEach(j => { masks[j] &= ~pair; }); rank = Math.max(rank, 3); changed = true; break outer; }
+      if (targets.length) {
+        if (hint) steps.push({ kind:'pair', values:Array.from({length:9},(_,n)=>n+1).filter(n=>pair & (1 << n)), unit:UNITS.indexOf(unit), places:unit.filter(j=>masks[j]===pair), targets:[...targets] });
+        targets.forEach(j => { masks[j] &= ~pair; }); rank = Math.max(rank, 3); changed = true; break outer;
+      }
     }
-    if (!changed) return { solved: false, rank };
+    if (!changed) return hint ? { kind:'none' } : { solved: false, rank };
   }
-  return { solved: false, rank };
+  return hint ? { kind:'none' } : { solved: false, rank };
 }
+export const logicalHint = input => solveLogic(input, true);
 
 function randomSource(seed) {
   let state = seed >>> 0;

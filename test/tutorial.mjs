@@ -8,10 +8,19 @@ export async function checkTutorial(page,name) {
   await page.evaluate(()=>Object.defineProperty(crypto,'randomUUID',{value:undefined,configurable:true}));
   await page.locator('#welcome-tour')[touch?'tap':'click']();
   await page.waitForFunction(()=>!document.getElementById('tour-next').disabled&&document.getElementById('tour-dialog').dataset.step);
-  const editor=await page.locator('#reef-aquarium').getAttribute('data-status')==='ready';
-  const total=Number((await page.locator('#tour-step').textContent()).match(/\d+$/)[0]);
-  assert.ok(total>=(editor?30:18),'the tutorial must cover Sudoku colours and every available editor control');
-  for(let step=1;step<=total;step++){
+  let editor=false,total=0;
+  for(const mode of ['sudoku','reef']) {
+  if(mode==='reef') {
+    await page.waitForFunction(()=>['ready','unavailable'].includes(document.getElementById('reef-aquarium').dataset.status));
+    editor=await page.locator('#reef-aquarium').getAttribute('data-status')==='ready';
+    if(!editor)break;
+    await page.locator('#help-open')[touch?'tap':'click']();
+    await page.locator('#help-reef-tour')[touch?'tap':'click']();
+  }
+  await page.locator('#tour-dialog').waitFor({state:'visible'});
+  const count=Number((await page.locator('#tour-step').textContent()).match(/\d+$/)[0]);total+=count;
+  assert.ok(mode==='sudoku'?count===11:count===19,'short Sudoku basics and reef controls must be separate');
+  for(let step=1;step<=count;step++){
     const key=await page.locator('#tour-dialog').getAttribute('data-step');seen.add(key);
     assert.ok(await page.locator('.tour-target').count()>0,`${key}: a visible control or example must be highlighted`);
     assert.ok((await page.locator('#tour-title').textContent()).length>0);
@@ -38,6 +47,7 @@ export async function checkTutorial(page,name) {
     if(['tourErrors','tourEditorSelect','tourEditorCatalog','tourEditorFish'].includes(key))await page.screenshot({path:`output/${name}-${key}.png`});
     await page.waitForTimeout(step===1?1100:0);
     await page.locator('#tour-next')[touch?'tap':'click']();
+  }
   }
   for(const key of ['tourFocus','tourMatching','tourErrors','tourPadColors'])assert.ok(seen.has(key));
   if(editor)for(const key of ['tourEditorSelect','tourEditorRotate','tourEditorColor','tourEditorSpeed','tourEditorRadius','tourEditorFish','tourEditorList','tourEditorSave'])assert.ok(seen.has(key));

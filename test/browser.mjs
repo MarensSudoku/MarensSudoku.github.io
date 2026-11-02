@@ -11,6 +11,7 @@ import { checkInstallGuide } from './install-guide.mjs';
 import { checkInstalledApp } from './installed-app.mjs';
 import { checkMusicLifecycle } from './music-lifecycle.mjs';
 import { checkMusicFavorites } from './music-favorites.mjs';
+import { checkImprovements } from './improvements.mjs';
 import { checkLanguages, chooseLanguage } from './language.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output', { recursive: true });
@@ -461,6 +462,7 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   await checkInstalledApp(browser,name,base);
   await checkMusicLifecycle(browser,name,base);
   await checkMusicFavorites(browser,name,base);
+  await checkImprovements(browser,name,base);
   await checkUpdates(browser,name);
   await checkWaiting(browser,name,base);
   await checkUnitBubbles(browser,name,base);

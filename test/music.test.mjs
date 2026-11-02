@@ -91,6 +91,18 @@ test('reloading after a music pause re-enables playback without changing saved p
   assert.deepEqual(restored.game, game);
 });
 
+test('optional remembered pause and mute survive reload while preserving the game', () => {
+  let stored;
+  globalThis.localStorage={getItem:()=>stored,setItem:(_key,value)=>{stored=value;}};
+  const game=createGame(generate('easy',45));
+  save(game,{...defaults(),rememberMusic:true,musicEnabled:false,musicMuted:true,energySaver:true},emptyProgress());
+  const restored=load();
+  assert.equal(restored.settings.musicEnabled,false);assert.equal(restored.settings.musicMuted,true);
+  assert.equal(restored.settings.energySaver,true);assert.deepEqual(restored.game,game);
+  restored.settings.rememberMusic=false;save(game,restored.settings,restored.progress);
+  assert.equal(load().settings.musicEnabled,true);assert.equal(load().settings.musicMuted,false);
+});
+
 test('single byte ranges include open ends, suffixes and unsatisfiable requests', () => {
   assert.deepEqual(parseByteRange('bytes=0-15', 100), { start:0, end:15 });
   assert.deepEqual(parseByteRange('bytes=90-', 100), { start:90, end:99 });

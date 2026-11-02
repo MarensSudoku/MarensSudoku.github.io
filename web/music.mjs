@@ -32,6 +32,7 @@ export function setupMusic(settings, t, persist) {
   let revision = 0, failed = false, awaitingGesture = false, tracks = [], resumePosition = null;
   const history = [];
   audio.volume = settings.musicVolume;
+  audio.muted = settings.musicMuted === true;
   const playableTracks=()=>settings.musicFavoritesOnly?tracks.filter(track=>settings.musicFavorites.includes(track.file)):tracks;
 
   const clock = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
@@ -144,8 +145,7 @@ export function setupMusic(settings, t, persist) {
   next.addEventListener('click', nextTrack);
   previous.addEventListener('click', previousTrack);
   shuffle.addEventListener('click', () => { settings.musicOrder = settings.musicOrder === 'shuffle' ? 'sequential' : 'shuffle'; persist(); render(); });
-  // ponytail: mute lasts for this visit only; the saved volume stays the lasting setting.
-  mute.addEventListener('click', () => { audio.muted = !audio.muted; render(); });
+  mute.addEventListener('click', () => { audio.muted = !audio.muted; settings.musicMuted = audio.muted; persist(); render(); });
   seek.addEventListener('input', () => { audio.currentTime = Number(seek.value); renderTime(); });
   for (const type of ['timeupdate', 'durationchange', 'emptied']) audio.addEventListener(type, renderTime);
   volume.addEventListener('input', () => {
@@ -157,6 +157,7 @@ export function setupMusic(settings, t, persist) {
     resumePosition=null;
   });
   audio.addEventListener('playing', () => { awaitingGesture = false; failed = false; render(); });
+  for (const type of ['play','seeked']) audio.addEventListener(type, render);
   audio.addEventListener('pause', () => {render();if(document.hidden||!audio.hasAttribute('src'))clearMediaSession();});
   // Media unloading completes asynchronously; clear any late browser playback bookkeeping too.
   audio.addEventListener('emptied',()=>{if(!audio.hasAttribute('src'))clearMediaSession();});
