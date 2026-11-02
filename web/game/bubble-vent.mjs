@@ -75,7 +75,6 @@ export function createVentBubbles(scene) {
     fluid.environmentMap=sky; fluid.fluidColor=new Color3(.94,.99,1);
     fluid.density=.025; fluid.refractionStrength=.07; fluid.fresnelClamp=.85; fluid.specularPower=100;
     fluid.dirLight=new Vector3(.3,-1,.4); fluid.minimumThickness=.001;
-    fluid.depthMapSize=512; fluid.thicknessMapSize=256;
     fluid.blurDepthFilterSize=3; fluid.blurDepthNumIterations=1; fluid.enableBlurThickness=false;
     system.start();
   }

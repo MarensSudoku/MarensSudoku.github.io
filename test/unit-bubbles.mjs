@@ -33,6 +33,7 @@ export async function checkUnitBubbles(browser,name,base) {
           const result=draw.apply(this,args);
           if(this.canvas.classList.contains('unit-bubbles') && !this.getUniform(this.getParameter(this.CURRENT_PROGRAM),this.getUniformLocation(this.getParameter(this.CURRENT_PROGRAM),'u_map'))){
             window.__bubbleDraws++;window.__bubblePoints??=args[2];window.__bubbleInitialPoints??=args[2];window.__bubbleGL=this;
+            window.__bubbleViewport={width:this.canvas.getBoundingClientRect().width,viewport:innerWidth};
             window.__bubbleRefractionActive ||= document.body.style.filter.includes('unit-bubble-refraction')&&document.querySelector('#unit-bubble-refraction feImage')?.getAttribute('href')?.startsWith('data:image/png');
             if(window.__bubblePixels<30){
               const pixels=new Uint8Array(this.drawingBufferWidth*this.drawingBufferHeight*4);
@@ -71,10 +72,13 @@ export async function checkUnitBubbles(browser,name,base) {
       const draws=await page.evaluate(()=>window.__bubbleDraws);await page.waitForTimeout(100);
       assert.equal(await page.evaluate(()=>window.__bubbleDraws),draws,'the GPU effect must stop drawing when idle');
       if(units[0]===13){
+        await page.evaluate(()=>{window.__bubbleResize=new Promise(resolve=>addEventListener('resize',()=>requestAnimationFrame(resolve),{once:true}));window.__bubbleViewport=null;});
         await page.setViewportSize({width:375,height:559});
+        await page.evaluate(()=>window.__bubbleResize);
         await page.locator('#undo').click();await page.locator(`[data-index="${missing}"]`).click();await page.keyboard.press(String(solution[missing]));
-        await page.locator('.unit-bubbles').waitFor({state:'visible'});
-        assert.equal(await page.locator('.unit-bubbles').evaluate(canvas=>Math.abs(canvas.getBoundingClientRect().width-innerWidth)<1),true);
+        await page.waitForFunction(()=>window.__bubbleViewport?.viewport===375);
+        const viewport=await page.evaluate(()=>window.__bubbleViewport);
+        assert.ok(Math.abs(viewport.width-viewport.viewport)<1,'the rendered overlay must span the mobile viewport: '+JSON.stringify(viewport));
         const recovery=await page.evaluate(()=>{window.__bubbleLoss=window.__bubbleGL.getExtension('WEBGL_lose_context');return Boolean(window.__bubbleLoss);});
         if(recovery){
           await page.evaluate(()=>window.__bubbleLoss.loseContext());

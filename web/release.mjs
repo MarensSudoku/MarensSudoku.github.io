@@ -3,88 +3,116 @@ export const RELEASE = {
   "date": "2026-11-02",
   "notes": {
     "de": [
-      "Auch beim Neustart eines Sudokus steigen jetzt Blasen vom ganzen Spielfeld auf – mit demselben Blubbern wie beim neuen und gelösten Sudoku."
+      "Auch beim Neustart eines Sudokus steigen jetzt Blasen vom ganzen Spielfeld auf – mit demselben Blubbern wie beim neuen und gelösten Sudoku.",
+      "Die Blasen der Ausströmer sehen jetzt schärfer aus, auch bei größeren Ausströmern."
     ],
     "en": [
-      "Restarting a Sudoku now sends bubbles up from the whole board, with the same bubbling sound as starting or solving a Sudoku."
+      "Restarting a Sudoku now sends bubbles up from the whole board, with the same bubbling sound as starting or solving a Sudoku.",
+      "Bubbles from air stones now look sharper, including those from larger air stones."
     ],
     "es": [
-      "Al reiniciar un sudoku, ahora suben burbujas de todo el tablero con el mismo sonido que al empezar o resolver uno."
+      "Al reiniciar un sudoku, ahora suben burbujas de todo el tablero con el mismo sonido que al empezar o resolver uno.",
+      "Las burbujas de los difusores ahora se ven más nítidas, también en los difusores grandes."
     ],
     "fr": [
-      "Au redémarrage d’un sudoku, des bulles montent désormais de toute la grille, avec le même bruit de bulles qu’au début ou à la résolution."
+      "Au redémarrage d’un sudoku, des bulles montent désormais de toute la grille, avec le même bruit de bulles qu’au début ou à la résolution.",
+      "Les bulles des diffuseurs sont désormais plus nettes, même avec de grands diffuseurs."
     ],
     "it": [
-      "Ora, quando ricominci un sudoku, le bolle salgono da tutta la griglia con lo stesso suono dell’inizio e del completamento."
+      "Ora, quando ricominci un sudoku, le bolle salgono da tutta la griglia con lo stesso suono dell’inizio e del completamento.",
+      "Le bolle dei diffusori ora sono più nitide, anche con i diffusori più grandi."
     ],
     "pt": [
-      "Ao reiniciar um sudoku, as bolhas sobem agora de todo o tabuleiro, com o mesmo som do início e da resolução."
+      "Ao reiniciar um sudoku, as bolhas sobem agora de todo o tabuleiro, com o mesmo som do início e da resolução.",
+      "As bolhas dos difusores estão agora mais nítidas, mesmo nos difusores maiores."
     ],
     "pt-BR": [
-      "Ao reiniciar um sudoku, as bolhas agora sobem de todo o tabuleiro, com o mesmo som do início e da resolução."
+      "Ao reiniciar um sudoku, as bolhas agora sobem de todo o tabuleiro, com o mesmo som do início e da resolução.",
+      "As bolhas dos difusores agora ficam mais nítidas, inclusive nos difusores maiores."
     ],
     "nl": [
-      "Bij het herstarten van een sudoku stijgen nu bellen uit het hele speelveld, met hetzelfde geborrel als bij het starten of oplossen."
+      "Bij het herstarten van een sudoku stijgen nu bellen uit het hele speelveld, met hetzelfde geborrel als bij het starten of oplossen.",
+      "De bellen van de luchtstenen zijn nu scherper, ook bij grotere luchtstenen."
     ],
     "da": [
-      "Når du genstarter en sudoku, stiger bobler nu fra hele brættet med samme boblelyd som ved start og løsning."
+      "Når du genstarter en sudoku, stiger bobler nu fra hele brættet med samme boblelyd som ved start og løsning.",
+      "Bobler fra luftsten er nu skarpere, også fra større luftsten."
     ],
     "sv": [
-      "När du startar om ett sudoku stiger nu bubblor från hela brädet, med samma bubblande ljud som vid start och lösning."
+      "När du startar om ett sudoku stiger nu bubblor från hela brädet, med samma bubblande ljud som vid start och lösning.",
+      "Luftstenarnas bubblor är nu skarpare, även från större luftstenar."
     ],
     "fi": [
-      "Myös sudokun uudelleenkäynnistyksessä kuplat nousevat nyt koko ruudukosta samalla kuplivalla äänellä kuin aloituksessa ja ratkaisussa."
+      "Myös sudokun uudelleenkäynnistyksessä kuplat nousevat nyt koko ruudukosta samalla kuplivalla äänellä kuin aloituksessa ja ratkaisussa.",
+      "Ilmastinkivien kuplat näyttävät nyt terävämmiltä, myös suuremmista kivistä."
     ],
     "pl": [
-      "Po ponownym rozpoczęciu sudoku bąbelki unoszą się teraz z całej planszy, z takim samym dźwiękiem jak przy rozpoczęciu i rozwiązaniu."
+      "Po ponownym rozpoczęciu sudoku bąbelki unoszą się teraz z całej planszy, z takim samym dźwiękiem jak przy rozpoczęciu i rozwiązaniu.",
+      "Bąbelki z kamieni napowietrzających są teraz wyraźniejsze, także z większych kamieni."
     ],
     "cs": [
-      "Při restartu sudoku nyní stoupají bubliny z celé desky se stejným zvukem jako při zahájení a vyřešení."
+      "Při restartu sudoku nyní stoupají bubliny z celé desky se stejným zvukem jako při zahájení a vyřešení.",
+      "Bubliny ze vzduchovacích kamenů jsou nyní ostřejší, i u větších kamenů."
     ],
     "hu": [
-      "A sudoku újrakezdésekor is buborékok szállnak fel az egész tábláról, ugyanazzal a hanggal, mint a kezdéskor és a megoldáskor."
+      "A sudoku újrakezdésekor is buborékok szállnak fel az egész tábláról, ugyanazzal a hanggal, mint a kezdéskor és a megoldáskor.",
+      "A porlasztókövek buborékai most élesebben látszanak, a nagyobb köveknél is."
     ],
     "ro": [
-      "La repornirea unui sudoku, bulele se ridică acum de pe întreaga tablă, cu același sunet ca la început și la rezolvare."
+      "La repornirea unui sudoku, bulele se ridică acum de pe întreaga tablă, cu același sunet ca la început și la rezolvare.",
+      "Bulele pietrelor de aerare sunt acum mai clare, inclusiv la pietrele mai mari."
     ],
     "lv": [
-      "Arī atsākot sudoku, burbuļi tagad paceļas no visa laukuma ar tādu pašu burbuļošanas skaņu kā sākot vai atrisinot."
+      "Arī atsākot sudoku, burbuļi tagad paceļas no visa laukuma ar tādu pašu burbuļošanas skaņu kā sākot vai atrisinot.",
+      "Gaisa akmeņu burbuļi tagad ir asāki, arī lielākiem akmeņiem."
     ],
     "lt": [
-      "Iš naujo pradėjus sudoku, burbuliukai dabar kyla iš visos lentos, su tokiu pačiu garsu kaip pradedant ar išsprendus."
+      "Iš naujo pradėjus sudoku, burbuliukai dabar kyla iš visos lentos, su tokiu pačiu garsu kaip pradedant ar išsprendus.",
+      "Oro akmenėlių burbuliukai dabar atrodo ryškesni, taip pat ir didesnių akmenėlių."
     ],
     "ru": [
-      "При перезапуске судоку пузырьки теперь поднимаются со всего поля с тем же звуком, что в начале и после решения."
+      "При перезапуске судоку пузырьки теперь поднимаются со всего поля с тем же звуком, что в начале и после решения.",
+      "Пузырьки из распылителей теперь выглядят чётче, в том числе из больших распылителей."
     ],
     "uk": [
-      "Після перезапуску судоку бульбашки тепер піднімаються з усього поля з тим самим звуком, що на початку та після розв’язання."
+      "Після перезапуску судоку бульбашки тепер піднімаються з усього поля з тим самим звуком, що на початку та після розв’язання.",
+      "Бульбашки з розпилювачів тепер виглядають чіткіше, зокрема й з великих розпилювачів."
     ],
     "tr": [
-      "Sudoku yeniden başlatıldığında da artık tüm tahtadan baloncuklar yükselir; başlama ve çözme sırasında duyulan aynı ses eşlik eder."
+      "Sudoku yeniden başlatıldığında da artık tüm tahtadan baloncuklar yükselir; başlama ve çözme sırasında duyulan aynı ses eşlik eder.",
+      "Hava taşlarının baloncukları, büyük hava taşlarında da artık daha net görünüyor."
     ],
     "he": [
-      "גם בהתחלת סודוקו מחדש עולות עכשיו בועות מכל הלוח, עם אותו צליל בעבוע כמו בתחילת משחק ובפתרונו."
+      "גם בהתחלת סודוקו מחדש עולות עכשיו בועות מכל הלוח, עם אותו צליל בעבוע כמו בתחילת משחק ובפתרונו.",
+      "הבועות מאבני האוויר נראות עכשיו חדות יותר, גם באבנים גדולות."
     ],
     "hi": [
-      "सुडोकू फिर से शुरू करने पर भी अब पूरे बोर्ड से बुलबुले उठते हैं और वही बुलबुलों की आवाज़ आती है जो नया खेल शुरू करने या हल करने पर आती है।"
+      "सुडोकू फिर से शुरू करने पर भी अब पूरे बोर्ड से बुलबुले उठते हैं और वही बुलबुलों की आवाज़ आती है जो नया खेल शुरू करने या हल करने पर आती है।",
+      "एयर स्टोन के बुलबुले अब ज़्यादा साफ़ दिखते हैं, बड़े एयर स्टोन से निकलने वाले भी।"
     ],
     "id": [
-      "Saat sudoku dimulai ulang, gelembung kini naik dari seluruh papan dengan suara yang sama seperti saat memulai atau menyelesaikannya."
+      "Saat sudoku dimulai ulang, gelembung kini naik dari seluruh papan dengan suara yang sama seperti saat memulai atau menyelesaikannya.",
+      "Gelembung dari batu aerasi kini lebih tajam, termasuk dari batu yang lebih besar."
     ],
     "vi": [
-      "Khi chơi lại sudoku, bong bóng giờ cũng bay lên từ toàn bộ bàn với âm thanh như lúc bắt đầu hoặc giải xong."
+      "Khi chơi lại sudoku, bong bóng giờ cũng bay lên từ toàn bộ bàn với âm thanh như lúc bắt đầu hoặc giải xong.",
+      "Bong bóng từ đá sủi khí giờ rõ nét hơn, kể cả với đá lớn."
     ],
     "ja": [
-      "数独をやり直すときも、開始時やクリア時と同じ音とともに盤面全体から泡が上がるようになりました。"
+      "数独をやり直すときも、開始時やクリア時と同じ音とともに盤面全体から泡が上がるようになりました。",
+      "エアストーンの泡がよりくっきり表示されるようになりました。大きなエアストーンでも鮮明です。"
     ],
     "ko": [
-      "스도쿠를 다시 시작할 때도 새 게임을 시작하거나 완성할 때와 같은 소리와 함께 보드 전체에서 거품이 올라와요."
+      "스도쿠를 다시 시작할 때도 새 게임을 시작하거나 완성할 때와 같은 소리와 함께 보드 전체에서 거품이 올라와요.",
+      "에어스톤의 거품이 이제 더 선명하게 보여요. 큰 에어스톤에서도 선명해요."
     ],
     "zh-Hans": [
-      "重新开始当前数独时，现在也会从整个棋盘升起气泡，并播放与开始新数独或完成数独时相同的冒泡声。"
+      "重新开始当前数独时，现在也会从整个棋盘升起气泡，并播放与开始新数独或完成数独时相同的冒泡声。",
+      "气泡石产生的气泡现在更加清晰，大尺寸气泡石也一样。"
     ],
     "zh-Hant": [
-      "重新開始目前的數獨時，現在也會從整個棋盤升起氣泡，並播放與開始新數獨或完成數獨時相同的冒泡聲。"
+      "重新開始目前的數獨時，現在也會從整個棋盤升起氣泡，並播放與開始新數獨或完成數獨時相同的冒泡聲。",
+      "氣泡石產生的氣泡現在更加清晰，大尺寸氣泡石也一樣。"
     ]
   }
 };

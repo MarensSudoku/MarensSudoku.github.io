@@ -25,6 +25,33 @@ export async function checkReefVent(browser,name,base) {
     await page.evaluate(()=>ventTest.aquarium.updateObject(ventTest.id,{scale:2}));
     await page.waitForFunction(()=>ventTest.scene.particleSystems[0].particles.every(particle=>Math.abs(particle.scale.x+particle.scale.y-3.6)<1e-6));
     assert.equal(await page.evaluate(()=>ventTest.scene.fluidRenderer.renderObjects[0].object.isReady()),true);
+    const resolution=await page.evaluate(()=>{
+      const scene=ventTest.scene,target=scene.fluidRenderer.targetRenderers[0];
+      return {reef:[scene.getEngine().getRenderWidth(),scene.getEngine().getRenderHeight()],
+        depth:target._depthRenderTarget.texture.getSize(),thickness:target._thicknessRenderTarget.texture.getSize()};
+    });
+    for(const key of ['depth','thickness'])assert.deepEqual([resolution[key].width,resolution[key].height],resolution.reef,'bubble surfaces must render at the reef resolution instead of enlarging coarse pixels');
+    await page.evaluate(()=>{
+      const ps=ventTest.scene.particleSystems[0],update=ps.updateFunction;
+      ps.manualEmitCount=0;
+      ps.updateFunction=particles=>{update(particles);for(const particle of particles){particle.position.set(0,3,-6);particle.size=.24;particle.lifeTime=1000;}};
+      ventTest.aquarium.updateObject(ventTest.id,{scale:1});
+    });
+    await page.waitForFunction(()=>ventTest.scene.particleSystems[0].particles.every(p=>p.size===.24&&Math.abs(p.scale.x+p.scale.y-1.8)<1e-6));
+    const renderedSize=()=>page.evaluate(async()=>{
+      const scene=ventTest.scene;
+      return new Promise(resolve=>scene.onAfterRenderObservable.addOnce(async()=>{
+        const texture=scene.fluidRenderer.targetRenderers[0]._depthRenderTarget.texture,size=texture.getSize(),pixels=await texture.readPixels();
+        let minX=size.width,maxX=-1,minY=size.height,maxY=-1;
+        for(let i=0;i<pixels.length;i+=4)if(pixels[i]>0&&pixels[i]<scene.activeCamera.maxZ){const x=i/4%size.width,y=Math.floor(i/4/size.width);minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);}
+        resolve({width:maxX-minX+1,height:maxY-minY+1});
+      }));
+    });
+    const small=await renderedSize();
+    await page.evaluate(()=>ventTest.aquarium.updateObject(ventTest.id,{scale:2}));
+    await page.waitForFunction(()=>ventTest.scene.particleSystems[0].particles.every(p=>Math.abs(p.scale.x+p.scale.y-3.6)<1e-6));
+    const large=await renderedSize();
+    for(const axis of ['width','height'])assert.ok(small[axis]>0&&large[axis]>small[axis]*1.6,'rendered bubble size must grow on the GPU: '+JSON.stringify({small,large}));
     await page.screenshot({path:`output/${name}-vent-scaled.png`});
     await page.evaluate(()=>ventTest.aquarium.updateOptions({reduced:true,dark:false}));
     assert.equal(await page.evaluate(()=>ventTest.scene.particleSystems.length),0,'reduced motion must stop the emitter and release its particles');
