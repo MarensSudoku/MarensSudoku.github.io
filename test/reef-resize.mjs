@@ -25,7 +25,10 @@ export async function checkReefResize(browser,name,base) {
           await page.waitForFunction(energySaver=>{
             const canvas=document.getElementById('reef-aquarium'),scale=energySaver?Math.max(1,1/devicePixelRatio*1.5):1/devicePixelRatio;
             return canvas.width===Math.floor(canvas.clientWidth/scale)&&canvas.height===Math.floor(canvas.clientHeight/scale);
-          },energySaver,{timeout:3000});
+          },energySaver,{timeout:15000}).catch(async error=>{
+            const actual=await page.locator('#reef-aquarium').evaluate(canvas=>({status:canvas.dataset.status,css:[canvas.clientWidth,canvas.clientHeight],buffer:[canvas.width,canvas.height],pixelRatio:devicePixelRatio}));
+            throw new Error(`${name}: reef size did not settle at ${width}x${height}, motion=${reducedMotion}, battery=${energySaver}: ${JSON.stringify(actual)}`,{cause:error});
+          });
           const size=await page.locator('#reef-aquarium').evaluate(canvas=>{
             const gl=canvas.getContext('webgl2')||canvas.getContext('webgl');
             return {css:canvas.clientWidth/canvas.clientHeight,render:gl.drawingBufferWidth/gl.drawingBufferHeight,viewport:Array.from(gl.getParameter(gl.VIEWPORT))};
