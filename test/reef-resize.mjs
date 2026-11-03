@@ -1,9 +1,15 @@
 import assert from 'node:assert/strict';
+import {REEF_STORAGE_KEY,reefObject} from '../web/reef-layout.mjs';
 
 export async function checkReefResize(browser,name,base) {
   for(const reducedMotion of ['reduce','no-preference']){
     const context=await browser.newContext({viewport:{width:375,height:667},deviceScaleFactor:2,hasTouch:true,isMobile:true,reducedMotion,serviceWorkers:'block'});
     try{
+      // Keep native pixel density without overwhelming CPU renderers; the full reef is checked separately.
+      await context.addInitScript(({key,layout})=>localStorage.setItem(key,JSON.stringify(layout)),{
+        key:REEF_STORAGE_KEY,layout:{schema:1,objects:[reefObject('clownfish','resize-fish'),reefObject('reef-ledge','resize-rock',{x:-3,z:4})]},
+      });
+      console.log(`${name}: checking rotation, motion=${reducedMotion}, native DPR=2.`);
       const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
       await page.goto(base);await page.locator('.board-shell.ready').waitFor();await page.locator('#welcome-start').click();
       await page.waitForFunction(()=>['ready','unavailable'].includes(document.getElementById('reef-aquarium').dataset.status));
