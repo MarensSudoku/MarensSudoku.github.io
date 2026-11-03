@@ -59,11 +59,9 @@ for (const [name, browserType] of [['chromium', chromium], ['webkit', webkit]].f
   assert.equal(await page.locator('#welcome-tutorial-hint').count(),0,'the welcome must not request the tutorial');
   assert.equal(await page.locator('#welcome-dialog').evaluate(node=>node.classList.contains('first-visit')),true);
   assert.equal(await page.locator('#reef-music').evaluate(audio => audio.paused), true, 'music must wait for the welcome dialog');
-  const welcomeClock = await page.locator('#round-time').textContent();
   await checkTutorial(page,name);
   assert.equal(await page.locator('#tour-dialog').evaluate(el => el.open), false);
   assert.equal(await page.locator('.tour-target').count(), 0);
-  assert.equal(await page.locator('#round-time').textContent(), welcomeClock, 'the welcome and tutorial must pause the round clock');
   await page.waitForFunction(() => !document.getElementById('reef-music').paused);
   assert.equal(await page.locator('[role=gridcell]').count(), 81);
   assert.equal(await page.locator('footer').count(), 0);

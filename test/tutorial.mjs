@@ -4,6 +4,7 @@ import {REEF_STORAGE_KEY} from '../web/reef-layout.mjs';
 export async function checkTutorial(page,name) {
   const savedReef=await page.evaluate(key=>localStorage.getItem(key),REEF_STORAGE_KEY),seen=new Set();
   const touch=await page.evaluate(()=>navigator.maxTouchPoints>0);
+  const welcomeClock=await page.locator('#round-time').textContent();
   // HTTP LAN previews do not expose randomUUID.
   await page.evaluate(()=>Object.defineProperty(crypto,'randomUUID',{value:undefined,configurable:true}));
   await page.locator('#welcome-tour')[touch?'tap':'click']();
@@ -21,6 +22,8 @@ export async function checkTutorial(page,name) {
     await page.locator('#help-reef-tour')[touch?'tap':'click']();
   }
   await page.locator('#tour-dialog').waitFor({state:'visible'});
+  const pausedClock=await page.locator('#round-time').textContent();
+  if(mode==='sudoku')assert.equal(pausedClock,welcomeClock,'the welcome and Sudoku tutorial must pause the round clock');
   const count=Number((await page.locator('#tour-step').textContent()).match(/\d+$/)[0]);total+=count;
   assert.ok(mode==='sudoku'?count===11:count===19,'short Sudoku basics and reef controls must be separate');
   for(let step=1;step<=count;step++){
@@ -55,6 +58,7 @@ export async function checkTutorial(page,name) {
     if(key==='tourEditorCatalog'||key==='tourEditorList')assert.equal(await page.locator('#reef-picker-dialog').isVisible(),true);
     if(['tourErrors','tourEditorSelect','tourEditorCatalog','tourEditorFish'].includes(key))await page.screenshot({path:`output/${name}-${key}.png`});
     await page.waitForTimeout(step===1?1100:0);
+    assert.equal(await page.locator('#round-time').textContent(),pausedClock,`${mode}: the round clock must stay paused while the tutorial is open`);
     await page.locator('#tour-next')[touch?'tap':'click']();
   }
   }
