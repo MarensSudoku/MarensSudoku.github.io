@@ -18,6 +18,7 @@ export async function checkUnitBubbles(browser,name,base) {
     const {missing,state}=fixture(units);
     const context=await browser.newContext({viewport:{width:1024,height:850},reducedMotion:'no-preference',serviceWorkers:'block'});
     try{
+      await context.clock.install();
       await context.addInitScript(state=>{
         localStorage.setItem('marenssudoku:state:v1',JSON.stringify(state));
         // Exercise a late first bubble frame without making the test depend on runner speed.
@@ -67,6 +68,8 @@ export async function checkUnitBubbles(browser,name,base) {
       await page.locator(`[data-index="${(missing+1)%81}"]`).click();
       assert.equal(await page.locator('.cell[aria-selected=true]').getAttribute('data-index'),String((missing+1)%81),'bubbles must not intercept Sudoku input');
       await page.screenshot({path:`output/${name}-unit-bubbles-${units.join('-')}.png`});
+      // Expire the real effect without depending on the runner's rendering speed.
+      await page.clock.fastForward(7000);
       await page.locator('.unit-bubbles').waitFor({state:'hidden',timeout:7000});
       assert.equal(await page.locator('body').evaluate(body=>body.style.filter),'','idle must restore the original page');
       const draws=await page.evaluate(()=>window.__bubbleDraws);await page.waitForTimeout(100);
