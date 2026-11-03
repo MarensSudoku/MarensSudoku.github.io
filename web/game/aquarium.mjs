@@ -636,6 +636,9 @@ export async function createAquarium(canvas) {
     engine.onContextRestoredObservable.add(() => { canvas.dataset.status = 'ready'; resume(); });
     await scene.whenReadyAsync();
     ready=true;resize(); resume(); canvas.dataset.status = 'ready';
+    const canvasResize=new ResizeObserver(resize);
+    canvasResize.observe(canvas);
+    engine.onDisposeObservable.add(()=>canvasResize.disconnect());
     return {
       getLayout:snapshot, defaultLayout, layoutProblem:stored.problem,
       prepareObject, hasObjectType:type=>templates.has(type),

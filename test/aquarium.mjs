@@ -10,6 +10,7 @@ import { checkMobileRing } from './mobile-ring.mjs';
 import { checkReefAdditions } from './reef-additions.mjs';
 import {checkBounceEditor} from './bounce-editor.mjs';
 import {checkReefVent} from './reef-vent.mjs';
+import {checkReefResize} from './reef-resize.mjs';
 import { REEF_STORAGE_KEY } from '../web/reef-layout.mjs';
 const base = process.env.PREVIEW_URL || 'http://127.0.0.1:4175/';
 await mkdir('output',{recursive:true});
@@ -17,6 +18,7 @@ for (const [name,type] of [['chromium',chromium],['webkit',webkit]].filter(([nam
   console.log(`${name}: starting animated 3D aquarium checks.`);
   const browser=await type.launch({headless:true,args:name==='chromium' ? ['--enable-unsafe-swiftshader'] : []});
   try {
+    await checkReefResize(browser,name,base);
     const context=await browser.newContext({viewport:{width:1440,height:900}});
     await context.addInitScript(()=> {
       window.__aquariumDraws=0; window.__resizeDraws=[]; window.__resizeImages=[];
