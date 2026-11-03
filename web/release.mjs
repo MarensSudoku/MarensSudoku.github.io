@@ -3,12 +3,12 @@ export const RELEASE = {
   "date": "2026-11-03",
   "notes": {
     "de": [
-      "Starte sofort ins Sudoku, schone auf Wunsch den Akku und sichere deinen Fortschritt samt Riff als Datei.",
+      "Starte sofort ins Sudoku, während das Riff im Hintergrund lädt. Auch die Update-Suche hält dich nicht auf. Schone auf Wunsch den Akku und sichere deinen Fortschritt samt Riff als Datei.",
       "Getrennte Tutorials und klare Bonusregeln helfen beim Spielen. Auf Wunsch bleibt deine Musikpause bis zum nächsten Besuch gespeichert.",
       "Nach dem Sudoku-Tutorial kannst du direkt das Riff-Tutorial starten. Beide findest du jederzeit unter Hilfe & Infos. Bei den drei Grundregeln genügt das Spotlight; Gelb bleibt für gleiche Zahlen reserviert."
     ],
     "en": [
-      "Start Sudoku straight away, save battery if you wish and back up your progress and reef to a file.",
+      "Start Sudoku straight away while the reef loads in the background. Update checks no longer hold you up either. Save battery if you wish and back up your progress and reef to a file.",
       "Separate tutorials and clearer bonus rules help you play. Optionally keep music paused until your next visit.",
       "After the Sudoku tutorial, you can start the reef tutorial directly. Both remain available in Help & info. The three basic rules use only the spotlight; yellow remains reserved for matching numbers."
     ],

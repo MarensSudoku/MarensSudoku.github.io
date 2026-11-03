@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 
 export async function checkWaiting(browser,name,base) {
+  await checkBackgroundStartup(browser,name,base);
   const context=await browser.newContext({viewport:{width:375,height:559},locale:'de-DE',reducedMotion:'no-preference',serviceWorkers:'block'});
   let releasePuzzle,releaseReef;
   const puzzle=new Promise(resolve=>releasePuzzle=resolve);
@@ -52,4 +53,43 @@ export async function checkWaiting(browser,name,base) {
     assert.deepEqual(errors,[]);
     console.log(`${name}: Sudoku and its tutorial work before 3D is ready; reef tutorial retains a centred waiting indicator.`);
   }finally{releasePuzzle();releaseReef();await context.close();}
+}
+
+export async function checkBackgroundStartup(browser,name,base) {
+  for(const action of ['start','tour','install']){
+    const context=await browser.newContext({viewport:{width:375,height:559},locale:'de-DE',reducedMotion:'reduce',serviceWorkers:'block'});
+    let releaseReef;
+    const reef=new Promise(resolve=>releaseReef=resolve);
+    try{
+      await context.addInitScript(()=>{
+        Object.defineProperty(navigator,'serviceWorker',{value:{
+          controller:{},
+          getRegistration(){window.__updateCheckPending=true;return new Promise(()=>{});},
+        }});
+      });
+      const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(error.message));
+      await page.route('**/assets/models/aquarium.json',async route=>{await reef;await route.continue();});
+      const reefRequested=page.waitForRequest('**/assets/models/aquarium.json');
+      await page.goto(base,{waitUntil:'domcontentloaded'});
+      await page.locator('.board-shell.ready').waitFor();await reefRequested;
+      assert.equal(await page.evaluate(()=>window.__updateCheckPending),true);
+      await page.locator('#welcome-'+action).click();
+      await page.locator('#welcome-dialog').waitFor({state:'hidden',timeout:2000});
+      assert.equal(await page.locator('#loading').isVisible(),false,'background update checks and reef assets must not block welcome actions');
+      assert.equal(await page.locator('#reef-aquarium').getAttribute('data-status'),'loading');
+      if(action==='start'){
+        const game=await page.evaluate(()=>JSON.parse(localStorage.getItem('marenssudoku:state:v1')).game);
+        const blank=game.values.findIndex(value=>!value);
+        await page.locator(`[data-index="${blank}"]`).click();
+        await page.locator(`[data-number="${game.solution[blank]}"]`).click();
+        assert.equal(await page.locator(`[data-index="${blank}"] .cell-value`).textContent(),String(game.solution[blank]));
+        await page.screenshot({path:`output/${name}-background-start.png`});
+        releaseReef();await page.waitForFunction(()=>document.getElementById('reef-aquarium').dataset.status==='ready');
+        assert.equal(await page.locator(`[data-index="${blank}"] .cell-value`).textContent(),String(game.solution[blank]),'finishing the reef must preserve Sudoku input');
+      }else if(action==='tour')assert.equal(await page.locator('#tour-dialog').isVisible(),true);
+      else assert.equal(await page.locator('#install-guide').evaluate(node=>node.open),true);
+      assert.deepEqual(errors,[]);
+    }finally{releaseReef();await context.close();}
+  }
+  console.log(`${name}: welcome actions stay responsive during stalled update checks and reef asset loading; Sudoku input survives the completed reef.`);
 }

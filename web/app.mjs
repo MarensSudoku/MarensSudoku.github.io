@@ -16,7 +16,6 @@ let game = state.game, progress = state.progress, scores = state.scores, setting
 let storageBlocked = state.problem, readOnly = false, busy = false, noteMode = false, pendingStartBubbles = false, initialized = false;
 let selection = game ? Math.max(0, game.values.findIndex(v => !v)) : 0;
 let workerJob = null, generation = 0, updateWorker = null, updateApplying = false, nextUpdateAttempt = 0;
-let startupUpdateCheck=Promise.resolve();
 let clockAt = performance.now(), clockGame = null, clockActive = false, clockTicks = 0;
 const screenWake = createScreenWakeLock();
 const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -407,16 +406,12 @@ function showTourStep() {
   if (!dialog.open) dialog.showModal();
   placeTour();requestAnimationFrame(placeTour);$('tour-next').focus();
 }
-async function enterApp(action) {
-  if(navigator.serviceWorker?.controller)await startupUpdateCheck;
-  action();
-}
-$('welcome-start').addEventListener('click', () => enterApp(()=>{
+$('welcome-start').addEventListener('click', () => {
   $('welcome-dialog').close();
   cells[selection].focus();
   if(pendingStartBubbles){pendingStartBubbles=false;scene.bubbleField();}
-}));
-$('welcome-tour').addEventListener('click', () => enterApp(()=>{ $('welcome-dialog').close(); startTour(); }));
+});
+$('welcome-tour').addEventListener('click', () => { $('welcome-dialog').close(); startTour(); });
 const appWindow=matchMedia('(display-mode: standalone)');
 let appInstalled=false,installPrompt=null;
 const updateInstallButton=()=>{ $('welcome-install').hidden=appInstalled||appWindow.matches||navigator.standalone===true; };
@@ -425,9 +420,9 @@ appWindow.addEventListener('change',updateInstallButton);
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;});
 window.addEventListener('appinstalled',()=>{appInstalled=true;installPrompt=null;updateInstallButton();});
 updateInstallButton();
-const openInstallGuide=()=>enterApp(()=>{ $('welcome-dialog').close(); $('install-guide').open=true; $('help-dialog').showModal(); $('install-title').focus(); $('install-guide').scrollIntoView({block:'start'}); });
+const openInstallGuide=()=>{ $('welcome-dialog').close(); $('install-guide').open=true; $('help-dialog').showModal(); $('install-title').focus(); $('install-guide').scrollIntoView({block:'start'}); };
 $('welcome-install').addEventListener('click', () => {
-  // The prompt must start within the click, before enterApp waits for updates.
+  // The install prompt requires the original click gesture.
   const prompt=installPrompt;installPrompt=null;
   if(prompt)prompt.prompt().catch(openInstallGuide);
   else void openInstallGuide();
@@ -630,7 +625,7 @@ initialized = true;
 renderBoard();
 if (game) { persist(); }
 else if (!readOnly) newPuzzle('easy', false);
-startupUpdateCheck=offlineSetup();
+void offlineSetup();
 aquariumReady=import('./game/aquarium.mjs').then(module => module.createAquarium($('reef-aquarium'))).then(result => {
   aquarium=result;updateBackground();
   if(!result){$('reef-editor-status').textContent=t('reefUnavailable');return;}
